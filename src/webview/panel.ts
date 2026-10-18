@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
+import { loadDefaultGlossary } from '../glossary/glossary';
 import { createProviders, PROVIDER_OPTIONS } from '../translation/providers';
 import { handleTranslate } from './controller';
-import type { WebviewMessage } from './messages';
+import type { HostMessage, WebviewMessage } from './messages';
 
 let current: vscode.WebviewPanel | undefined;
 
@@ -22,6 +23,8 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext): void {
   panel.webview.html = getHtml(panel.webview, media);
 
   const providers = createProviders(context.secrets);
+  const glossary = loadDefaultGlossary(context.extensionPath);
+  glossary.catch(() => undefined); // a load failure is reported on the first translate, not left unhandled
   let running: AbortController | undefined;
 
   panel.webview.onDidReceiveMessage((message: WebviewMessage) => {
@@ -29,7 +32,11 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext): void {
       running?.abort(); // a new request replaces one still running
       const controller = new AbortController();
       running = controller;
-      void handleTranslate(message, providers, reply => void panel.webview.postMessage(reply), controller.signal);
+      const post = (reply: HostMessage) => void panel.webview.postMessage(reply);
+      glossary.then(
+        loaded => handleTranslate(message, providers, post, controller.signal, loaded),
+        (error: Error) => post({ type: 'error', message: error.message, code: 'unknown' }),
+      );
     } else if (message?.type === 'setApiKey') {
       void vscode.commands.executeCommand('bhashabridge.setSarvamApiKey');
     }

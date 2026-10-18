@@ -1,3 +1,4 @@
+import { promptGlossary, type LoadedGlossary } from '../glossary/glossary';
 import { ReassemblyError } from '../reassembly/reassemble';
 import { TranslationError } from '../translation/errors';
 import { translateMarkdown } from '../translation/translateMarkdown';
@@ -14,6 +15,7 @@ export async function handleTranslate(
   providers: ReadonlyMap<string, TranslationProvider>,
   post: (message: HostMessage) => void,
   signal?: AbortSignal,
+  glossary?: LoadedGlossary,
 ): Promise<void> {
   // The message comes from the webview, so its fields are checked, not trusted.
   if (typeof message.text !== 'string' || typeof message.language !== 'string' || !LANGUAGES.includes(message.language)) {
@@ -30,6 +32,8 @@ export async function handleTranslate(
     const markdown = await translateMarkdown(message.text, {
       provider,
       targetLanguage: message.language as TargetLanguage,
+      glossary: glossary && promptGlossary(glossary, message.language as TargetLanguage),
+      keepTerms: glossary?.keep,
       signal,
       onProgress: (done, total) => post({ type: 'progress', done, total }),
     });

@@ -1,3 +1,4 @@
+import { protectTerms, restoreTerms } from '../glossary/protectTerms';
 import { parseMarkdown } from '../parser/markdownParser';
 import { reassemble } from '../reassembly/reassemble';
 import { TranslationError } from './errors';
@@ -11,13 +12,16 @@ export interface TranslateMarkdownOptions {
   provider: TranslationProvider;
   targetLanguage: TargetLanguage;
   glossary?: Glossary;
+  // Glossary terms that must stay in English: protected like code, so this is guaranteed.
+  keepTerms?: readonly string[];
   signal?: AbortSignal;
   onProgress?: (done: number, total: number) => void;
   concurrency?: number;
 }
 
-// The whole pipeline: parse out the code, translate each paragraph, heading and list
-// item, then put the translations and the original code back into the markdown.
+// The whole pipeline: parse out the code, protect glossary terms, translate each
+// paragraph, heading and list item, then put the terms, translations and original
+// code back into the markdown.
 export async function translateMarkdown(input: string, options: TranslateMarkdownOptions): Promise<string> {
   if (input.trim().length < MIN_INPUT_LENGTH) {
     throw new TranslationError('input', `Paste at least ${MIN_INPUT_LENGTH} characters of text to translate.`);
@@ -29,6 +33,7 @@ export async function translateMarkdown(input: string, options: TranslateMarkdow
     return input; // only code: nothing to translate
   }
 
+  const codeTokens = new Set(parsed.placeholders.keys());
   const translations: string[] = new Array(total);
   let next = 0;
   let done = 0;
@@ -41,11 +46,12 @@ export async function translateMarkdown(input: string, options: TranslateMarkdow
     while (!hasFailed && next < total) {
       const index = next++;
       try {
+        const guarded = protectTerms(parsed.segments[index]!.text, options.keepTerms ?? [], codeTokens);
         const response = await options.provider.translate(
-          { text: parsed.segments[index]!.text, targetLanguage: options.targetLanguage, glossary: options.glossary },
+          { text: guarded.text, targetLanguage: options.targetLanguage, glossary: options.glossary },
           options.signal,
         );
-        translations[index] = response.translatedText;
+        translations[index] = restoreTerms(response.translatedText, guarded.placeholders);
       } catch (error) {
         hasFailed = true;
         throw error;

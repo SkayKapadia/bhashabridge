@@ -70,4 +70,31 @@ describe('translateMarkdown', () => {
     await expect(translateMarkdown(input, { provider: { id: 'x', translate }, targetLanguage: 'gu', concurrency: 1 })).rejects.toThrow('bad key');
     expect(translate).toHaveBeenCalledTimes(1);
   });
+
+  it('keeps glossary terms in English and sends the set renderings in the prompt', async () => {
+    const provider = fakeProvider();
+    const input = 'The array does not exist yet.\n\nKeep the dependency array empty and avoid inheritance here.';
+
+    const result = await translateMarkdown(input, {
+      provider,
+      targetLanguage: 'gu',
+      keepTerms: ['array', 'dependency array'],
+      glossary: { inheritance: 'અનુવંશિકતા (inheritance)' },
+    });
+
+    expect(provider.calls.map(c => c.text)).toEqual([
+      'The SKIP_001 does not exist yet.',
+      'Keep the SKIP_001 empty and avoid inheritance here.',
+    ]);
+    expect(provider.calls[0]!.glossary).toEqual({ inheritance: 'અનુવંશિકતા (inheritance)' });
+    expect(result).toBe('[gu] The array does not exist yet.\n\n[gu] Keep the dependency array empty and avoid inheritance here.');
+  });
+
+  it('does not protect terms inside code', async () => {
+    const provider = fakeProvider();
+    await translateMarkdown('Use `array.map` on the array.', { provider, targetLanguage: 'mr', keepTerms: ['array'] });
+
+    expect(provider.calls[0]!.text).toBe('Use SKIP_001 on the SKIP_002.');
+  });
 });
+
