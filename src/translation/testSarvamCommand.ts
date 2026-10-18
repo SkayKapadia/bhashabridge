@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { parseMarkdown } from '../parser/markdownParser';
+import { ReassemblyError, restorePlaceholders } from '../reassembly/reassemble';
 import { getSarvamApiKey } from '../secrets/apiKeys';
 import { TranslationError } from './errors';
 import { SarvamAdapter } from './sarvamAdapter';
@@ -30,10 +31,7 @@ export async function testSarvamConnection(context: vscode.ExtensionContext, out
       () => adapter.translate({ text: parsed.text, targetLanguage: picked.code }),
     );
 
-    let restored = response.translatedText;
-    for (const [token, code] of parsed.placeholders) {
-      restored = restored.split(token).join(code);
-    }
+    const restored = restorePlaceholders(response.translatedText, parsed.placeholders);
 
     output.appendLine(`--- Sarvam AI test (${picked.label}) ---`);
     output.appendLine('Input:');
@@ -47,7 +45,10 @@ export async function testSarvamConnection(context: vscode.ExtensionContext, out
     output.show(true);
     vscode.window.showInformationMessage('Sarvam AI works. The translation is in the BhashaBridge output panel.');
   } catch (error) {
-    const message = error instanceof TranslationError ? error.message : 'The Sarvam AI test failed unexpectedly.';
+    const message =
+      error instanceof TranslationError || error instanceof ReassemblyError
+        ? error.message
+        : 'The Sarvam AI test failed unexpectedly.';
     vscode.window.showErrorMessage(message);
   }
 }
