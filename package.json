@@ -17,6 +17,14 @@
       {
         "command": "bhashabridge.translate",
         "title": "BhashaBridge: Translate LLM Output"
+      },
+      {
+        "command": "bhashabridge.setSarvamApiKey",
+        "title": "BhashaBridge: Set Sarvam API Key"
+      },
+      {
+        "command": "bhashabridge.testSarvamConnection",
+        "title": "BhashaBridge: Test Sarvam Connection"
       }
     ]
   },
