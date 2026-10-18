@@ -42,6 +42,7 @@ describe('SarvamAdapter request', () => {
 
     const body = JSON.parse(init.body as string);
     expect(body.model).toBe(SARVAM_MODEL);
+    expect(body).toHaveProperty('reasoning_effort', null);
     expect(body.messages).toEqual([
       { role: 'system', content: buildSystemPrompt('gu', { callback: 'callback' }) },
       { role: 'user', content: REQUEST.text },
@@ -153,5 +154,26 @@ describe('SarvamAdapter errors', () => {
     const error = await failure(adapter(async () => reply('   ')).translate(REQUEST));
 
     expect(error.code).toBe('api');
+  });
+
+  it('says what came back instead of a translation, without the text itself', async () => {
+    const body = {
+      choices: [{ finish_reason: 'length', message: { content: null, reasoning_content: 'secret thoughts about the text' } }],
+      usage: { completion_tokens: 4096, completion_tokens_details: { reasoning_tokens: 4096 } },
+    };
+    const error = await failure(adapter(async () => new Response(JSON.stringify(body), { status: 200 })).translate(REQUEST));
+
+    expect(error.message).toContain('finish reason: length');
+    expect(error.message).toContain('content: null');
+    expect(error.message).toContain('reasoning: 30 characters');
+    expect(error.message).toContain('reasoning tokens: 4096');
+    expect(error.message).not.toContain('secret thoughts');
+  });
+
+  it('reads content sent as a list of text parts', async () => {
+    const body = { choices: [{ message: { content: [{ type: 'text', text: 'SKIP_001 call ' }, { type: 'text', text: 'કરો.' }] } }] };
+    const response = await adapter(async () => new Response(JSON.stringify(body), { status: 200 })).translate(REQUEST);
+
+    expect(response.translatedText).toBe('SKIP_001 call કરો.');
   });
 });

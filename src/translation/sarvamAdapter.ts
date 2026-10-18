@@ -16,8 +16,11 @@ export interface SarvamAdapterOptions {
 }
 
 interface SarvamChatResponse {
-  choices?: { message?: { content?: string | null } }[];
-  usage?: { total_tokens?: number };
+  choices?: {
+    finish_reason?: string;
+    message?: { content?: string | { type?: string; text?: string }[] | null; reasoning_content?: string | null };
+  }[];
+  usage?: { total_tokens?: number; completion_tokens?: number; completion_tokens_details?: { reasoning_tokens?: number } };
 }
 
 export class SarvamAdapter implements TranslationProvider {
@@ -66,7 +69,9 @@ export class SarvamAdapter implements TranslationProvider {
             { role: 'user', content: request.text },
           ],
           temperature: 0.2,
-          reasoning_effort: 'low',
+          // Translation needs no reasoning, and with it on the model can spend the whole token
+          // budget thinking and return nothing. The docs: disabled by setting it to None (null).
+          reasoning_effort: null,
           max_tokens: 4096,
         }),
         signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
@@ -80,9 +85,10 @@ export class SarvamAdapter implements TranslationProvider {
     }
 
     const data = (await response.json()) as SarvamChatResponse;
-    const translatedText = stripThinking(data.choices?.[0]?.message?.content ?? '').trim();
+    const content = textOf(data.choices?.[0]?.message?.content);
+    const translatedText = stripThinking(content).trim();
     if (!translatedText) {
-      throw new TranslationError('api', 'Sarvam AI returned an empty translation. Please try again.');
+      throw new TranslationError('api', `Sarvam AI returned an empty translation. ${describeEmptyReply(data, content)}`);
     }
 
     checkPlaceholders(request.text, translatedText);
@@ -122,6 +128,32 @@ export class SarvamAdapter implements TranslationProvider {
     const message = `Sarvam AI request failed (HTTP ${response.status})${detail ? `: ${detail}` : '.'}`;
     return new TranslationError('api', message.split(apiKey).join('[key hidden]'));
   }
+}
+
+// The content as text, whether it came as a string or as OpenAI-style parts.
+function textOf(content: string | { type?: string; text?: string }[] | null | undefined): string {
+  if (typeof content === 'string') {
+    return content;
+  }
+  if (Array.isArray(content)) {
+    return content.map(part => (typeof part?.text === 'string' ? part.text : '')).join('');
+  }
+  return '';
+}
+
+// What came back instead of a translation: field names and counts only, never the
+// text itself, so it is safe to show and to share when reporting the problem.
+function describeEmptyReply(data: SarvamChatResponse, content: string): string {
+  const choice = data.choices?.[0];
+  const reasoning = choice?.message?.reasoning_content;
+  const details = [
+    `finish reason: ${choice?.finish_reason ?? 'none'}`,
+    `content: ${content ? `${content.length} characters, all inside <think>` : choice?.message?.content === null ? 'null' : 'empty'}`,
+    `reasoning: ${typeof reasoning === 'string' && reasoning ? `${reasoning.length} characters` : 'none'}`,
+    `output tokens: ${data.usage?.completion_tokens ?? '?'}`,
+    `reasoning tokens: ${data.usage?.completion_tokens_details?.reasoning_tokens ?? '?'}`,
+  ];
+  return `Details for the developer: ${details.join(', ')}.`;
 }
 
 // In case reasoning text ever arrives inside the content rather than beside it.
