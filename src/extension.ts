@@ -5,7 +5,7 @@ import { openBhashaBridgePanel } from './webview/panel';
 
 export function activate(context: vscode.ExtensionContext): void {
   const translateCommand = vscode.commands.registerCommand('bhashabridge.translate', () => {
-    openBhashaBridgePanel();
+    openBhashaBridgePanel(context);
   });
 
   const setKeyCommand = vscode.commands.registerCommand('bhashabridge.setSarvamApiKey', async () => {

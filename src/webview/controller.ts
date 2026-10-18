@@ -1,0 +1,46 @@
+import { ReassemblyError } from '../reassembly/reassemble';
+import { TranslationError } from '../translation/errors';
+import { translateMarkdown } from '../translation/translateMarkdown';
+import type { TargetLanguage, TranslationProvider } from '../translation/translationProvider';
+import type { HostMessage } from './messages';
+import { renderMarkdown } from './renderMarkdown';
+
+const LANGUAGES: readonly string[] = ['gu', 'mr'] satisfies TargetLanguage[];
+
+// Handles one translate request from the webview and reports back through `post`.
+// Kept free of the VS Code API so it can be tested directly.
+export async function handleTranslate(
+  message: { text: unknown; language: unknown },
+  provider: TranslationProvider,
+  post: (message: HostMessage) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  // The message comes from the webview, so its fields are checked, not trusted.
+  if (typeof message.text !== 'string' || typeof message.language !== 'string' || !LANGUAGES.includes(message.language)) {
+    post({ type: 'error', message: 'The request from the panel was not understood. Please try again.', code: 'unknown' });
+    return;
+  }
+
+  try {
+    const markdown = await translateMarkdown(message.text, {
+      provider,
+      targetLanguage: message.language as TargetLanguage,
+      signal,
+      onProgress: (done, total) => post({ type: 'progress', done, total }),
+    });
+    if (!signal?.aborted) {
+      post({ type: 'result', html: renderMarkdown(markdown), markdown });
+    }
+  } catch (error) {
+    if (signal?.aborted) {
+      return; // replaced by a newer request: say nothing
+    }
+    if (error instanceof TranslationError) {
+      post({ type: 'error', message: error.message, code: error.code });
+    } else if (error instanceof ReassemblyError) {
+      post({ type: 'error', message: error.message, code: 'reassembly' });
+    } else {
+      post({ type: 'error', message: 'Something went wrong while translating. Please try again.', code: 'unknown' });
+    }
+  }
+}

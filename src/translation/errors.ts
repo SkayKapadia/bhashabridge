@@ -1,4 +1,5 @@
 export type TranslationErrorCode =
+  | 'input'
   | 'missing-key'
   | 'invalid-key'
   | 'rate-limit'
