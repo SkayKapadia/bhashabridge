@@ -122,4 +122,106 @@ describe('parseMarkdown', () => {
     expect(result.text).not.toContain('useEffect');
     expect(restore(result.text, result.placeholders)).toBe(input);
   });
+
+  it('keeps every placeholder unique', () => {
+    const input = 'Use `a`, `b` and `c`.\n\n```\none\n```\n\n```\ntwo\n```';
+    const result = parseMarkdown(input);
+    const tokens = [...result.placeholders.keys()];
+
+    expect(tokens).toHaveLength(5);
+    expect(new Set(tokens).size).toBe(5);
+    expect(new Set(result.placeholders.values()).size).toBe(5);
+  });
 });
+
+describe('parseMarkdown bare code lines', () => {
+  const sentence = 'The function fails because users is undefined. Add a check before calling map.';
+  const codeLine = 'const names = users.map(getName);';
+
+  it('extracts a code line pasted without backticks (checklist sample)', () => {
+    const input = `${sentence}\n${codeLine}`;
+    const result = parseMarkdown(input);
+
+    expect(result.text).toBe(`${sentence}\nSKIP_001`);
+    expect(result.placeholders.get('SKIP_001')).toBe(codeLine);
+    expect(result.segments.map(s => s.text)).toEqual([sentence]);
+    expect(restore(result.text, result.placeholders)).toBe(input);
+  });
+
+  it('extracts the sample code line when it is its own paragraph', () => {
+    const result = parseMarkdown(`${sentence}\n\n${codeLine}`);
+
+    expect(result.placeholders.get('SKIP_001')).toBe(codeLine);
+    expect(result.segments.map(s => s.text)).toEqual([sentence]);
+  });
+
+  it('extracts several kinds of bare code lines', () => {
+    const lines = [
+      'if (!users) {',
+      '  return [];',
+      '}',
+      'x = 5',
+      'console.log(names)',
+      'import os',
+      'def get_name(user):',
+    ];
+    const result = parseMarkdown(`Try this:\n\n${lines.join('\n')}`);
+
+    expect([...result.placeholders.values()]).toEqual(lines.map(l => l.trim()));
+    expect(result.segments.map(s => s.text)).toEqual(['Try this:']);
+  });
+
+  it('leaves ordinary sentences alone', () => {
+    const sentences = [
+      'Set the value to 5.',
+      'Return the list when it is empty.',
+      'Call map(getName) on the array, then return the result.',
+      'If you want, you can import the file later:',
+      'For each user, check the name first.',
+      'The value x = 5 is the default.',
+      'Use a function to wrap it.',
+    ];
+    for (const line of sentences) {
+      const result = parseMarkdown(line);
+      expect(result.placeholders.size, line).toBe(0);
+      expect(result.segments.map(s => s.text), line).toEqual([line]);
+    }
+  });
+});
+
+describe('parseMarkdown segments', () => {
+  it('returns each paragraph, heading and list item separately', () => {
+    const input = '# Why it fails\n\nFirst paragraph.\n\nSecond paragraph.\n\n- Item one\n- Item two\n\n> A quoted note.';
+    const result = parseMarkdown(input);
+
+    expect(result.segments.map(s => s.text)).toEqual([
+      'Why it fails',
+      'First paragraph.',
+      'Second paragraph.',
+      'Item one',
+      'Item two',
+      'A quoted note.',
+    ]);
+  });
+
+  it('gives ranges that point into the replaced text', () => {
+    const result = parseMarkdown('Call `fetchData()` first.\n\n```js\nrun();\n```\n\nThen check `users`.');
+
+    for (const segment of result.segments) {
+      expect(result.text.slice(segment.start, segment.end)).toBe(segment.text);
+    }
+    expect(result.segments.map(s => s.text)).toEqual(['Call SKIP_001 first.', 'Then check SKIP_003.']);
+  });
+
+  it('leaves out paragraphs that are only code', () => {
+    const result = parseMarkdown('`npm install`\n\nRun the tests.');
+
+    expect(result.segments.map(s => s.text)).toEqual(['Run the tests.']);
+  });
+
+  it('returns no segments for empty or whitespace-only input', () => {
+    expect(parseMarkdown('').segments).toEqual([]);
+    expect(parseMarkdown('   \n\n  ').segments).toEqual([]);
+  });
+});
+
