@@ -6,6 +6,7 @@
 
   const input = /** @type {HTMLTextAreaElement} */ (document.getElementById('input'));
   const language = /** @type {HTMLSelectElement} */ (document.getElementById('language'));
+  const provider = /** @type {HTMLSelectElement} */ (document.getElementById('provider'));
   const button = /** @type {HTMLButtonElement} */ (document.getElementById('translate'));
   const status = /** @type {HTMLElement} */ (document.getElementById('status'));
   const errorBox = /** @type {HTMLElement} */ (document.getElementById('error'));
@@ -17,13 +18,18 @@
   const saved = vscode.getState() || {};
   input.value = saved.text || '';
   language.value = saved.language || 'gu';
+  if (saved.provider && [...provider.options].some(o => o.value === saved.provider)) {
+    provider.value = saved.provider;
+  }
   if (saved.html) {
     output.innerHTML = saved.html; // sanitized by the extension host before it was sent
   }
 
-  const save = () => vscode.setState({ text: input.value, language: language.value, html: saved.html });
+  const save = () =>
+    vscode.setState({ text: input.value, language: language.value, provider: provider.value, html: saved.html });
   input.addEventListener('input', save);
   language.addEventListener('change', save);
+  provider.addEventListener('change', save);
 
   function setBusy(isBusy, text) {
     button.disabled = isBusy;
@@ -44,7 +50,7 @@
       return;
     }
     setBusy(true, 'Translating…');
-    vscode.postMessage({ type: 'translate', text: input.value, language: language.value });
+    vscode.postMessage({ type: 'translate', text: input.value, language: language.value, provider: provider.value });
   });
 
   setKey.addEventListener('click', () => vscode.postMessage({ type: 'setApiKey' }));

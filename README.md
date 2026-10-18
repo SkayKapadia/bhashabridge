@@ -94,9 +94,9 @@ BhashaBridge is in early development and is **not yet on the Marketplace**.
 - [x] **Milestone 0:** Project setup
 - [x] **Milestone 1:** Extension skeleton with the `bhashabridge.translate` command and webview panel
 - [x] **Milestone 2:** Markdown parser that extracts code into placeholder tokens
-- [ ] **Milestone 3:** Translation service (`TranslationProvider` interface and Sarvam adapter)
-- [ ] **Milestone 4:** Reassembly engine
-- [ ] **Milestone 5:** Webview UI (input, language and provider pickers, output)
+- [x] **Milestone 3:** Translation service (`TranslationProvider` interface and Sarvam adapter)
+- [x] **Milestone 4:** Reassembly engine
+- [x] **Milestone 5:** Webview UI (input, language and provider pickers, output)
 - [ ] **Milestone 6:** Secrets and settings
 - [ ] **Milestone 7:** Testing and first release
 

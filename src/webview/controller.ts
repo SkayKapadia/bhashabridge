@@ -10,14 +10,19 @@ const LANGUAGES: readonly string[] = ['gu', 'mr'] satisfies TargetLanguage[];
 // Handles one translate request from the webview and reports back through `post`.
 // Kept free of the VS Code API so it can be tested directly.
 export async function handleTranslate(
-  message: { text: unknown; language: unknown },
-  provider: TranslationProvider,
+  message: { text: unknown; language: unknown; provider: unknown },
+  providers: ReadonlyMap<string, TranslationProvider>,
   post: (message: HostMessage) => void,
   signal?: AbortSignal,
 ): Promise<void> {
   // The message comes from the webview, so its fields are checked, not trusted.
   if (typeof message.text !== 'string' || typeof message.language !== 'string' || !LANGUAGES.includes(message.language)) {
     post({ type: 'error', message: 'The request from the panel was not understood. Please try again.', code: 'unknown' });
+    return;
+  }
+  const provider = typeof message.provider === 'string' ? providers.get(message.provider) : undefined;
+  if (!provider) {
+    post({ type: 'error', message: 'That translation provider is not available. Pick one from the list.', code: 'unknown' });
     return;
   }
 

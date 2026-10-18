@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import { getSarvamApiKey } from '../secrets/apiKeys';
-import { SarvamAdapter } from '../translation/sarvamAdapter';
+import { createProviders, PROVIDER_OPTIONS } from '../translation/providers';
 import { handleTranslate } from './controller';
 import type { WebviewMessage } from './messages';
 
@@ -22,7 +21,7 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext): void {
 
   panel.webview.html = getHtml(panel.webview, media);
 
-  const provider = new SarvamAdapter({ getApiKey: () => getSarvamApiKey(context.secrets) });
+  const providers = createProviders(context.secrets);
   let running: AbortController | undefined;
 
   panel.webview.onDidReceiveMessage((message: WebviewMessage) => {
@@ -30,7 +29,7 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext): void {
       running?.abort(); // a new request replaces one still running
       const controller = new AbortController();
       running = controller;
-      void handleTranslate(message, provider, reply => void panel.webview.postMessage(reply), controller.signal);
+      void handleTranslate(message, providers, reply => void panel.webview.postMessage(reply), controller.signal);
     } else if (message?.type === 'setApiKey') {
       void vscode.commands.executeCommand('bhashabridge.setSarvamApiKey');
     }
@@ -45,6 +44,8 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext): void {
 function getHtml(webview: vscode.Webview, media: vscode.Uri): string {
   const script = webview.asWebviewUri(vscode.Uri.joinPath(media, 'main.js'));
   const style = webview.asWebviewUri(vscode.Uri.joinPath(media, 'main.css'));
+
+  const providerOptions = PROVIDER_OPTIONS.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.label)}</option>`).join('\n        ');
 
   // Only the extension's own script and stylesheet may load: no inline script, nothing remote.
   const csp = `default-src 'none'; script-src ${webview.cspSource}; style-src ${webview.cspSource};`;
@@ -71,6 +72,10 @@ function getHtml(webview: vscode.Webview, media: vscode.Uri): string {
         <option value="gu">Gujarati (ગુજરાતી)</option>
         <option value="mr">Marathi (मराठी)</option>
       </select>
+      <label for="provider">using</label>
+      <select id="provider">
+        ${providerOptions}
+      </select>
       <button id="translate" type="button">Translate</button>
     </div>
 
@@ -86,4 +91,8 @@ function getHtml(webview: vscode.Webview, media: vscode.Uri): string {
   <script src="${script}"></script>
 </body>
 </html>`;
+}
+
+function escapeHtml(text: string): string {
+  return text.replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
 }

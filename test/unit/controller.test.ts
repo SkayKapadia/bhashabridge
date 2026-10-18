@@ -5,11 +5,15 @@ import { handleTranslate } from '../../src/webview/controller';
 import type { HostMessage } from '../../src/webview/messages';
 
 const INPUT = 'The `users` array is undefined.\n\n```js\nconst names = users.map(getName);\n```';
-const echo: TranslationProvider = { id: 'echo', translate: async r => ({ translatedText: `અનુવાદ: ${r.text}` }) };
+const echo: TranslationProvider = { id: 'sarvam', translate: async r => ({ translatedText: `અનુવાદ: ${r.text}` }) };
 
-async function run(message: { text: unknown; language: unknown }, provider = echo, signal?: AbortSignal): Promise<HostMessage[]> {
+async function run(
+  message: { text: unknown; language: unknown; provider?: unknown },
+  provider = echo,
+  signal?: AbortSignal,
+): Promise<HostMessage[]> {
   const posted: HostMessage[] = [];
-  await handleTranslate(message, provider, m => posted.push(m), signal);
+  await handleTranslate({ provider: 'sarvam', ...message }, new Map([['sarvam', provider]]), m => posted.push(m), signal);
   return posted;
 }
 
@@ -37,6 +41,12 @@ describe('handleTranslate', () => {
   ])('rejects a malformed request %#', async message => {
     expect(await run(message)).toEqual([
       { type: 'error', message: 'The request from the panel was not understood. Please try again.', code: 'unknown' },
+    ]);
+  });
+
+  it.each([['gemini'], [undefined], [7]])('rejects provider %j that is not available', async provider => {
+    expect(await run({ text: INPUT, language: 'gu', provider })).toEqual([
+      { type: 'error', message: 'That translation provider is not available. Pick one from the list.', code: 'unknown' },
     ]);
   });
 
