@@ -58,13 +58,15 @@
         "bhashabridge.defaultProvider": {
           "type": "string",
           "enum": [
-            "sarvam"
+            "sarvam",
+            "vscode-lm"
           ],
           "enumItemLabels": [
-            "Sarvam AI"
+            "Sarvam AI",
+            "VS Code model (Copilot)"
           ],
           "default": "sarvam",
-          "description": "Translation provider the BhashaBridge panel uses when it opens."
+          "description": "Translation provider the BhashaBridge panel and @bhashabridge chat use. \"VS Code model\" needs GitHub Copilot; without it, Sarvam AI is used."
         },
         "bhashabridge.glossaryDomains": {
           "type": "array",

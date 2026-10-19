@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { currentGlossary, currentSettings } from '../settings/current';
 import { SETTINGS_SECTION } from '../settings/settings';
-import { createProviders, PROVIDER_OPTIONS } from '../translation/providers';
+import { availableProviderOptions, createProviders, PROVIDER_OPTIONS } from '../translation/providers';
 import { handleTranslate } from './controller';
 import type { HostMessage, WebviewMessage } from './messages';
 import { panelHtml } from './panelHtml';
@@ -32,7 +32,7 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext, text?: s
     scriptUri: panel.webview.asWebviewUri(vscode.Uri.joinPath(media, 'main.js')).toString(),
     styleUri: panel.webview.asWebviewUri(vscode.Uri.joinPath(media, 'main.css')).toString(),
     cspSource: panel.webview.cspSource,
-    providers: PROVIDER_OPTIONS,
+    providers: PROVIDER_OPTIONS.filter(p => p.id === 'sarvam'), // the rest once known to be available
     defaults: currentSettings(),
   });
 
@@ -56,6 +56,7 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext, text?: s
     } else if (message?.type === 'ready' && current?.panel === panel) {
       // A message posted before the page's script runs would be lost, so text waits for this.
       current.isReady = true;
+      sendProviders();
       if (current.pendingText !== undefined) {
         fill(current.pendingText);
       }
@@ -74,7 +75,15 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext, text?: s
     }
   });
 
+  const sendProviders = () =>
+    void availableProviderOptions().then(
+      providers => panel.webview.postMessage({ type: 'providers', providers } satisfies HostMessage),
+      () => undefined, // keep the list the page has
+    );
+  const modelsListener = typeof vscode.lm?.onDidChangeChatModels === 'function' ? vscode.lm.onDidChangeChatModels(sendProviders) : undefined;
+
   panel.onDidDispose(() => {
+    modelsListener?.dispose();
     running?.abort();
     settingsListener.dispose();
     current = undefined;

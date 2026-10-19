@@ -80,6 +80,19 @@
       input.value = message.text;
       save();
       button.click();
+    } else if (message.type === 'providers') {
+      // Rebuild the provider list, keeping the current choice when it is still offered.
+      const chosen = provider.value;
+      provider.replaceChildren(
+        ...message.providers.map(p => {
+          const option = document.createElement('option');
+          option.value = p.id;
+          option.textContent = p.label; // text, never HTML
+          return option;
+        }),
+      );
+      choose(provider, chosen);
+      choose(provider, saved.provider || document.body.dataset.defaultProvider);
     } else if (message.type === 'defaults') {
       // The user changed a default in Settings: apply it now.
       choose(language, message.language);

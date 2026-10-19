@@ -6,7 +6,8 @@ export type TranslationErrorCode =
   | 'timeout'
   | 'network'
   | 'api'
-  | 'placeholders';
+  | 'placeholders'
+  | 'unavailable';
 
 // Every failure a provider reports. Messages are written for the person using the
 // extension and never contain an API key.

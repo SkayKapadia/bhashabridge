@@ -14,4 +14,6 @@ export type HostMessage =
   | { type: 'error'; message: string; code: TranslationErrorCode | 'reassembly' | 'unknown' }
   | { type: 'defaults'; language: string; provider: string }
   // Fills the input and starts translating (Translate Selection).
-  | { type: 'fill'; text: string };
+  | { type: 'fill'; text: string }
+  // The providers usable right now (the VS Code model only when one exists).
+  | { type: 'providers'; providers: { id: string; label: string }[] };
