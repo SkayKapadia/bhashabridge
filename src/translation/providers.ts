@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { TranslationCache, withCache } from '../cache/translationCache';
 import { getSarvamApiKey } from '../secrets/apiKeys';
 import { TranslationError } from './errors';
 import { SarvamAdapter } from './sarvamAdapter';
@@ -12,10 +13,20 @@ export const PROVIDER_OPTIONS: readonly { id: string; label: string }[] = [
   { id: 'vscode-lm', label: 'VS Code model (Copilot)' },
 ];
 
-export function createProviders(secrets: vscode.SecretStorage): ReadonlyMap<string, TranslationProvider> {
+let sharedCache: TranslationCache | undefined;
+
+// One cache for the panel, the chat and the clear command, so its updates stay in order.
+export function translationCache(context: vscode.ExtensionContext): TranslationCache {
+  sharedCache ??= new TranslationCache(context.globalState);
+  return sharedCache;
+}
+
+// Each provider answers repeated requests from the local translation cache.
+export function createProviders(context: vscode.ExtensionContext): ReadonlyMap<string, TranslationProvider> {
+  const cache = translationCache(context);
   return new Map<string, TranslationProvider>([
-    ['sarvam', new SarvamAdapter({ getApiKey: () => getSarvamApiKey(secrets) })],
-    ['vscode-lm', new VscodeLmAdapter({ selectModel: selectCopilotModel })],
+    ['sarvam', withCache(new SarvamAdapter({ getApiKey: () => getSarvamApiKey(context.secrets) }), cache)],
+    ['vscode-lm', withCache(new VscodeLmAdapter({ selectModel: selectCopilotModel }), cache)],
   ]);
 }
 

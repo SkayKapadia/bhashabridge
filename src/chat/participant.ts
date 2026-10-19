@@ -14,7 +14,7 @@ export function registerChatParticipant(context: vscode.ExtensionContext): void 
     return;
   }
 
-  const providers = createProviders(context.secrets);
+  const providers = createProviders(context);
 
   const participant = vscode.chat.createChatParticipant('bhashabridge.chat', async (request, _chatContext, stream, token) => {
     const controller = new AbortController();

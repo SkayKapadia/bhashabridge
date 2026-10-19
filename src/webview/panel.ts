@@ -36,7 +36,7 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext, text?: s
     defaults: currentSettings(),
   });
 
-  const providers = createProviders(context.secrets);
+  const providers = createProviders(context);
   let running: AbortController | undefined;
 
   panel.webview.onDidReceiveMessage((message: WebviewMessage) => {

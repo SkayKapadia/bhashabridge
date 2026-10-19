@@ -14,6 +14,7 @@ suite('BhashaBridge extension', () => {
     assert.ok(commands.includes('bhashabridge.clearSarvamApiKey'));
     assert.ok(commands.includes('bhashabridge.chooseGlossaryDomains'));
     assert.ok(commands.includes('bhashabridge.translateSelection'));
+    assert.ok(commands.includes('bhashabridge.clearTranslationCache'));
   });
 
   test('declares the default language and provider settings', () => {

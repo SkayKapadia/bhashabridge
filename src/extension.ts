@@ -4,6 +4,7 @@ import { deleteSarvamApiKey, setSarvamApiKey } from './secrets/apiKeys';
 import type { TextSource } from './selection/readText';
 import { translateSelection } from './selection/translateSelection';
 import { chooseGlossaryDomains } from './settings/chooseDomains';
+import { translationCache } from './translation/providers';
 import { testSarvamConnection } from './translation/testSarvamCommand';
 import { openBhashaBridgePanel } from './webview/panel';
 
@@ -38,6 +39,11 @@ export function activate(context: vscode.ExtensionContext): void {
     chooseGlossaryDomains(context),
   );
 
+  const clearCacheCommand = vscode.commands.registerCommand('bhashabridge.clearTranslationCache', async () => {
+    const removed = await translationCache(context).clear();
+    vscode.window.showInformationMessage(`Removed ${removed} saved translation${removed === 1 ? '' : 's'} from this computer.`);
+  });
+
   const output = vscode.window.createOutputChannel('BhashaBridge');
   const testCommand = vscode.commands.registerCommand('bhashabridge.testSarvamConnection', () =>
     testSarvamConnection(context, output),
@@ -45,7 +51,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   registerChatParticipant(context);
 
-  context.subscriptions.push(translateCommand, selectionCommand, setKeyCommand, clearKeyCommand, domainsCommand, testCommand, output);
+  context.subscriptions.push(translateCommand, selectionCommand, setKeyCommand, clearKeyCommand, domainsCommand, clearCacheCommand, testCommand, output);
 }
 
 export function deactivate(): void {}
