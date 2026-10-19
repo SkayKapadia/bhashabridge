@@ -124,3 +124,12 @@ button:disabled { opacity: 0.6; cursor: default; }
 @media (max-width: 600px) {
   .output.pairs .pair { grid-template-columns: 1fr; }
 }
+
+.report-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-top: 0.6rem; }
+.report-row .hint { margin: 0; }
+
+button.secondary {
+  color: var(--vscode-button-secondaryForeground);
+  background: var(--vscode-button-secondaryBackground);
+}
+button.secondary:hover:not(:disabled) { background: var(--vscode-button-secondaryHoverBackground); }

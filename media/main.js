@@ -15,6 +15,7 @@
   const getKey = /** @type {HTMLButtonElement} */ (document.getElementById('get-key'));
   const output = /** @type {HTMLElement} */ (document.getElementById('output'));
   const sideBySide = /** @type {HTMLInputElement} */ (document.getElementById('side-by-side'));
+  const report = /** @type {HTMLButtonElement} */ (document.getElementById('report'));
 
   // Picks an option only if the list has it, so a stale value never empties a dropdown.
   function choose(select, value) {
@@ -114,6 +115,7 @@
   });
 
   setKey.addEventListener('click', () => vscode.postMessage({ type: 'setApiKey' }));
+  report.addEventListener('click', () => vscode.postMessage({ type: 'report' }));
   getKey.addEventListener('click', () => vscode.postMessage({ type: 'openSignup' }));
 
   window.addEventListener('message', event => {
@@ -126,6 +128,7 @@
       saved.blocks = message.blocks;
       save();
       showResult();
+      report.hidden = false;
     } else if (message.type === 'error') {
       setBusy(false, '');
       showError(message.message, message.code);

@@ -248,5 +248,12 @@
   },
   "activationEvents": [
     "onChatParticipant:bhashabridge.chat"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SkayKapadia/bhashabridge"
+  },
+  "bugs": {
+    "url": "https://github.com/SkayKapadia/bhashabridge/issues"
+  }
 }

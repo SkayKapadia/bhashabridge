@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { currentGlossary, currentSettings } from '../settings/current';
 import { SETTINGS_SECTION } from '../settings/settings';
 import { availableProviderOptions, createProviders, PROVIDER_OPTIONS } from '../translation/providers';
+import { buildIssueUrl } from '../feedback/issueUrl';
+import { LANGUAGE_NAMES, type TargetLanguage } from '../translation/translationProvider';
 import { handleTranslate } from './controller';
 import type { HostMessage, WebviewMessage } from './messages';
 import { panelHtml } from './panelHtml';
@@ -38,19 +40,41 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext, text?: s
 
   const providers = createProviders(context);
   let running: AbortController | undefined;
+  // The last finished translation, for the Report translation button.
+  let lastResult: { english: string; translated: string; language: string; provider: string } | undefined;
 
   panel.webview.onDidReceiveMessage((message: WebviewMessage) => {
     if (message?.type === 'translate') {
       running?.abort(); // a new request replaces one still running
       const controller = new AbortController();
       running = controller;
-      const post = (reply: HostMessage) => void panel.webview.postMessage(reply);
+      const post = (reply: HostMessage) => {
+        if (reply.type === 'result') {
+          lastResult = { english: message.text, translated: reply.markdown, language: message.language, provider: message.provider };
+        }
+        void panel.webview.postMessage(reply);
+      };
       currentGlossary(context).then(
         glossary => handleTranslate(message, providers, post, controller.signal, glossary),
         (error: Error) => post({ type: 'error', message: error.message, code: 'unknown' }),
       );
     } else if (message?.type === 'setApiKey') {
       void vscode.commands.executeCommand('bhashabridge.setSarvamApiKey');
+    } else if (message?.type === 'report' && lastResult) {
+      const packageJson = context.extension.packageJSON as { version: string; bugs: { url: string } };
+      void vscode.env.openExternal(
+        vscode.Uri.parse(
+          buildIssueUrl({
+            issuesUrl: packageJson.bugs.url,
+            language: LANGUAGE_NAMES[lastResult.language as TargetLanguage] ?? lastResult.language,
+            provider: PROVIDER_OPTIONS.find(p => p.id === lastResult?.provider)?.label ?? lastResult.provider,
+            version: packageJson.version,
+            english: lastResult.english,
+            translated: lastResult.translated,
+          }),
+          true, // already encoded
+        ),
+      );
     } else if (message?.type === 'openSignup') {
       void vscode.env.openExternal(vscode.Uri.parse(SIGNUP_URL));
     } else if (message?.type === 'ready' && current?.panel === panel) {

@@ -6,7 +6,8 @@ export type WebviewMessage =
   | { type: 'translate'; text: string; language: string; provider: string }
   | { type: 'setApiKey' }
   | { type: 'openSignup' }
-  | { type: 'ready' };
+  | { type: 'ready' }
+  | { type: 'report' };
 
 // What the extension host sends back.
 export type HostMessage =

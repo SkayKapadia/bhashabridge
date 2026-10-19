@@ -20,7 +20,7 @@ describe('panelHtml', () => {
   it('has the input, language and provider dropdowns, translate button and output', () => {
     const html = panelHtml(OPTIONS);
 
-    for (const id of ['input', 'language', 'provider', 'translate', 'status', 'error', 'output', 'set-key', 'get-key', 'side-by-side']) {
+    for (const id of ['input', 'language', 'provider', 'translate', 'status', 'error', 'output', 'set-key', 'get-key', 'side-by-side', 'report']) {
       expect(html, id).toContain(`id="${id}"`);
     }
     expect(html).toContain('<option value="sarvam">Sarvam AI</option>');

@@ -60,6 +60,10 @@ export function panelHtml(options: PanelHtmlOptions): string {
     </div>
     <p class="hint">Learning mode: click any translated paragraph to see its English.</p>
     <div id="output" class="output"><p class="placeholder">The translation will appear here. Code stays in English.</p></div>
+    <div class="report-row">
+      <button id="report" type="button" class="secondary" hidden>Report translation</button>
+      <span class="hint">Opens a pre-filled GitHub issue. Nothing is sent until you submit it there.</span>
+    </div>
   </main>
   <script src="${escapeHtml(options.scriptUri)}"></script>
 </body>
