@@ -14,6 +14,7 @@
   const setKey = /** @type {HTMLButtonElement} */ (document.getElementById('set-key'));
   const getKey = /** @type {HTMLButtonElement} */ (document.getElementById('get-key'));
   const output = /** @type {HTMLElement} */ (document.getElementById('output'));
+  const sideBySide = /** @type {HTMLInputElement} */ (document.getElementById('side-by-side'));
 
   // Picks an option only if the list has it, so a stale value never empties a dropdown.
   function choose(select, value) {
@@ -28,12 +29,64 @@
   input.value = saved.text || '';
   choose(language, saved.language || document.body.dataset.defaultLanguage);
   choose(provider, saved.provider || document.body.dataset.defaultProvider);
-  if (saved.html) {
-    output.innerHTML = saved.html; // sanitized by the extension host before it was sent
-  }
+  sideBySide.checked = Boolean(saved.sideBySide);
+  showResult();
 
   const save = () =>
-    vscode.setState({ text: input.value, language: language.value, provider: provider.value, html: saved.html });
+    vscode.setState({
+      text: input.value,
+      language: language.value,
+      provider: provider.value,
+      html: saved.html,
+      blocks: saved.blocks,
+      sideBySide: sideBySide.checked,
+    });
+  // Every HTML string below was sanitized by the extension host before it was sent.
+  function showResult() {
+    output.classList.toggle('pairs', sideBySide.checked);
+    if (!saved.blocks) {
+      if (saved.html) {
+        output.innerHTML = saved.html;
+      }
+      return;
+    }
+    output.replaceChildren(
+      ...saved.blocks.map(pair => {
+        const row = document.createElement('div');
+        row.className = 'pair';
+        const english = document.createElement('div');
+        english.className = 'english';
+        english.innerHTML = pair.english;
+        const translated = document.createElement('div');
+        translated.className = 'translated';
+        translated.innerHTML = pair.translated;
+        if (sideBySide.checked) {
+          row.append(english, translated);
+        } else {
+          // Learning mode: the English stays hidden until the paragraph is clicked.
+          english.hidden = true;
+          translated.tabIndex = 0;
+          translated.title = 'Click to show the English';
+          const reveal = event => {
+            if (event.type === 'click' || event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              english.hidden = !english.hidden;
+            }
+          };
+          translated.addEventListener('click', reveal);
+          translated.addEventListener('keydown', reveal);
+          row.append(translated, english);
+        }
+        return row;
+      }),
+    );
+  }
+
+  sideBySide.addEventListener('change', () => {
+    save();
+    showResult();
+  });
+
   input.addEventListener('input', save);
   language.addEventListener('change', save);
   provider.addEventListener('change', save);
@@ -69,9 +122,10 @@
       setBusy(true, message.total > 1 ? `Translating… ${message.done} of ${message.total} parts done` : 'Translating…');
     } else if (message.type === 'result') {
       setBusy(false, 'Done.');
-      output.innerHTML = message.html; // sanitized by the extension host
       saved.html = message.html;
+      saved.blocks = message.blocks;
       save();
+      showResult();
     } else if (message.type === 'error') {
       setBusy(false, '');
       showError(message.message, message.code);

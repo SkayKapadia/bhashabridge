@@ -54,7 +54,11 @@ export function panelHtml(options: PanelHtmlOptions): string {
       <button id="get-key" type="button" hidden>Get a key</button>
     </div>
 
-    <h2>Translation</h2>
+    <div class="output-header">
+      <h2>Translation</h2>
+      <label class="toggle"><input id="side-by-side" type="checkbox"> Side by side with English</label>
+    </div>
+    <p class="hint">Learning mode: click any translated paragraph to see its English.</p>
     <div id="output" class="output"><p class="placeholder">The translation will appear here. Code stays in English.</p></div>
   </main>
   <script src="${escapeHtml(options.scriptUri)}"></script>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { renderMarkdown } from '../../src/webview/renderMarkdown';
+import { renderBlockPairs, renderMarkdown } from '../../src/webview/renderMarkdown';
 
 describe('renderMarkdown', () => {
   it('renders ordinary markdown', () => {
@@ -34,3 +34,31 @@ describe('renderMarkdown', () => {
     expect(renderMarkdown('[docs](https://docs.sarvam.ai)')).toContain('href="https://docs.sarvam.ai"');
   });
 });
+
+describe('renderBlockPairs', () => {
+  const english = '# Why it fails\n\nThe `users` array is undefined.\n\n```js\nrun();\n```\n\n- Add a check\n- Test it';
+  const gujarati = '# તે કેમ નિષ્ફળ જાય છે\n\n`users` array undefined છે.\n\n```js\nrun();\n```\n\n- check ઉમેરો\n- તેને test કરો';
+
+  it('pairs each translated block with the English it came from', () => {
+    const pairs = renderBlockPairs(english, gujarati);
+
+    expect(pairs).toHaveLength(4);
+    expect(pairs[0]).toEqual({ english: '<h1>Why it fails</h1>', translated: '<h1>તે કેમ નિષ્ફળ જાય છે</h1>' });
+    expect(pairs[1]!.translated).toContain('<code>users</code> array undefined છે.');
+    expect(pairs[2]!.english).toBe(pairs[2]!.translated); // code is identical on both sides
+    expect(pairs[3]!.translated).toContain('<li>check ઉમેરો</li>');
+  });
+
+  it('falls back to the two whole texts when the structure differs', () => {
+    const pairs = renderBlockPairs('One.\n\nTwo.', 'એક અને બે.');
+
+    expect(pairs).toEqual([{ english: '<p>One.</p>\n<p>Two.</p>', translated: '<p>એક અને બે.</p>' }]);
+  });
+
+  it('keeps every block safe', () => {
+    const pairs = renderBlockPairs('Hello <script>x()</script> there.', 'નમસ્તે <script>x()</script>.');
+
+    expect(JSON.stringify(pairs)).not.toMatch(/<script/i);
+  });
+});
+

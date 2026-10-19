@@ -4,7 +4,7 @@ import { TranslationError } from '../translation/errors';
 import { translateMarkdown } from '../translation/translateMarkdown';
 import type { TargetLanguage, TranslationProvider } from '../translation/translationProvider';
 import type { HostMessage } from './messages';
-import { renderMarkdown } from './renderMarkdown';
+import { renderBlockPairs, renderMarkdown } from './renderMarkdown';
 
 const LANGUAGES: readonly string[] = ['gu', 'mr'] satisfies TargetLanguage[];
 
@@ -37,7 +37,7 @@ export async function handleTranslate(
       onProgress: (done, total) => post({ type: 'progress', done, total }),
     });
     if (!signal?.aborted) {
-      post({ type: 'result', html: renderMarkdown(markdown), markdown });
+      post({ type: 'result', html: renderMarkdown(markdown), markdown, blocks: renderBlockPairs(message.text, markdown) });
     }
   } catch (error) {
     if (signal?.aborted) {

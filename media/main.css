@@ -82,3 +82,45 @@ button:disabled { opacity: 0.6; cursor: default; }
 }
 
 .output code { font-family: var(--vscode-editor-font-family); }
+
+.output-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.output-header h2 { margin: 0; }
+
+.toggle { display: inline-flex; align-items: center; gap: 0.3rem; font-weight: normal; margin: 0; }
+
+.hint { margin: 0.3rem 0 0.5rem; color: var(--vscode-descriptionForeground); font-size: 0.9em; }
+
+.output .translated { cursor: pointer; border-radius: 3px; }
+.output .translated:hover,
+.output .translated:focus { background: var(--vscode-list-hoverBackground); outline: none; }
+
+.output .english {
+  color: var(--vscode-descriptionForeground);
+  border-left: 3px solid var(--vscode-textLink-foreground);
+  padding-left: 0.6rem;
+  margin: 0.2rem 0 0.8rem;
+}
+
+/* Side by side: English left, translation right, one row per block. */
+.output.pairs .pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  border-bottom: 1px solid var(--vscode-panel-border);
+  padding: 0.3rem 0;
+}
+
+.output.pairs .english { border-left: none; padding-left: 0; margin: 0; }
+.output.pairs .translated { cursor: default; }
+
+@media (max-width: 600px) {
+  .output.pairs .pair { grid-template-columns: 1fr; }
+}

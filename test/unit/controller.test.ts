@@ -31,6 +31,8 @@ describe('handleTranslate', () => {
       expect(result.markdown).toBe('અનુવાદ: The `users` array is undefined.\n\n```js\nconst names = users.map(getName);\n```');
       expect(result.html).toContain('<code>users</code>');
       expect(result.html).toContain('const names = users.map(getName);');
+      expect(result.blocks).toHaveLength(2);
+      expect(result.blocks[0]!.english).toBe('<p>The <code>users</code> array is undefined.</p>');
     }
   });
 

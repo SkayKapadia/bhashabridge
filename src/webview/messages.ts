@@ -1,4 +1,5 @@
 import type { TranslationErrorCode } from '../translation/errors';
+import type { BlockPair } from './renderMarkdown';
 
 // What the webview sends to the extension host.
 export type WebviewMessage =
@@ -10,7 +11,7 @@ export type WebviewMessage =
 // What the extension host sends back.
 export type HostMessage =
   | { type: 'progress'; done: number; total: number }
-  | { type: 'result'; html: string; markdown: string }
+  | { type: 'result'; html: string; markdown: string; blocks: BlockPair[] }
   | { type: 'error'; message: string; code: TranslationErrorCode | 'reassembly' | 'unknown' }
   | { type: 'defaults'; language: string; provider: string }
   // Fills the input and starts translating (Translate Selection).
