@@ -10,7 +10,7 @@ suite('BhashaBridge extension', () => {
     const commands = await vscode.commands.getCommands(true);
     assert.ok(commands.includes('bhashabridge.translate'));
     assert.ok(commands.includes('bhashabridge.setSarvamApiKey'));
-    assert.ok(commands.includes('bhashabridge.testSarvamConnection'));
+    assert.ok(!commands.includes('bhashabridge.testSarvamConnection'));
     assert.ok(commands.includes('bhashabridge.clearSarvamApiKey'));
     assert.ok(commands.includes('bhashabridge.chooseGlossaryDomains'));
     assert.ok(commands.includes('bhashabridge.translateSelection'));

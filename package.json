@@ -39,10 +39,6 @@
         "title": "BhashaBridge: Create Workspace Glossary"
       },
       {
-        "command": "bhashabridge.testSarvamConnection",
-        "title": "BhashaBridge: Test Sarvam Connection"
-      },
-      {
         "command": "bhashabridge.clearTranslationCache",
         "title": "BhashaBridge: Clear Translation Cache"
       }
