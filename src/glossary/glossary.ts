@@ -160,3 +160,16 @@ export function protectedTerms(glossary: LoadedGlossary): string[] {
 function pick(entries: Record<string, Renderings>, language: TargetLanguage): Record<string, string> {
   return Object.fromEntries(Object.entries(entries).map(([term, r]) => [term, r[language]]));
 }
+
+// The glossary as translateMarkdown takes it, for one language.
+export function glossaryOptions(glossary: LoadedGlossary | undefined, language: TargetLanguage) {
+  if (!glossary) {
+    return {};
+  }
+  return {
+    glossary: promptGlossary(glossary, language),
+    keepTerms: protectedTerms(glossary),
+    annotations: annotations(glossary, language),
+  };
+}
+

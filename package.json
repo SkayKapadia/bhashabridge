@@ -198,7 +198,22 @@
           "group": "navigation@99"
         }
       ]
-    }
+    },
+    "chatParticipants": [
+      {
+        "id": "bhashabridge.chat",
+        "name": "bhashabridge",
+        "fullName": "BhashaBridge",
+        "description": "Answer or translate in Gujarati or Marathi, with code kept in English",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "translate",
+            "description": "Translate text you already have, keeping code in English"
+          }
+        ]
+      }
+    ]
   },
   "scripts": {
     "compile": "tsc -p ./",
@@ -223,5 +238,8 @@
     "hast-util-to-html": "^9.0.5",
     "mdast-util-from-markdown": "^2.1.0",
     "mdast-util-to-hast": "^13.2.1"
-  }
+  },
+  "activationEvents": [
+    "onChatParticipant:bhashabridge.chat"
+  ]
 }

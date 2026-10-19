@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { registerChatParticipant } from './chat/participant';
 import { deleteSarvamApiKey, setSarvamApiKey } from './secrets/apiKeys';
 import type { TextSource } from './selection/readText';
 import { translateSelection } from './selection/translateSelection';
@@ -41,6 +42,8 @@ export function activate(context: vscode.ExtensionContext): void {
   const testCommand = vscode.commands.registerCommand('bhashabridge.testSarvamConnection', () =>
     testSarvamConnection(context, output),
   );
+
+  registerChatParticipant(context);
 
   context.subscriptions.push(translateCommand, selectionCommand, setKeyCommand, clearKeyCommand, domainsCommand, testCommand, output);
 }
