@@ -75,6 +75,11 @@
     } else if (message.type === 'error') {
       setBusy(false, '');
       showError(message.message, message.code);
+    } else if (message.type === 'fill') {
+      // Text sent by Translate Selection: show it and translate straight away.
+      input.value = message.text;
+      save();
+      button.click();
     } else if (message.type === 'defaults') {
       // The user changed a default in Settings: apply it now.
       choose(language, message.language);
@@ -82,4 +87,6 @@
       save();
     }
   });
+
+  vscode.postMessage({ type: 'ready' });
 })();

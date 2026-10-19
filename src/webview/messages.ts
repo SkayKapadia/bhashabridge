@@ -4,11 +4,14 @@ import type { TranslationErrorCode } from '../translation/errors';
 export type WebviewMessage =
   | { type: 'translate'; text: string; language: string; provider: string }
   | { type: 'setApiKey' }
-  | { type: 'openSignup' };
+  | { type: 'openSignup' }
+  | { type: 'ready' };
 
 // What the extension host sends back.
 export type HostMessage =
   | { type: 'progress'; done: number; total: number }
   | { type: 'result'; html: string; markdown: string }
   | { type: 'error'; message: string; code: TranslationErrorCode | 'reassembly' | 'unknown' }
-  | { type: 'defaults'; language: string; provider: string };
+  | { type: 'defaults'; language: string; provider: string }
+  // Fills the input and starts translating (Translate Selection).
+  | { type: 'fill'; text: string };

@@ -9,11 +9,15 @@ import { panelHtml } from './panelHtml';
 const SIGNUP_URL = 'https://dashboard.sarvam.ai';
 const PROVIDER_IDS = PROVIDER_OPTIONS.map(p => p.id);
 
-let current: vscode.WebviewPanel | undefined;
+let current: { panel: vscode.WebviewPanel; isReady: boolean; pendingText?: string } | undefined;
 
-export function openBhashaBridgePanel(context: vscode.ExtensionContext): void {
+// Opens the panel, or brings it forward. With `text`, fills the input and translates it.
+export function openBhashaBridgePanel(context: vscode.ExtensionContext, text?: string): void {
   if (current) {
-    current.reveal();
+    current.panel.reveal();
+    if (text !== undefined) {
+      fill(text);
+    }
     return;
   }
 
@@ -23,7 +27,7 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext): void {
     localResourceRoots: [media],
     retainContextWhenHidden: true, // keep the pasted text when the tab is hidden
   });
-  current = panel;
+  current = { panel, isReady: false, pendingText: text };
 
   panel.webview.html = panelHtml({
     scriptUri: panel.webview.asWebviewUri(vscode.Uri.joinPath(media, 'main.js')).toString(),
@@ -57,6 +61,12 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext): void {
       void vscode.commands.executeCommand('bhashabridge.setSarvamApiKey');
     } else if (message?.type === 'openSignup') {
       void vscode.env.openExternal(vscode.Uri.parse(SIGNUP_URL));
+    } else if (message?.type === 'ready' && current?.panel === panel) {
+      // A message posted before the page's script runs would be lost, so text waits for this.
+      current.isReady = true;
+      if (current.pendingText !== undefined) {
+        fill(current.pendingText);
+      }
     }
   });
 
@@ -83,3 +93,16 @@ function currentSettings() {
   const config = vscode.workspace.getConfiguration(SETTINGS_SECTION);
   return readSettings(key => config.get(key), PROVIDER_IDS);
 }
+
+function fill(text: string): void {
+  if (!current) {
+    return;
+  }
+  if (current.isReady) {
+    current.pendingText = undefined;
+    void current.panel.webview.postMessage({ type: 'fill', text } satisfies HostMessage);
+  } else {
+    current.pendingText = text;
+  }
+}
+

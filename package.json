@@ -19,6 +19,10 @@
         "title": "BhashaBridge: Translate LLM Output"
       },
       {
+        "command": "bhashabridge.translateSelection",
+        "title": "BhashaBridge: Translate Selection"
+      },
+      {
         "command": "bhashabridge.setSarvamApiKey",
         "title": "BhashaBridge: Set Sarvam API Key"
       },
@@ -156,6 +160,44 @@
           "markdownDescription": "Glossary domains whose terms always stay in English. Software development domains are on by default; turn on business domains if you build software for them. Easiest to change with **BhashaBridge: Choose Glossary Domains**."
         }
       }
+    },
+    "keybindings": [
+      {
+        "command": "bhashabridge.translateSelection",
+        "key": "ctrl+alt+shift+t",
+        "mac": "cmd+alt+shift+t",
+        "when": "editorTextFocus && editorHasSelection",
+        "args": {
+          "source": "editor"
+        }
+      },
+      {
+        "command": "bhashabridge.translateSelection",
+        "key": "ctrl+alt+shift+t",
+        "mac": "cmd+alt+shift+t",
+        "when": "terminalFocus",
+        "args": {
+          "source": "terminal"
+        }
+      },
+      {
+        "command": "bhashabridge.translateSelection",
+        "key": "ctrl+alt+shift+t",
+        "mac": "cmd+alt+shift+t",
+        "when": "!(editorTextFocus && editorHasSelection) && !terminalFocus",
+        "args": {
+          "source": "clipboard"
+        }
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "bhashabridge.translateSelection",
+          "when": "editorHasSelection",
+          "group": "navigation@99"
+        }
+      ]
     }
   },
   "scripts": {

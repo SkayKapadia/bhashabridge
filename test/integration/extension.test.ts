@@ -13,6 +13,7 @@ suite('BhashaBridge extension', () => {
     assert.ok(commands.includes('bhashabridge.testSarvamConnection'));
     assert.ok(commands.includes('bhashabridge.clearSarvamApiKey'));
     assert.ok(commands.includes('bhashabridge.chooseGlossaryDomains'));
+    assert.ok(commands.includes('bhashabridge.translateSelection'));
   });
 
   test('declares the default language and provider settings', () => {
@@ -22,6 +23,14 @@ suite('BhashaBridge extension', () => {
     const domains = config.get<string[]>('glossaryDomains') ?? [];
     assert.ok(domains.includes('software-core'));
     assert.ok(!domains.includes('healthcare'));
+  });
+
+  test('Translate Selection opens the panel with clipboard text', async () => {
+    await vscode.commands.executeCommand('workbench.action.closeAllEditors');
+    await vscode.env.clipboard.writeText('The function fails because users is undefined.');
+    await vscode.commands.executeCommand('bhashabridge.translateSelection', { source: 'clipboard' });
+
+    assert.ok(await waitForTab('BhashaBridge'), 'expected the BhashaBridge panel to open');
   });
 
   test('opens a webview panel titled BhashaBridge', async () => {
