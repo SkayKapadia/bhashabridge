@@ -31,8 +31,15 @@ export function panelHtml(options: PanelHtmlOptions): string {
   <main>
     <h1>BhashaBridge</h1>
 
-    <label for="input">Paste the LLM explanation (English)</label>
-    <textarea id="input" rows="10" placeholder="Paste text from Copilot, ChatGPT or any other tool…"></textarea>
+    <div id="input-area">
+      <label for="input">Paste the LLM explanation (English)</label>
+      <textarea id="input" rows="10" placeholder="Paste text from Copilot, ChatGPT or any other tool…"></textarea>
+    </div>
+    <div id="input-summary" class="input-summary" hidden>
+      <span id="input-summary-text"></span>
+      <button id="edit-input" type="button" class="link">Edit</button>
+      <button id="new-translation" type="button" class="link">New translation</button>
+    </div>
 
     <div class="row">
       <label for="language">Translate into</label>

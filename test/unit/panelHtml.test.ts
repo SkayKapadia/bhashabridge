@@ -20,7 +20,7 @@ describe('panelHtml', () => {
   it('has the input, language and provider dropdowns, translate button and output', () => {
     const html = panelHtml(OPTIONS);
 
-    for (const id of ['input', 'language', 'provider', 'translate', 'status', 'error', 'output', 'set-key', 'get-key', 'side-by-side', 'report']) {
+    for (const id of ['input', 'language', 'provider', 'translate', 'status', 'error', 'output', 'set-key', 'get-key', 'side-by-side', 'report', 'input-area', 'input-summary', 'edit-input', 'new-translation']) {
       expect(html, id).toContain(`id="${id}"`);
     }
     expect(html).toContain('<option value="sarvam">Sarvam AI</option>');
@@ -44,4 +44,12 @@ describe('panelHtml', () => {
     expect(html.match(/<script/g)).toHaveLength(1);
     expect(html).toContain('&#60;b&#62;Evil&#60;/b&#62;');
   });
+
+  it('starts with the input open and its one-line summary hidden', () => {
+    const html = panelHtml(OPTIONS);
+
+    expect(html).toMatch(/<div id="input-area">/);
+    expect(html).toMatch(/<div id="input-summary" class="input-summary" hidden>/);
+  });
 });
+

@@ -16,6 +16,12 @@
   const output = /** @type {HTMLElement} */ (document.getElementById('output'));
   const sideBySide = /** @type {HTMLInputElement} */ (document.getElementById('side-by-side'));
   const report = /** @type {HTMLButtonElement} */ (document.getElementById('report'));
+  const inputArea = /** @type {HTMLElement} */ (document.getElementById('input-area'));
+  const inputSummary = /** @type {HTMLElement} */ (document.getElementById('input-summary'));
+  const inputSummaryText = /** @type {HTMLElement} */ (document.getElementById('input-summary-text'));
+  const editInput = /** @type {HTMLButtonElement} */ (document.getElementById('edit-input'));
+  const newTranslation = /** @type {HTMLButtonElement} */ (document.getElementById('new-translation'));
+  const emptyOutput = output.innerHTML;
 
   // Picks an option only if the list has it, so a stale value never empties a dropdown.
   function choose(select, value) {
@@ -32,6 +38,9 @@
   choose(provider, saved.provider || document.body.dataset.defaultProvider);
   sideBySide.checked = Boolean(saved.sideBySide);
   showResult();
+  if (saved.isCollapsed && input.value.trim()) {
+    collapseInput();
+  }
 
   const save = () =>
     vscode.setState({
@@ -41,6 +50,7 @@
       html: saved.html,
       blocks: saved.blocks,
       sideBySide: sideBySide.checked,
+      isCollapsed: inputArea.hidden,
     });
   // Every HTML string below was sanitized by the extension host before it was sent.
   function showResult() {
@@ -114,6 +124,40 @@
     vscode.postMessage({ type: 'translate', text: input.value, language: language.value, provider: provider.value });
   });
 
+  // After a translation the pasted text folds into one line, so the translation sits
+  // right under the controls. The text is kept: Edit brings it back, and Translate
+  // still works on it (to switch language or provider).
+  function collapseInput() {
+    inputSummaryText.textContent = `Translated ${input.value.length.toLocaleString()} characters`;
+    inputArea.hidden = true;
+    inputSummary.hidden = false;
+  }
+
+  function expandInput() {
+    inputArea.hidden = false;
+    inputSummary.hidden = true;
+    input.focus();
+  }
+
+  editInput.addEventListener('click', () => {
+    expandInput();
+    save();
+  });
+
+  // A clean start: empty box, no old translation.
+  newTranslation.addEventListener('click', () => {
+    input.value = '';
+    saved.html = undefined;
+    saved.blocks = undefined;
+    output.classList.remove('pairs');
+    output.innerHTML = emptyOutput;
+    report.hidden = true;
+    errorBox.hidden = true;
+    status.textContent = '';
+    expandInput();
+    save();
+  });
+
   setKey.addEventListener('click', () => vscode.postMessage({ type: 'setApiKey' }));
   report.addEventListener('click', () => vscode.postMessage({ type: 'report' }));
   getKey.addEventListener('click', () => vscode.postMessage({ type: 'openSignup' }));
@@ -126,15 +170,22 @@
       setBusy(false, 'Done.');
       saved.html = message.html;
       saved.blocks = message.blocks;
-      save();
       showResult();
       report.hidden = false;
+      collapseInput();
+      save();
     } else if (message.type === 'error') {
       setBusy(false, '');
       showError(message.message, message.code);
+      if (inputArea.hidden) {
+        expandInput(); // on failure the text stays in plain view, untouched
+        save();
+      }
     } else if (message.type === 'fill') {
       // Text sent by Translate Selection: show it and translate straight away.
       input.value = message.text;
+      inputArea.hidden = false;
+      inputSummary.hidden = true;
       save();
       button.click();
     } else if (message.type === 'providers') {
