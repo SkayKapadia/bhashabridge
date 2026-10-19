@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { deleteSarvamApiKey, setSarvamApiKey } from './secrets/apiKeys';
+import { chooseGlossaryDomains } from './settings/chooseDomains';
 import { testSarvamConnection } from './translation/testSarvamCommand';
 import { openBhashaBridgePanel } from './webview/panel';
 
@@ -26,12 +27,16 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.window.showInformationMessage('Sarvam AI API key removed from this computer.');
   });
 
+  const domainsCommand = vscode.commands.registerCommand('bhashabridge.chooseGlossaryDomains', () =>
+    chooseGlossaryDomains(context),
+  );
+
   const output = vscode.window.createOutputChannel('BhashaBridge');
   const testCommand = vscode.commands.registerCommand('bhashabridge.testSarvamConnection', () =>
     testSarvamConnection(context, output),
   );
 
-  context.subscriptions.push(translateCommand, setKeyCommand, clearKeyCommand, testCommand, output);
+  context.subscriptions.push(translateCommand, setKeyCommand, clearKeyCommand, domainsCommand, testCommand, output);
 }
 
 export function deactivate(): void {}

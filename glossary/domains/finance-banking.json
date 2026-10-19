@@ -1,0 +1,112 @@
+{
+  "id": "finance-banking",
+  "label": "Finance and banking",
+  "group": "business",
+  "default": false,
+  "description": "Banking, payments, accounting and Indian financial systems.",
+  "keep": [
+    "UPI",
+    "IMPS",
+    "NEFT",
+    "RTGS",
+    "IFSC",
+    "IFSC code",
+    "MICR",
+    "KYC",
+    "e-KYC",
+    "video KYC",
+    "AML",
+    "anti-money laundering",
+    "PAN",
+    "PAN card",
+    "GST",
+    "GSTIN",
+    "TDS",
+    "TCS",
+    "ITR",
+    "CIBIL score",
+    "NBFC",
+    "RBI",
+    "SEBI",
+    "NPCI",
+    "BBPS",
+    "Bharat BillPay",
+    "NACH",
+    "e-mandate",
+    "account aggregator",
+    "payment gateway",
+    "PCI DSS",
+    "EMI",
+    "ROI",
+    "P&L",
+    "profit and loss statement",
+    "balance sheet",
+    "cash flow statement",
+    "general ledger",
+    "chart of accounts",
+    "accounts payable",
+    "accounts receivable",
+    "IFRS",
+    "Ind AS",
+    "GAAP",
+    "SWIFT",
+    "IBAN",
+    "core banking system",
+    "CBS",
+    "credit score",
+    "NAV",
+    "SIP",
+    "mutual fund",
+    "demat account",
+    "Tally",
+    "Zoho Books",
+    "QuickBooks",
+    "Razorpay",
+    "Paytm",
+    "PhonePe",
+    "Stripe"
+  ],
+  "annotate": {
+    "ledger": {
+      "gu": "ખાતાવહી",
+      "mr": "खातेवही",
+      "reviewed": false
+    },
+    "reconciliation": {
+      "gu": "હિસાબનો મેળ મેળવવો",
+      "mr": "हिशोबाचा ताळमेळ घालणे",
+      "reviewed": false
+    },
+    "accrual": {
+      "gu": "મળવાપાત્ર કે ચૂકવવાપાત્ર થયેલી રકમ",
+      "mr": "मिळणे किंवा देणे बाकी असलेली रक्कम",
+      "reviewed": false
+    },
+    "amortization": {
+      "gu": "હપ્તાઓમાં ચુકવણી",
+      "mr": "हप्त्यांमध्ये परतफेड",
+      "reviewed": false
+    },
+    "collateral": {
+      "gu": "જામીનગીરી",
+      "mr": "तारण",
+      "reviewed": false
+    },
+    "liquidity": {
+      "gu": "તરલતા",
+      "mr": "तरलता",
+      "reviewed": false
+    },
+    "double-entry bookkeeping": {
+      "gu": "બેવડી નોંધવાળી હિસાબ પદ્ધતિ",
+      "mr": "दुहेरी नोंद लेखा पद्धत",
+      "reviewed": false
+    },
+    "net worth": {
+      "gu": "ચોખ્ખી સંપત્તિ",
+      "mr": "निव्वळ संपत्ती",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

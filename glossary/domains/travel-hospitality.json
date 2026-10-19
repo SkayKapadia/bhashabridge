@@ -1,0 +1,51 @@
+{
+  "id": "travel-hospitality",
+  "label": "Travel and hospitality",
+  "group": "business",
+  "default": false,
+  "description": "Bookings, hotels, airlines and travel tech.",
+  "keep": [
+    "PNR",
+    "GDS",
+    "global distribution system",
+    "OTA",
+    "online travel agency",
+    "PMS",
+    "property management system",
+    "channel manager",
+    "booking engine",
+    "IRCTC",
+    "Tatkal",
+    "RevPAR",
+    "ADR",
+    "check-in",
+    "check-out",
+    "web check-in",
+    "boarding pass",
+    "e-ticket",
+    "MakeMyTrip",
+    "Booking.com",
+    "Airbnb",
+    "OYO",
+    "Amadeus",
+    "Sabre"
+  ],
+  "annotate": {
+    "overbooking": {
+      "gu": "ક્ષમતા કરતાં વધુ બુકિંગ",
+      "mr": "क्षमतेपेक्षा जास्त बुकिंग",
+      "reviewed": false
+    },
+    "average daily rate": {
+      "gu": "રૂમનું સરેરાશ દૈનિક ભાડું",
+      "mr": "खोलीचे सरासरी दैनिक भाडे",
+      "reviewed": false
+    },
+    "occupancy rate": {
+      "gu": "ભરાયેલા રૂમનો દર",
+      "mr": "भरलेल्या खोल्यांचे प्रमाण",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

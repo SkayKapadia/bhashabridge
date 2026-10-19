@@ -1,0 +1,50 @@
+{
+  "id": "agriculture",
+  "label": "Agriculture and AgriTech",
+  "group": "business",
+  "default": false,
+  "description": "Farming, agri markets and AgriTech platforms.",
+  "keep": [
+    "AgriTech",
+    "e-NAM",
+    "APMC",
+    "FPO",
+    "farmer producer organisation",
+    "KCC",
+    "Kisan Credit Card",
+    "PM-KISAN",
+    "PMFBY",
+    "crop insurance",
+    "precision agriculture",
+    "NDVI",
+    "remote sensing",
+    "GIS",
+    "farm management software",
+    "IoT soil sensor",
+    "mandi price",
+    "agri drone"
+  ],
+  "annotate": {
+    "minimum support price": {
+      "gu": "લઘુતમ ટેકાના ભાવ",
+      "mr": "किमान आधारभूत किंमत",
+      "reviewed": false
+    },
+    "crop rotation": {
+      "gu": "પાકની ફેરબદલી",
+      "mr": "पीक फेरपालट",
+      "reviewed": false
+    },
+    "drip irrigation": {
+      "gu": "ટપક સિંચાઈ",
+      "mr": "ठिबक सिंचन",
+      "reviewed": false
+    },
+    "soil health card": {
+      "gu": "જમીન આરોગ્ય કાર્ડ",
+      "mr": "मृदा आरोग्य पत्रिका",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

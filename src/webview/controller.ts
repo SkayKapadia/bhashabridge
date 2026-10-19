@@ -1,4 +1,4 @@
-import { promptGlossary, type LoadedGlossary } from '../glossary/glossary';
+import { annotations, promptGlossary, protectedTerms, type LoadedGlossary } from '../glossary/glossary';
 import { ReassemblyError } from '../reassembly/reassemble';
 import { TranslationError } from '../translation/errors';
 import { translateMarkdown } from '../translation/translateMarkdown';
@@ -33,7 +33,8 @@ export async function handleTranslate(
       provider,
       targetLanguage: message.language as TargetLanguage,
       glossary: glossary && promptGlossary(glossary, message.language as TargetLanguage),
-      keepTerms: glossary?.keep,
+      keepTerms: glossary && protectedTerms(glossary),
+      annotations: glossary && annotations(glossary, message.language as TargetLanguage),
       signal,
       onProgress: (done, total) => post({ type: 'progress', done, total }),
     });

@@ -12,12 +12,16 @@ suite('BhashaBridge extension', () => {
     assert.ok(commands.includes('bhashabridge.setSarvamApiKey'));
     assert.ok(commands.includes('bhashabridge.testSarvamConnection'));
     assert.ok(commands.includes('bhashabridge.clearSarvamApiKey'));
+    assert.ok(commands.includes('bhashabridge.chooseGlossaryDomains'));
   });
 
   test('declares the default language and provider settings', () => {
     const config = vscode.workspace.getConfiguration('bhashabridge');
     assert.strictEqual(config.get('defaultLanguage'), 'gu');
     assert.strictEqual(config.get('defaultProvider'), 'sarvam');
+    const domains = config.get<string[]>('glossaryDomains') ?? [];
+    assert.ok(domains.includes('software-core'));
+    assert.ok(!domains.includes('healthcare'));
   });
 
   test('opens a webview panel titled BhashaBridge', async () => {

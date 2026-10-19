@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { protectTerms, restoreTerms } from '../../src/glossary/protectTerms';
+import { annotateFirstUse, protectTerms, restoreTerms } from '../../src/glossary/protectTerms';
 
 const KEEP = ['array', 'dependency array', 'state', 'API', 'Node.js', 're-render', 'class'];
 
@@ -54,4 +54,41 @@ describe('protectTerms', () => {
   it('leaves text alone when there are no terms', () => {
     expect(protectTerms('Nothing to do here.', [])).toEqual({ text: 'Nothing to do here.', placeholders: new Map() });
   });
+
+  it('matches a capitals-only term only in capitals', () => {
+    const result = protectTerms('IT teams use it daily. The PO and the po box. APIs, not apis.', ['IT', 'PO', 'API']);
+
+    expect([...result.placeholders.values()]).toEqual(['IT', 'PO', 'APIs']);
+  });
+
+  it('matches y -> ies plurals', () => {
+    const result = protectTerms('Two dependencies and one dependency; many queries.', ['dependency', 'query']);
+
+    expect([...result.placeholders.values()]).toEqual(['dependencies', 'dependency', 'queries']);
+  });
+
+  it('handles terms with symbols', () => {
+    const result = protectTerms('Use C++ or C#, then .NET and CI/CD.', ['C++', 'C#', '.NET', 'CI/CD']);
+
+    expect([...result.placeholders.values()]).toEqual(['C++', 'C#', '.NET', 'CI/CD']);
+  });
 });
+
+describe('annotateFirstUse', () => {
+  it('adds the meaning after the first use only, across texts in order', () => {
+    const texts = ['ledger નોંધ.', 'બીજો ledger અને ledger.'];
+
+    expect(annotateFirstUse(texts, { ledger: 'ખાતાવહી' })).toEqual(['ledger (ખાતાવહી) નોંધ.', 'બીજો ledger અને ledger.']);
+  });
+
+  it('keeps the original capitalisation and handles several terms', () => {
+    const result = annotateFirstUse(['Ledger and Collateral.'], { ledger: 'ખાતાવહી', collateral: 'જામીનગીરી' });
+
+    expect(result).toEqual(['Ledger (ખાતાવહી) and Collateral (જામીનગીરી).']);
+  });
+
+  it('never touches placeholders and leaves texts without the term alone', () => {
+    expect(annotateFirstUse(['SKIP_001 here.', 'nothing'], { ledger: 'ખાતાવહી' })).toEqual(['SKIP_001 here.', 'nothing']);
+  });
+});
+

@@ -1,0 +1,62 @@
+{
+  "id": "education",
+  "label": "Education and EdTech",
+  "group": "business",
+  "default": false,
+  "description": "Schools, universities and learning platforms.",
+  "keep": [
+    "LMS",
+    "learning management system",
+    "Moodle",
+    "Google Classroom",
+    "MOOC",
+    "SCORM",
+    "xAPI",
+    "NEP 2020",
+    "CBSE",
+    "ICSE",
+    "UGC",
+    "AICTE",
+    "NCERT",
+    "DIKSHA",
+    "SWAYAM",
+    "APAAR ID",
+    "ABC ID",
+    "academic bank of credits",
+    "CGPA",
+    "SGPA",
+    "GPA",
+    "e-learning",
+    "edtech",
+    "LXP",
+    "proctoring",
+    "online proctoring",
+    "question bank",
+    "gradebook",
+    "student information system",
+    "SIS"
+  ],
+  "annotate": {
+    "curriculum": {
+      "gu": "અભ્યાસક્રમ",
+      "mr": "अभ्यासक्रम",
+      "reviewed": false
+    },
+    "formative assessment": {
+      "gu": "શીખતી વખતે થતું મૂલ્યાંકન",
+      "mr": "शिकत असताना होणारे मूल्यमापन",
+      "reviewed": false
+    },
+    "summative assessment": {
+      "gu": "અંતે થતું સમગ્ર મૂલ્યાંકન",
+      "mr": "शेवटी होणारे एकूण मूल्यमापन",
+      "reviewed": false
+    },
+    "learning outcome": {
+      "gu": "શીખવાનું અપેક્ષિત પરિણામ",
+      "mr": "अध्ययनाची अपेक्षित निष्पत्ती",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

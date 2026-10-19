@@ -1,0 +1,65 @@
+{
+  "id": "legal-compliance",
+  "label": "Legal and compliance",
+  "group": "business",
+  "default": false,
+  "description": "Data protection, contracts and regulatory compliance.",
+  "keep": [
+    "GDPR",
+    "DPDP Act",
+    "Digital Personal Data Protection Act",
+    "IT Act",
+    "CCPA",
+    "HIPAA",
+    "SOX",
+    "PCI DSS",
+    "ISO 27001",
+    "SOC 2",
+    "NDA",
+    "MSA",
+    "SLA",
+    "SOW",
+    "statement of work",
+    "terms of service",
+    "privacy policy",
+    "EULA",
+    "DPA",
+    "data processing agreement",
+    "data protection officer",
+    "DPO",
+    "data residency",
+    "data localisation",
+    "right to erasure",
+    "e-contract",
+    "digital signature certificate",
+    "DSC"
+  ],
+  "annotate": {
+    "informed consent": {
+      "gu": "પૂરી માહિતી સાથેની સંમતિ",
+      "mr": "संपूर्ण माहितीसह दिलेली संमती",
+      "reviewed": false
+    },
+    "indemnity": {
+      "gu": "નુકસાન ભરપાઈની ખાતરી",
+      "mr": "नुकसानभरपाईची हमी",
+      "reviewed": false
+    },
+    "jurisdiction": {
+      "gu": "અધિકારક્ષેત્ર",
+      "mr": "अधिकारक्षेत्र",
+      "reviewed": false
+    },
+    "non-disclosure agreement": {
+      "gu": "ગુપ્તતા જાળવવાનો કરાર",
+      "mr": "गोपनीयता राखण्याचा करार",
+      "reviewed": false
+    },
+    "data controller": {
+      "gu": "ડેટાનો ઉપયોગ નક્કી કરનાર સંસ્થા",
+      "mr": "डेटाचा वापर ठरवणारी संस्था",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

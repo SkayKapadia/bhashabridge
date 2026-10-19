@@ -1,0 +1,70 @@
+{
+  "id": "ecommerce-retail",
+  "label": "E-commerce and retail",
+  "group": "business",
+  "default": false,
+  "description": "Online stores, marketplaces and retail operations.",
+  "keep": [
+    "e-commerce",
+    "marketplace",
+    "D2C",
+    "direct-to-consumer",
+    "B2B",
+    "B2C",
+    "C2C",
+    "POS",
+    "point of sale",
+    "ONDC",
+    "COD",
+    "checkout",
+    "shopping cart",
+    "add to cart",
+    "product catalog",
+    "product listing",
+    "SKU",
+    "PDP",
+    "product detail page",
+    "PLP",
+    "GMV",
+    "AOV",
+    "average order value",
+    "CTR",
+    "click-through rate",
+    "A/B testing",
+    "Shopify",
+    "WooCommerce",
+    "Magento",
+    "Amazon Seller Central",
+    "Flipkart Seller Hub",
+    "return merchandise authorization",
+    "RMA",
+    "dropshipping",
+    "omnichannel",
+    "loyalty program",
+    "coupon code",
+    "promo code"
+  ],
+  "annotate": {
+    "cart abandonment": {
+      "gu": "ખરીદી પૂરી કર્યા વિના કાર્ટ છોડી દેવી",
+      "mr": "खरेदी पूर्ण न करता कार्ट सोडून देणे",
+      "reviewed": false
+    },
+    "conversion rate": {
+      "gu": "ખરીદી કરનાર મુલાકાતીઓનો દર",
+      "mr": "खरेदी करणाऱ्या भेट देणाऱ्यांचे प्रमाण",
+      "reviewed": false
+    },
+    "cash on delivery": {
+      "gu": "ડિલિવરી વખતે રોકડ ચુકવણી",
+      "mr": "डिलिव्हरीच्या वेळी रोख पैसे देणे",
+      "reviewed": false
+    },
+    "order fulfillment": {
+      "gu": "ઓર્ડર પૂરો કરીને પહોંચાડવાની પ્રક્રિયા",
+      "mr": "ऑर्डर पूर्ण करून पोहोचवण्याची प्रक्रिया",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

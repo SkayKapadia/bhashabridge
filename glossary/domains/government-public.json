@@ -1,0 +1,62 @@
+{
+  "id": "government-public",
+  "label": "Government and public services",
+  "group": "business",
+  "default": false,
+  "description": "Indian e-governance platforms and public digital infrastructure.",
+  "keep": [
+    "Aadhaar",
+    "Aadhaar number",
+    "e-Aadhaar",
+    "UIDAI",
+    "DigiLocker",
+    "UMANG",
+    "eSign",
+    "Digital India",
+    "India Stack",
+    "DPI",
+    "MeriPehchaan",
+    "Jan Dhan",
+    "DBT",
+    "PFMS",
+    "GeM portal",
+    "Government e-Marketplace",
+    "CPGRAMS",
+    "NIC",
+    "MeitY",
+    "CSC",
+    "common service centre",
+    "e-district",
+    "RTI",
+    "e-Office",
+    "Passport Seva",
+    "Parivahan",
+    "FASTag",
+    "e-challan",
+    "voter ID",
+    "EPIC number",
+    "ration card",
+    "e-Shram",
+    "API Setu",
+    "Sarathi",
+    "Vahan"
+  ],
+  "annotate": {
+    "direct benefit transfer": {
+      "gu": "લાભની રકમ સીધી ખાતામાં જમા",
+      "mr": "लाभाची रक्कम थेट खात्यात जमा",
+      "reviewed": false
+    },
+    "e-governance": {
+      "gu": "ઇલેક્ટ્રોનિક શાસન વ્યવસ્થા",
+      "mr": "इलेक्ट्रॉनिक प्रशासन व्यवस्था",
+      "reviewed": false
+    },
+    "grievance redressal": {
+      "gu": "ફરિયાદ નિવારણ",
+      "mr": "तक्रार निवारण",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

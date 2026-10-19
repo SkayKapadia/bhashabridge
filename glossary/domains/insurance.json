@@ -1,0 +1,64 @@
+{
+  "id": "insurance",
+  "label": "Insurance",
+  "group": "business",
+  "default": false,
+  "description": "Policies, claims and insurance systems.",
+  "keep": [
+    "IRDAI",
+    "TPA",
+    "third-party administrator",
+    "KYC",
+    "cashless claim",
+    "reimbursement claim",
+    "no-claim bonus",
+    "NCB",
+    "term insurance",
+    "ULIP",
+    "health insurance",
+    "motor insurance",
+    "policy number",
+    "policy document",
+    "claim ratio",
+    "claim settlement ratio",
+    "sum insured",
+    "insurance premium",
+    "renewal premium",
+    "grace period",
+    "free look period",
+    "Bima Sugam"
+  ],
+  "annotate": {
+    "deductible": {
+      "gu": "શરૂઆતમાં પોતે ભરવાની રકમ",
+      "mr": "सुरुवातीला स्वतः भरायची रक्कम",
+      "reviewed": false
+    },
+    "underwriting": {
+      "gu": "જોખમનું મૂલ્યાંકન",
+      "mr": "जोखमीचे मूल्यांकन",
+      "reviewed": false
+    },
+    "policyholder": {
+      "gu": "વીમાધારક",
+      "mr": "विमाधारक",
+      "reviewed": false
+    },
+    "claim settlement": {
+      "gu": "દાવાની પતાવટ",
+      "mr": "दाव्याचा निपटारा",
+      "reviewed": false
+    },
+    "sum assured": {
+      "gu": "વીમાની નક્કી કરેલી રકમ",
+      "mr": "विम्याची ठरलेली रक्कम",
+      "reviewed": false
+    },
+    "nominee": {
+      "gu": "વારસદાર તરીકે નિમાયેલ વ્યક્તિ",
+      "mr": "वारसदार म्हणून नेमलेली व्यक्ती",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

@@ -191,5 +191,20 @@ describe('translateMarkdown', () => {
 
     expect(result).toBe('Call `load()` first.\n\nThen render it.');
   });
+
+  it('adds the meaning of an annotated term after its first use, without sending the term', async () => {
+    const provider = fakeProvider();
+    const input = 'Check the ledger first.\n\nThen close the ledger.';
+
+    const result = await translateMarkdown(input, {
+      provider,
+      targetLanguage: 'gu',
+      keepTerms: ['ledger'],
+      annotations: { ledger: 'ખાતાવહી' },
+    });
+
+    expect(provider.calls.map(c => c.text).join(' ')).not.toContain('ledger');
+    expect(result).toBe('[gu] Check the ledger (ખાતાવહી) first.\n\n[gu] Then close the ledger.');
+  });
 });
 

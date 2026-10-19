@@ -1,0 +1,58 @@
+{
+  "id": "real-estate",
+  "label": "Real estate",
+  "group": "business",
+  "default": false,
+  "description": "Property listings, transactions and PropTech.",
+  "keep": [
+    "RERA",
+    "RERA number",
+    "PropTech",
+    "MLS",
+    "BHK",
+    "1BHK",
+    "2BHK",
+    "3BHK",
+    "OC",
+    "occupancy certificate",
+    "CC",
+    "completion certificate",
+    "7/12 extract",
+    "property card",
+    "khata",
+    "sale deed",
+    "agreement to sale",
+    "home loan",
+    "LTV ratio",
+    "EMI",
+    "floor plan",
+    "site visit",
+    "99acres",
+    "MagicBricks",
+    "Housing.com",
+    "NoBroker"
+  ],
+  "annotate": {
+    "carpet area": {
+      "gu": "દીવાલોની અંદરનો વાપરી શકાય તેવો વિસ્તાર",
+      "mr": "भिंतींच्या आतील वापरण्यायोग्य क्षेत्र",
+      "reviewed": false
+    },
+    "super built-up area": {
+      "gu": "સામાન્ય વિસ્તાર સહિતનો કુલ વિસ્તાર",
+      "mr": "सामायिक क्षेत्रासह एकूण क्षेत्र",
+      "reviewed": false
+    },
+    "stamp duty": {
+      "gu": "મિલકતના દસ્તાવેજ પરનો સરકારી કર",
+      "mr": "मालमत्तेच्या दस्तऐवजावरील सरकारी कर",
+      "reviewed": false
+    },
+    "encumbrance": {
+      "gu": "મિલકત પરનો બોજો",
+      "mr": "मालमत्तेवरील बोजा",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

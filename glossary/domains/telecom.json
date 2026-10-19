@@ -1,0 +1,52 @@
+{
+  "id": "telecom",
+  "label": "Telecom",
+  "group": "business",
+  "default": false,
+  "description": "Mobile networks, telecom systems and standards.",
+  "keep": [
+    "4G",
+    "5G",
+    "LTE",
+    "VoLTE",
+    "VoIP",
+    "SIM",
+    "eSIM",
+    "IMEI",
+    "IMSI",
+    "MSISDN",
+    "OSS",
+    "BSS",
+    "OSS/BSS",
+    "CDR",
+    "call detail record",
+    "ARPU",
+    "SMS gateway",
+    "USSD",
+    "IVR",
+    "TRAI",
+    "Department of Telecommunications",
+    "base station",
+    "cell tower",
+    "spectrum auction",
+    "fiber broadband",
+    "FTTH",
+    "prepaid",
+    "postpaid",
+    "MVNO",
+    "SS7"
+  ],
+  "annotate": {
+    "roaming": {
+      "gu": "પોતાના વિસ્તારની બહાર નેટવર્કનો ઉપયોગ",
+      "mr": "आपल्या क्षेत्राबाहेर नेटवर्कचा वापर",
+      "reviewed": false
+    },
+    "number portability": {
+      "gu": "નંબર બદલ્યા વિના કંપની બદલવી",
+      "mr": "नंबर न बदलता कंपनी बदलणे",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

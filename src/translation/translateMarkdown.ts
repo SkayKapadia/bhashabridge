@@ -1,5 +1,5 @@
 import { joinChunk, joinParts, planChunks, splitChunkReply, type Piece } from '../chunking/chunker';
-import { protectTerms, restoreTerms } from '../glossary/protectTerms';
+import { annotateFirstUse, protectTerms, restoreTerms } from '../glossary/protectTerms';
 import { parseMarkdown } from '../parser/markdownParser';
 import { reassemble } from '../reassembly/reassemble';
 import { TranslationError } from './errors';
@@ -17,6 +17,9 @@ export interface TranslateMarkdownOptions {
   glossary?: Glossary;
   // Glossary terms that must stay in English: protected like code, so this is guaranteed.
   keepTerms?: readonly string[];
+  // Term -> meaning added after its first use, e.g. "ledger" -> "ખાતાવહી". These terms
+  // must also be in keepTerms, so they reach this step in English.
+  annotations?: Readonly<Record<string, string>>;
   signal?: AbortSignal;
   // Counts requests (chunks), not paragraphs.
   onProgress?: (done: number, total: number) => void;
@@ -103,7 +106,10 @@ export async function translateMarkdown(input: string, options: TranslateMarkdow
   const workers = Math.min(options.concurrency ?? DEFAULT_CONCURRENCY, total);
   await Promise.all(Array.from({ length: workers }, worker));
 
-  const translations = translatedParts.map((parts, segment) => joinParts(parts, plan.gaps[segment]!));
+  let translations = translatedParts.map((parts, segment) => joinParts(parts, plan.gaps[segment]!));
+  if (options.annotations) {
+    translations = annotateFirstUse(translations, options.annotations);
+  }
   return reassemble(parsed, translations);
 }
 

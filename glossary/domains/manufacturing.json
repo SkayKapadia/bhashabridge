@@ -1,0 +1,71 @@
+{
+  "id": "manufacturing",
+  "label": "Manufacturing",
+  "group": "business",
+  "default": false,
+  "description": "Production, quality and industrial automation.",
+  "keep": [
+    "MES",
+    "manufacturing execution system",
+    "MRP",
+    "MRP II",
+    "BOM",
+    "PLC",
+    "SCADA",
+    "HMI",
+    "CNC",
+    "OEE",
+    "overall equipment effectiveness",
+    "Six Sigma",
+    "Lean manufacturing",
+    "Kaizen",
+    "5S",
+    "TPM",
+    "total productive maintenance",
+    "SPC",
+    "statistical process control",
+    "ISO 9001",
+    "QMS",
+    "CAD",
+    "CAM",
+    "PLM",
+    "digital twin",
+    "Industry 4.0",
+    "IIoT",
+    "predictive maintenance",
+    "shop floor",
+    "work in progress",
+    "WIP",
+    "takt time",
+    "cycle time",
+    "first pass yield"
+  ],
+  "annotate": {
+    "bill of materials": {
+      "gu": "જરૂરી સામગ્રીની યાદી",
+      "mr": "आवश्यक साहित्याची यादी",
+      "reviewed": false
+    },
+    "work order": {
+      "gu": "કામ કરવાનો આદેશ",
+      "mr": "काम करण्याचा आदेश",
+      "reviewed": false
+    },
+    "scrap rate": {
+      "gu": "બગાડનો દર",
+      "mr": "वाया जाणाऱ्या मालाचे प्रमाण",
+      "reviewed": false
+    },
+    "preventive maintenance": {
+      "gu": "અગાઉથી કરાતી જાળવણી",
+      "mr": "प्रतिबंधात्मक देखभाल",
+      "reviewed": false
+    },
+    "quality control": {
+      "gu": "ગુણવત્તા નિયંત્રણ",
+      "mr": "गुणवत्ता नियंत्रण",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

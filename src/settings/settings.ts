@@ -24,3 +24,18 @@ export function readSettings(
     defaultProvider: typeof provider === 'string' && providerIds.includes(provider) ? provider : FALLBACK.defaultProvider,
   };
 }
+
+// The glossary domains in use (Settings > BhashaBridge > Glossary Domains). Unknown ids
+// are dropped; with no valid setting, the domains marked as default are used.
+export function readGlossaryDomains(
+  get: (key: string) => unknown,
+  domains: readonly { id: string; isDefault: boolean }[],
+): string[] {
+  const value = get('glossaryDomains');
+  const known = new Set(domains.map(d => d.id));
+  if (Array.isArray(value)) {
+    return value.filter((id): id is string => typeof id === 'string' && known.has(id));
+  }
+  return domains.filter(d => d.isDefault).map(d => d.id);
+}
+

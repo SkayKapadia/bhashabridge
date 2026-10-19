@@ -1,0 +1,53 @@
+{
+  "id": "media-entertainment",
+  "label": "Media and entertainment",
+  "group": "business",
+  "default": false,
+  "description": "Streaming, publishing and creator platforms.",
+  "keep": [
+    "OTT",
+    "streaming",
+    "video on demand",
+    "VOD",
+    "SVOD",
+    "AVOD",
+    "CMS",
+    "content management system",
+    "DRM",
+    "HLS",
+    "DASH",
+    "adaptive bitrate",
+    "encoding",
+    "transcoding",
+    "CDN",
+    "YouTube Studio",
+    "Spotify",
+    "JioCinema",
+    "Hotstar",
+    "podcast",
+    "RSS feed",
+    "recommendation engine",
+    "CPM",
+    "ad impression",
+    "subscriber",
+    "paywall"
+  ],
+  "annotate": {
+    "watch time": {
+      "gu": "જોવામાં વિતાવેલો સમય",
+      "mr": "पाहण्यात घालवलेला वेळ",
+      "reviewed": false
+    },
+    "royalty": {
+      "gu": "હક બદલ મળતી કમાણી",
+      "mr": "हक्कापोटी मिळणारे शुल्क",
+      "reviewed": false
+    },
+    "content moderation": {
+      "gu": "સામગ્રીની તપાસ અને નિયંત્રણ",
+      "mr": "मजकुराची तपासणी आणि नियंत्रण",
+      "reviewed": false
+    }
+  },
+  "translate": {}
+}

@@ -152,17 +152,26 @@ bhashabridge/
 
 ## The glossary
 
-Some terms read best in English, and some have a natural local word. The glossary records that decision once, so translations stay consistent:
+Some terms read best in English, and some have a natural local word. The glossary records that decision once, so translations stay consistent. It lives in `glossary/domains/`, one file per domain:
+
+- **Software development** (on by default): programming fundamentals, web, backend, databases, cloud and DevOps, security, data and AI, mobile, testing, Git, networking, Agile, embedded and IoT, games, blockchain.
+- **Business domains** (opt-in, for software built in these fields): supply chain, healthcare, finance and banking, insurance, e-commerce, education, manufacturing, government services, telecom, HR and payroll, marketing, legal, real estate, agriculture, energy, travel, media.
+
+Pick domains with **BhashaBridge: Choose Glossary Domains**. Each term is treated one of three ways:
 
 ```json
 {
-  "dependency injection": { "treatment": "keep" },
-  "callback": { "treatment": "keep" },
-  "inheritance": { "treatment": "translate", "note": "Use anuvanshikta with (inheritance) in brackets" }
+  "keep": ["dependency injection", "callback", "UPI"],
+  "annotate": { "ledger": { "gu": "ખાતાવહી", "mr": "खातेवही", "reviewed": false } },
+  "translate": { "inheritance": { "gu": "અનુવંશિકતા (inheritance)", "mr": "अनुवांशिकता (inheritance)", "reviewed": false } }
 }
 ```
 
-A default glossary of common programming terms ships with the extension, and you can override or extend it per workspace. Think a term is handled badly? Open a pull request.
+- **keep**: always stays in English. This is guaranteed: the term is swapped out before translation, like code. Capitals-only terms (`IT`, `PO`) match only in capitals.
+- **annotate**: stays in English, with its meaning added after the first use: "ledger (ખાતાવહી)".
+- **translate**: the model is asked to use the given rendering.
+
+Gujarati and Marathi renderings are reviewed by native speakers. `npm run glossary:review` lists the ones still to check in [`docs/GLOSSARY_REVIEW.md`](docs/GLOSSARY_REVIEW.md). Think a term is handled badly? Open a pull request.
 
 ## Roadmap
 
