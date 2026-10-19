@@ -1,18 +1,27 @@
 import { describe, expect, it, vi } from 'vitest';
+import { joinChunk, splitChunkReply } from '../../src/chunking/chunker';
 import { TranslationError } from '../../src/translation/errors';
 import { translateMarkdown } from '../../src/translation/translateMarkdown';
 import type { TranslateRequest, TranslationProvider } from '../../src/translation/translationProvider';
 
-// Marks each segment as translated and keeps its placeholders, like a well-behaved provider.
-function fakeProvider(delayFor: (text: string) => number = () => 0): TranslationProvider & { calls: TranslateRequest[] } {
+// Marks each part as translated and keeps its placeholders and markers, like a
+// well-behaved provider. `maxChunkChars` controls how segments are grouped.
+function fakeProvider(
+  delayFor: (text: string) => number = () => 0,
+  maxChunkChars?: number,
+): TranslationProvider & { calls: TranslateRequest[] } {
   const calls: TranslateRequest[] = [];
   return {
     id: 'fake',
+    maxChunkChars,
     calls,
     async translate(request) {
       calls.push(request);
       await new Promise(resolve => setTimeout(resolve, delayFor(request.text)));
-      return { translatedText: `[${request.targetLanguage}] ${request.text}` };
+      const count = request.text.match(/<<<\d+>>>/g)?.length ?? 0;
+      const parts = count > 0 ? splitChunkReply(request.text, count)! : [request.text];
+      const translated = parts.map(part => `[${request.targetLanguage}] ${part}`);
+      return { translatedText: count > 0 ? joinChunk(translated) : translated[0]! };
     },
   };
 }
@@ -29,7 +38,7 @@ describe('translateMarkdown', () => {
   });
 
   it('keeps segment order even when replies arrive out of order', async () => {
-    const provider = fakeProvider(text => (text.startsWith('First') ? 30 : 0));
+    const provider = fakeProvider(text => (text.startsWith('First') ? 30 : 0), 30); // one segment per request
     const input = 'First paragraph here.\n\nSecond paragraph here.\n\n- Third item here';
 
     const result = await translateMarkdown(input, { provider, targetLanguage: 'mr' });
@@ -39,7 +48,7 @@ describe('translateMarkdown', () => {
 
   it('reports progress', async () => {
     const onProgress = vi.fn();
-    await translateMarkdown('One paragraph.\n\nTwo paragraph.', { provider: fakeProvider(), targetLanguage: 'gu', onProgress });
+    await translateMarkdown('One paragraph.\n\nTwo paragraph.', { provider: fakeProvider(undefined, 20), targetLanguage: 'gu', onProgress });
 
     expect(onProgress.mock.calls).toEqual([[0, 2], [1, 2], [2, 2]]);
   });
@@ -82,9 +91,9 @@ describe('translateMarkdown', () => {
       glossary: { inheritance: 'અનુવંશિકતા (inheritance)' },
     });
 
+    // Both paragraphs travel in one request, so their term placeholders are numbered together.
     expect(provider.calls.map(c => c.text)).toEqual([
-      'The SKIP_001 does not exist yet.',
-      'Keep the SKIP_001 empty and avoid inheritance here.',
+      '<<<1>>>\nThe SKIP_001 does not exist yet.\n\n<<<2>>>\nKeep the SKIP_002 empty and avoid inheritance here.',
     ]);
     expect(provider.calls[0]!.glossary).toEqual({ inheritance: 'અનુવંશિકતા (inheritance)' });
     expect(result).toBe('[gu] The array does not exist yet.\n\n[gu] Keep the dependency array empty and avoid inheritance here.');
@@ -95,6 +104,92 @@ describe('translateMarkdown', () => {
     await translateMarkdown('Use `array.map` on the array.', { provider, targetLanguage: 'mr', keepTerms: ['array'] });
 
     expect(provider.calls[0]!.text).toBe('Use SKIP_001 on the SKIP_002.');
+  });
+
+  it('sends the 8-part sample from the real Sarvam test in one request', async () => {
+    const provider = fakeProvider();
+    const input = [
+      '## Why your code crashes',
+      'The error `TypeError` happens because `users` is undefined when the component first renders.',
+      'To fix it, give `users` a default value and check it before calling `map`:',
+      '```js\nconst [users, setUsers] = useState([]);\n```',
+      'A quick alternative is optional chaining:\nconst names = users?.map(getName);',
+      'Remember these points:',
+      '- Always initialise state with the right type.\n- Use a loading flag to show a spinner.\n- Keep the dependency array empty.',
+    ].join('\n\n');
+
+    const result = await translateMarkdown(input, { provider, targetLanguage: 'gu' });
+
+    expect(provider.calls).toHaveLength(1);
+    expect(result).toContain('## [gu] Why your code crashes');
+    expect(result).toContain('```js\nconst [users, setUsers] = useState([]);\n```');
+    expect(result).toContain('const names = users?.map(getName);');
+    expect(result).toContain('- [gu] Keep the dependency array empty.');
+  });
+
+  it('splits a paragraph that is too long and joins its translation back', async () => {
+    const provider = fakeProvider(undefined, 40);
+    const input = 'The first sentence is long enough. The second sentence is long too.';
+
+    const result = await translateMarkdown(input, { provider, targetLanguage: 'mr' });
+
+    expect(provider.calls.map(c => c.text)).toEqual(['The first sentence is long enough.', 'The second sentence is long too.']);
+    expect(result).toBe('[mr] The first sentence is long enough. [mr] The second sentence is long too.');
+  });
+
+  it('falls back to one segment per request when the reply loses a marker', async () => {
+    const calls: string[] = [];
+    const provider: TranslationProvider = {
+      id: 'merging',
+      async translate(request) {
+        calls.push(request.text);
+        // Merges the parts: drops the markers.
+        return { translatedText: `[gu] ${request.text.replace(/<<<\d+>>>\n/g, '')}` };
+      },
+    };
+
+    const result = await translateMarkdown('First paragraph.\n\nSecond paragraph.', { provider, targetLanguage: 'gu' });
+
+    expect(calls).toEqual(['<<<1>>>\nFirst paragraph.\n\n<<<2>>>\nSecond paragraph.', 'First paragraph.', 'Second paragraph.']);
+    expect(result).toBe('[gu] First paragraph.\n\n[gu] Second paragraph.');
+  });
+
+  it('falls back when a placeholder moves to another part, so code never changes paragraph', async () => {
+    const calls: string[] = [];
+    const provider: TranslationProvider = {
+      id: 'mover',
+      async translate(request) {
+        calls.push(request.text);
+        if (request.text.includes('<<<1>>>')) {
+          // Moves SKIP_001 from part 1 to part 2; every token still appears once overall.
+          return { translatedText: '<<<1>>>\nCall first.\n\n<<<2>>>\nThen SKIP_001 render.' };
+        }
+        return { translatedText: request.text };
+      },
+    };
+
+    const result = await translateMarkdown('Call `load()` first.\n\nThen render.', { provider, targetLanguage: 'gu' });
+
+    expect(calls).toHaveLength(3);
+    expect(result).toBe('Call `load()` first.\n\nThen render.');
+  });
+
+  it('falls back when the joined reply fails the placeholder check', async () => {
+    let first = true;
+    const provider: TranslationProvider = {
+      id: 'lossy-once',
+      async translate(request) {
+        if (first) {
+          first = false;
+          throw new TranslationError('placeholders', 'lost SKIP_001');
+        }
+        return { translatedText: request.text };
+      },
+    };
+
+    const result = await translateMarkdown('Call `load()` first.\n\nThen render it.', { provider, targetLanguage: 'gu' });
+
+    expect(result).toBe('Call `load()` first.\n\nThen render it.');
   });
 });
 

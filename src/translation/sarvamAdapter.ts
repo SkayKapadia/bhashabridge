@@ -25,6 +25,9 @@ interface SarvamChatResponse {
 
 export class SarvamAdapter implements TranslationProvider {
   readonly id = 'sarvam';
+  // Leaves room for a Gujarati or Marathi reply, which takes more tokens than the
+  // English sent, within the 4096-token reply limit.
+  readonly maxChunkChars = 2000;
 
   private readonly getApiKey: () => Promise<string | undefined>;
   private readonly timeoutMs: number;

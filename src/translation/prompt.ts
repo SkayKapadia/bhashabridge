@@ -9,6 +9,7 @@ export function buildSystemPrompt(targetLanguage: TargetLanguage, glossary: Glos
     'Translate only the surrounding explanation, grammar, and connecting words.',
     'Tokens like SKIP_001 stand for code. Copy every such token unchanged, exactly once, in the right place.',
     'Keep the markdown formatting and line breaks.',
+    'Lines like <<<1>>> separate parts of the text. Copy each one exactly, on its own line, and translate each part on its own.',
     'Reply with the translation only: no notes, no quotes, no explanation.',
   ];
 

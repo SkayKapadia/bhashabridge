@@ -30,6 +30,8 @@ export interface TranslateResponse {
 export interface TranslationProvider {
   // Stable id used in settings and the provider dropdown, e.g. 'sarvam'.
   readonly id: string;
+  // Most characters of text to send in one request; the chunker packs requests up to it.
+  readonly maxChunkChars?: number;
   // Rejects on failure. `signal` cancels a request that is no longer needed.
   translate(request: TranslateRequest, signal?: AbortSignal): Promise<TranslateResponse>;
 }
