@@ -11,6 +11,13 @@ suite('BhashaBridge extension', () => {
     assert.ok(commands.includes('bhashabridge.translate'));
     assert.ok(commands.includes('bhashabridge.setSarvamApiKey'));
     assert.ok(commands.includes('bhashabridge.testSarvamConnection'));
+    assert.ok(commands.includes('bhashabridge.clearSarvamApiKey'));
+  });
+
+  test('declares the default language and provider settings', () => {
+    const config = vscode.workspace.getConfiguration('bhashabridge');
+    assert.strictEqual(config.get('defaultLanguage'), 'gu');
+    assert.strictEqual(config.get('defaultProvider'), 'sarvam');
   });
 
   test('opens a webview panel titled BhashaBridge', async () => {

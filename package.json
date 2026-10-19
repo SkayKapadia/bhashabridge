@@ -23,10 +23,43 @@
         "title": "BhashaBridge: Set Sarvam API Key"
       },
       {
+        "command": "bhashabridge.clearSarvamApiKey",
+        "title": "BhashaBridge: Clear Sarvam API Key"
+      },
+      {
         "command": "bhashabridge.testSarvamConnection",
         "title": "BhashaBridge: Test Sarvam Connection"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "BhashaBridge",
+      "properties": {
+        "bhashabridge.defaultLanguage": {
+          "type": "string",
+          "enum": [
+            "gu",
+            "mr"
+          ],
+          "enumItemLabels": [
+            "Gujarati",
+            "Marathi"
+          ],
+          "default": "gu",
+          "description": "Language the BhashaBridge panel translates into when it opens."
+        },
+        "bhashabridge.defaultProvider": {
+          "type": "string",
+          "enum": [
+            "sarvam"
+          ],
+          "enumItemLabels": [
+            "Sarvam AI"
+          ],
+          "default": "sarvam",
+          "description": "Translation provider the BhashaBridge panel uses when it opens."
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",

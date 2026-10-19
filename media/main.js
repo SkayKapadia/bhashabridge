@@ -12,15 +12,22 @@
   const errorBox = /** @type {HTMLElement} */ (document.getElementById('error'));
   const errorMessage = /** @type {HTMLElement} */ (document.getElementById('error-message'));
   const setKey = /** @type {HTMLButtonElement} */ (document.getElementById('set-key'));
+  const getKey = /** @type {HTMLButtonElement} */ (document.getElementById('get-key'));
   const output = /** @type {HTMLElement} */ (document.getElementById('output'));
 
-  // Restore what was there before the panel was reloaded.
+  // Picks an option only if the list has it, so a stale value never empties a dropdown.
+  function choose(select, value) {
+    if (value && [...select.options].some(o => o.value === value)) {
+      select.value = value;
+    }
+  }
+
+  // Restore what was there before the panel was reloaded; otherwise start from the
+  // defaults in Settings > BhashaBridge.
   const saved = vscode.getState() || {};
   input.value = saved.text || '';
-  language.value = saved.language || 'gu';
-  if (saved.provider && [...provider.options].some(o => o.value === saved.provider)) {
-    provider.value = saved.provider;
-  }
+  choose(language, saved.language || document.body.dataset.defaultLanguage);
+  choose(provider, saved.provider || document.body.dataset.defaultProvider);
   if (saved.html) {
     output.innerHTML = saved.html; // sanitized by the extension host before it was sent
   }
@@ -39,7 +46,7 @@
 
   function showError(message, code) {
     errorMessage.textContent = message; // text, never HTML
-    setKey.hidden = code !== 'missing-key' && code !== 'invalid-key';
+    setKey.hidden = getKey.hidden = code !== 'missing-key' && code !== 'invalid-key';
     errorBox.hidden = false;
   }
 
@@ -54,6 +61,7 @@
   });
 
   setKey.addEventListener('click', () => vscode.postMessage({ type: 'setApiKey' }));
+  getKey.addEventListener('click', () => vscode.postMessage({ type: 'openSignup' }));
 
   window.addEventListener('message', event => {
     const message = event.data;
@@ -67,6 +75,11 @@
     } else if (message.type === 'error') {
       setBusy(false, '');
       showError(message.message, message.code);
+    } else if (message.type === 'defaults') {
+      // The user changed a default in Settings: apply it now.
+      choose(language, message.language);
+      choose(provider, message.provider);
+      save();
     }
   });
 })();

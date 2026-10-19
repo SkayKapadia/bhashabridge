@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type * as vscode from 'vscode';
-import { getSarvamApiKey, setSarvamApiKey } from '../../src/secrets/apiKeys';
+import { deleteSarvamApiKey, getSarvamApiKey, setSarvamApiKey } from '../../src/secrets/apiKeys';
 
 function memorySecrets(): vscode.SecretStorage {
   const values = new Map<string, string>();
@@ -19,5 +19,13 @@ describe('Sarvam API key storage', () => {
 
     await setSarvamApiKey(secrets, '  sk_test_123  ');
     expect(await getSarvamApiKey(secrets)).toBe('sk_test_123');
+  });
+
+  it('removes the key', async () => {
+    const secrets = memorySecrets();
+    await setSarvamApiKey(secrets, 'sk_test_123');
+
+    await deleteSarvamApiKey(secrets);
+    expect(await getSarvamApiKey(secrets)).toBeUndefined();
   });
 });

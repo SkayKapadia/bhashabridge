@@ -10,3 +10,7 @@ export function getSarvamApiKey(secrets: vscode.SecretStorage): Promise<string |
 export async function setSarvamApiKey(secrets: vscode.SecretStorage, key: string): Promise<void> {
   await secrets.store(SARVAM_KEY, key.trim());
 }
+
+export async function deleteSarvamApiKey(secrets: vscode.SecretStorage): Promise<void> {
+  await secrets.delete(SARVAM_KEY);
+}

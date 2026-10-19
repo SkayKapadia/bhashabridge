@@ -1,8 +1,13 @@
 import * as vscode from 'vscode';
 import { loadDefaultGlossary } from '../glossary/glossary';
+import { readSettings, SETTINGS_SECTION } from '../settings/settings';
 import { createProviders, PROVIDER_OPTIONS } from '../translation/providers';
 import { handleTranslate } from './controller';
 import type { HostMessage, WebviewMessage } from './messages';
+import { panelHtml } from './panelHtml';
+
+const SIGNUP_URL = 'https://dashboard.sarvam.ai';
+const PROVIDER_IDS = PROVIDER_OPTIONS.map(p => p.id);
 
 let current: vscode.WebviewPanel | undefined;
 
@@ -20,7 +25,13 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext): void {
   });
   current = panel;
 
-  panel.webview.html = getHtml(panel.webview, media);
+  panel.webview.html = panelHtml({
+    scriptUri: panel.webview.asWebviewUri(vscode.Uri.joinPath(media, 'main.js')).toString(),
+    styleUri: panel.webview.asWebviewUri(vscode.Uri.joinPath(media, 'main.css')).toString(),
+    cspSource: panel.webview.cspSource,
+    providers: PROVIDER_OPTIONS,
+    defaults: currentSettings(),
+  });
 
   const providers = createProviders(context.secrets);
   const glossary = loadDefaultGlossary(context.extensionPath);
@@ -39,67 +50,31 @@ export function openBhashaBridgePanel(context: vscode.ExtensionContext): void {
       );
     } else if (message?.type === 'setApiKey') {
       void vscode.commands.executeCommand('bhashabridge.setSarvamApiKey');
+    } else if (message?.type === 'openSignup') {
+      void vscode.env.openExternal(vscode.Uri.parse(SIGNUP_URL));
+    }
+  });
+
+  // A changed default reaches an open panel straight away.
+  const settingsListener = vscode.workspace.onDidChangeConfiguration(event => {
+    if (event.affectsConfiguration(SETTINGS_SECTION)) {
+      const settings = currentSettings();
+      void panel.webview.postMessage({
+        type: 'defaults',
+        language: settings.defaultLanguage,
+        provider: settings.defaultProvider,
+      } satisfies HostMessage);
     }
   });
 
   panel.onDidDispose(() => {
     running?.abort();
+    settingsListener.dispose();
     current = undefined;
   });
 }
 
-function getHtml(webview: vscode.Webview, media: vscode.Uri): string {
-  const script = webview.asWebviewUri(vscode.Uri.joinPath(media, 'main.js'));
-  const style = webview.asWebviewUri(vscode.Uri.joinPath(media, 'main.css'));
-
-  const providerOptions = PROVIDER_OPTIONS.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.label)}</option>`).join('\n        ');
-
-  // Only the extension's own script and stylesheet may load: no inline script, nothing remote.
-  const csp = `default-src 'none'; script-src ${webview.cspSource}; style-src ${webview.cspSource};`;
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="${csp}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="${style}">
-  <title>BhashaBridge</title>
-</head>
-<body>
-  <main>
-    <h1>BhashaBridge</h1>
-
-    <label for="input">Paste the LLM explanation (English)</label>
-    <textarea id="input" rows="10" placeholder="Paste text from Copilot, ChatGPT or any other tool…"></textarea>
-
-    <div class="row">
-      <label for="language">Translate into</label>
-      <select id="language">
-        <option value="gu">Gujarati (ગુજરાતી)</option>
-        <option value="mr">Marathi (मराठी)</option>
-      </select>
-      <label for="provider">using</label>
-      <select id="provider">
-        ${providerOptions}
-      </select>
-      <button id="translate" type="button">Translate</button>
-    </div>
-
-    <div id="status" role="status" aria-live="polite"></div>
-    <div id="error" role="alert" hidden>
-      <p id="error-message"></p>
-      <button id="set-key" type="button" hidden>Set Sarvam API key</button>
-    </div>
-
-    <h2>Translation</h2>
-    <div id="output" class="output"><p class="placeholder">The translation will appear here. Code stays in English.</p></div>
-  </main>
-  <script src="${script}"></script>
-</body>
-</html>`;
-}
-
-function escapeHtml(text: string): string {
-  return text.replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
+function currentSettings() {
+  const config = vscode.workspace.getConfiguration(SETTINGS_SECTION);
+  return readSettings(key => config.get(key), PROVIDER_IDS);
 }

@@ -97,7 +97,7 @@ BhashaBridge is in early development and is **not yet on the Marketplace**.
 - [x] **Milestone 3:** Translation service (`TranslationProvider` interface and Sarvam adapter)
 - [x] **Milestone 4:** Reassembly engine
 - [x] **Milestone 5:** Webview UI (input, language and provider pickers, output)
-- [ ] **Milestone 6:** Secrets and settings
+- [x] **Milestone 6:** Secrets and settings
 - [ ] **Milestone 7:** Testing and first release
 
 See [`docs/TASKS.md`](docs/TASKS.md) for the full breakdown.
