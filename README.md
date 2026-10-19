@@ -123,6 +123,8 @@ Then open the folder in VS Code and press **F5**. In the window that opens, run 
 | `npm run watch` | Recompile on every change |
 | `npm run test:unit` | Run unit tests with Vitest |
 | `npm test` | Compile, then run integration tests inside a downloaded copy of VS Code |
+| `npm run quality` | Translate the 20 samples in `test/quality/samples` with the real Sarvam API and write a scored report to `docs/quality/`. Needs `SARVAM_API_KEY` in the environment or a git-ignored `.env` file. `-- --dry-run` checks the report without API calls. |
+| `npm run glossary:review` | List the Gujarati and Marathi glossary renderings still to review in `docs/GLOSSARY_REVIEW.md` |
 
 ## Project structure
 

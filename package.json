@@ -222,7 +222,8 @@
     "watch": "tsc -watch -p ./",
     "test": "npm run compile && node ./out/test/runTest.js",
     "test:unit": "vitest run --dir test/unit",
-    "glossary:review": "node scripts/glossary-review.mjs"
+    "glossary:review": "node scripts/glossary-review.mjs",
+    "quality": "npm run compile && node scripts/quality.mjs"
   },
   "devDependencies": {
     "@types/hast": "^3.0.5",
