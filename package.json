@@ -35,6 +35,10 @@
         "title": "BhashaBridge: Choose Glossary Domains"
       },
       {
+        "command": "bhashabridge.createWorkspaceGlossary",
+        "title": "BhashaBridge: Create Workspace Glossary"
+      },
+      {
         "command": "bhashabridge.testSarvamConnection",
         "title": "BhashaBridge: Test Sarvam Connection"
       },
@@ -164,6 +168,12 @@
             "blockchain"
           ],
           "markdownDescription": "Glossary domains whose terms always stay in English. Software development domains are on by default; turn on business domains if you build software for them. Easiest to change with **BhashaBridge: Choose Glossary Domains**."
+        },
+        "bhashabridge.workspaceGlossaryPath": {
+          "type": "string",
+          "default": ".bhashabridge/glossary.json",
+          "scope": "resource",
+          "markdownDescription": "Your project's own glossary file, relative to the workspace folder. Its terms win over the built-in glossary. Create one with **BhashaBridge: Create Workspace Glossary**."
         }
       }
     },

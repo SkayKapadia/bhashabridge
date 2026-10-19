@@ -59,16 +59,69 @@ export async function loadGlossaryDomains(extensionPath: string): Promise<Glossa
 // Checks one domain file, so a mistake in a contributed term is named instead of crashing later.
 export function parseDomain(data: unknown, source: string): GlossaryDomain {
   const d = (data ?? {}) as Record<string, unknown>;
-  const fail = (problem: string): never => {
-    throw new GlossaryError(`Glossary file ${source}: ${problem}`);
-  };
+  const fail = failFor(source);
 
   if (typeof d.id !== 'string' || !/^[a-z0-9-]+$/.test(d.id)) fail('"id" must be lowercase letters, digits and dashes.');
   if (typeof d.label !== 'string' || !d.label.trim()) fail('needs a "label".');
   if (d.group !== 'software' && d.group !== 'business') fail('"group" must be "software" or "business".');
   if (typeof d.default !== 'boolean') fail('"default" must be true or false.');
   if (typeof d.description !== 'string') fail('needs a "description".');
-  if (!Array.isArray(d.keep) || !d.keep.every(t => typeof t === 'string' && t.trim())) fail('"keep" must be a list of terms.');
+  if (!Array.isArray(d.keep)) fail('"keep" must be a list of terms.');
+
+  return {
+    id: d.id as string,
+    label: d.label as string,
+    group: d.group as GlossaryDomain['group'],
+    isDefault: d.default as boolean,
+    description: d.description as string,
+    ...parseTerms(d, fail),
+  };
+}
+
+// A project's own glossary (.bhashabridge/glossary.json): the same three sections as a
+// domain file, each optional, and no id or label. Its entries win over built-in ones.
+export function parseWorkspaceGlossary(data: unknown, source: string): LoadedGlossary {
+  const fail = failFor(source);
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) fail('must be a JSON object.');
+  const glossary = parseTerms(data as Record<string, unknown>, fail);
+
+  const seen = new Set<string>();
+  for (const term of [...glossary.keep, ...Object.keys(glossary.annotate), ...Object.keys(glossary.translate)]) {
+    const key = term.trim().toLowerCase();
+    if (seen.has(key)) fail(`lists "${term}" twice.`);
+    seen.add(key);
+  }
+  return glossary;
+}
+
+// The built-in glossary with a project's entries on top: a term the project lists is
+// treated only the project's way, whatever the domains said.
+export function applyWorkspaceGlossary(base: LoadedGlossary, workspace: LoadedGlossary | undefined): LoadedGlossary {
+  if (!workspace) {
+    return base;
+  }
+  const overridden = new Set(
+    [...workspace.keep, ...Object.keys(workspace.annotate), ...Object.keys(workspace.translate)].map(t => t.trim().toLowerCase()),
+  );
+  const keepBase = <T>(entries: Record<string, T>) =>
+    Object.fromEntries(Object.entries(entries).filter(([term]) => !overridden.has(term.trim().toLowerCase())));
+
+  return {
+    keep: [...new Set([...base.keep.filter(t => !overridden.has(t.trim().toLowerCase())), ...workspace.keep])],
+    annotate: { ...keepBase(base.annotate), ...workspace.annotate },
+    translate: { ...keepBase(base.translate), ...workspace.translate },
+  };
+}
+
+function failFor(source: string): (problem: string) => never {
+  return problem => {
+    throw new GlossaryError(`Glossary file ${source}: ${problem}`);
+  };
+}
+
+function parseTerms(d: Record<string, unknown>, fail: (problem: string) => never): LoadedGlossary {
+  const keep = d.keep ?? [];
+  if (!Array.isArray(keep) || !keep.every(t => typeof t === 'string' && t.trim())) fail('"keep" must be a list of terms.');
 
   const renderings = (key: 'annotate' | 'translate'): Record<string, Renderings> => {
     const value = d[key] ?? {};
@@ -85,16 +138,7 @@ export function parseDomain(data: unknown, source: string): GlossaryDomain {
     return out;
   };
 
-  return {
-    id: d.id as string,
-    label: d.label as string,
-    group: d.group as GlossaryDomain['group'],
-    isDefault: d.default as boolean,
-    description: d.description as string,
-    keep: d.keep as string[],
-    annotate: renderings('annotate'),
-    translate: renderings('translate'),
-  };
+  return { keep: keep as string[], annotate: renderings('annotate'), translate: renderings('translate') };
 }
 
 // Across all domains: ids are unique, and a term listed in two domains (KYC in both

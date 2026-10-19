@@ -173,6 +173,8 @@ Pick domains with **BhashaBridge: Choose Glossary Domains**. Each term is treate
 - **annotate**: stays in English, with its meaning added after the first use: "ledger (ખાતાવહી)".
 - **translate**: the model is asked to use the given rendering.
 
+**Your project's own terms:** run **BhashaBridge: Create Workspace Glossary** to add `.bhashabridge/glossary.json` to your project, in the same format. Use it for product names, internal acronyms and preferred translations. Its entries win over the built-in glossary, and edits apply to the next translation.
+
 Gujarati and Marathi renderings are reviewed by native speakers. `npm run glossary:review` lists the ones still to check in [`docs/GLOSSARY_REVIEW.md`](docs/GLOSSARY_REVIEW.md). Think a term is handled badly? Open a pull request.
 
 ## Roadmap

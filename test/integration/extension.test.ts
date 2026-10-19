@@ -15,6 +15,7 @@ suite('BhashaBridge extension', () => {
     assert.ok(commands.includes('bhashabridge.chooseGlossaryDomains'));
     assert.ok(commands.includes('bhashabridge.translateSelection'));
     assert.ok(commands.includes('bhashabridge.clearTranslationCache'));
+    assert.ok(commands.includes('bhashabridge.createWorkspaceGlossary'));
   });
 
   test('declares the default language and provider settings', () => {
@@ -24,6 +25,7 @@ suite('BhashaBridge extension', () => {
     const domains = config.get<string[]>('glossaryDomains') ?? [];
     assert.ok(domains.includes('software-core'));
     assert.ok(!domains.includes('healthcare'));
+    assert.strictEqual(config.get('workspaceGlossaryPath'), '.bhashabridge/glossary.json');
   });
 
   test('Translate Selection opens the panel with clipboard text', async () => {
