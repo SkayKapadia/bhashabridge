@@ -6,7 +6,8 @@
 
 A VS Code extension that translates explanations from AI coding assistants into **Gujarati** and **Marathi**, while keeping every line of code, variable name, and technical term exactly as it was.
 
-![Status](https://img.shields.io/badge/status-early%20development-orange)
+![Status](https://img.shields.io/badge/status-early%20preview-orange)
+![Contributors welcome](https://img.shields.io/badge/contributors-welcome-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-007ACC)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)
@@ -14,6 +15,21 @@ A VS Code extension that translates explanations from AI coding assistants into 
 </div>
 
 ---
+
+## At a glance
+
+<!-- Screenshot: add docs/images/panel.png (the panel with a translation, side by side) and replace this line with:
+![BhashaBridge panel](docs/images/panel.png) -->
+
+- **Code never changes.** Code is hidden before translation and put back letter for letter. If anything does not match, you get an error, never broken code.
+- **Technical words stay English.** A glossary of 1,450+ terms in 32 domains keeps *array*, *API* or *dependency injection* as the words you will search for.
+- **Learn as you read.** Click a paragraph to see its English, or read both side by side.
+- **Works with any AI tool.** Select or copy an answer and press **Ctrl+Alt+Shift+T** (Cmd on Mac), paste it into the panel, or ask `@bhashabridge` in Copilot Chat.
+- **Your code never leaves your machine.** Only the explanation, with code hidden, goes to the translator you choose: Sarvam AI with your own key, or your Copilot model.
+
+**Status:** early preview, not yet on the VS Code Marketplace. You can [run it from source](#getting-started-development) today, and help is very welcome, especially from Gujarati and Marathi speakers. See [Contributing](#contributing).
+
+More detail: [the idea in simple words](docs/SIMPLE_EXPLANATION.md) · [technical overview](docs/TECHNICAL_OVERVIEW.md)
 
 ## Why BhashaBridge?
 
@@ -64,11 +80,12 @@ flowchart LR
     F --> H[Translated markdown<br/>in the webview]
 ```
 
-1. **Parse.** The input is parsed into a markdown syntax tree. Every code block and inline code span is swapped for a placeholder token such as `SKIP_001`, and the original is stored in a map.
-2. **Chunk.** Long text is split at paragraph and sentence boundaries to fit the provider's limits.
-3. **Translate.** Each chunk is sent to the selected provider with a prompt that keeps technical terms in English and applies the glossary.
-4. **Reassemble.** Placeholders are replaced with the exact original code, byte for byte.
-5. **Render.** The result is shown in a webview with sanitized HTML and syntax highlighting.
+1. **Parse.** The input is parsed into a markdown syntax tree. Every code block, inline code span and code line is swapped for a placeholder token such as `SKIP_001`, and the original is stored in a map.
+2. **Protect terms.** Glossary terms are swapped for placeholders too, so they cannot be translated.
+3. **Chunk.** Paragraphs are grouped into as few requests as fit the provider's limit; a paragraph that is too long is split at sentence ends.
+4. **Translate.** Each request goes to the selected provider with a prompt that keeps technical terms in English. Every reply is checked: each placeholder must come back exactly once.
+5. **Reassemble.** Translations and the exact original code are put back, byte for byte.
+6. **Render.** The result is shown as sanitized HTML in the panel or the chat.
 
 Because code is removed *before* translation, a model never gets the chance to "helpfully" translate your variable names.
 
@@ -76,13 +93,14 @@ Because code is removed *before* translation, a model never gets the chance to "
 
 | Language | Code | Status |
 |---|---|---|
-| Gujarati | `gu` | Planned for v0.1.0 |
-| Marathi | `mr` | Planned for v0.1.0 |
+| Gujarati | `gu` | Available (preview) |
+| Marathi | `mr` | Available (preview) |
 | Hindi, Kannada, Tamil, Telugu | | Later roadmap |
 
 | Provider | Status |
 |---|---|
-| [Sarvam AI](https://www.sarvam.ai/) | Default, v0.1.0 |
+| [Sarvam AI](https://www.sarvam.ai/) | Available, default (your own API key) |
+| VS Code model (GitHub Copilot) | Available when Copilot is installed (no extra key) |
 | [AI4Bharat IndicTrans2](https://github.com/AI4Bharat/IndicTrans2) | Planned, free alternative |
 | Google Gemini | Planned |
 | Krutrim | Planned |
@@ -113,7 +131,10 @@ npm install
 npm run compile
 ```
 
-Then open the folder in VS Code and press **F5**. In the window that opens, run **BhashaBridge: Translate LLM Output** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
+Then open the folder in VS Code and press **F5**. In the window that opens:
+
+1. Run **BhashaBridge: Set Sarvam API Key** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and paste a key from [dashboard.sarvam.ai](https://dashboard.sarvam.ai). With GitHub Copilot you can skip this and pick *VS Code model* instead.
+2. Run **BhashaBridge: Translate LLM Output**, paste an AI answer, pick Gujarati or Marathi, and click **Translate**.
 
 ### Scripts
 
@@ -131,23 +152,30 @@ Then open the folder in VS Code and press **F5**. In the window that opens, run 
 ```
 bhashabridge/
 ├── src/
-│   ├── extension.ts      Entry point, registers commands
-│   ├── parser/           Markdown parsing and code extraction
-│   ├── translation/      TranslationProvider interface and adapters
-│   ├── glossary/         Glossary loading and overrides
-│   ├── secrets/          API key storage via SecretStorage
-│   └── webview/          Webview panel UI
-├── glossary/             Default Gujarati and Marathi glossaries
-├── test/
-│   ├── unit/             Vitest unit tests
-│   └── integration/      VS Code extension tests
-└── docs/                 Design doc (SDD), tasks, prompts
+│   ├── extension.ts      Entry point: registers commands and the chat participant
+│   ├── parser/           Code extraction into placeholders, paragraph segments
+│   ├── glossary/         Domain glossaries, term protection, workspace glossary
+│   ├── chunking/         Grouping paragraphs into requests
+│   ├── translation/      Provider interface, Sarvam and VS Code model adapters, the pipeline
+│   ├── reassembly/       Putting translations and code back together
+│   ├── webview/          The panel, safe rendering, learning mode
+│   ├── chat/             @bhashabridge in the Chat view
+│   ├── selection/        Translate Selection shortcut
+│   └── settings/, secrets/, cache/, feedback/, quality/
+├── media/                The panel's script and styles
+├── glossary/domains/     32 domain glossary files
+├── test/                 Unit tests, VS Code tests, quality samples
+├── scripts/              Quality report and glossary review
+└── docs/                 SDD, tasks, overviews, glossary review list
 ```
+
+The [technical overview](docs/TECHNICAL_OVERVIEW.md) explains each part.
 
 ## Privacy and security
 
 - **API keys** are stored with VS Code's encrypted SecretStorage. They are never written to settings files, never logged, and never sent anywhere but the provider you chose.
-- **Your text** is sent only to the selected translation provider, over HTTPS.
+- **Your code never leaves your machine.** It is replaced by placeholders before anything is sent.
+- **The explanation text** is sent only to the selected translation provider, over HTTPS.
 - **No telemetry.** No analytics, no tracking, no BhashaBridge backend.
 - **Locked-down webview.** A strict Content Security Policy blocks inline and external scripts, and translated output is sanitized before rendering.
 - **Fully open source,** so anyone can audit exactly what happens to their text.
