@@ -196,7 +196,7 @@ Contributions are very welcome, especially from developers who think in Gujarati
 - **Adding a provider.** Implement the `TranslationProvider` interface for a new backend.
 - **Testing with real output.** Try explanations from Copilot, Continue.dev, or ChatGPT and report what breaks.
 
-Fork the repo, create a branch, make sure `npm run test:unit` passes, and open a pull request.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, the glossary rules and how reviews work. Every pull request is tested automatically.
 
 ## License
 

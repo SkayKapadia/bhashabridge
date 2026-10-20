@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Unit tests (parser, glossary files, chunker, providers, reassembly, ...)
+        run: npm run test:unit
+
+      - name: Glossary review list is up to date
+        run: |
+          npm run glossary:review
+          git diff --exit-code docs/GLOSSARY_REVIEW.md || (echo "::error::Run 'npm run glossary:review' and commit docs/GLOSSARY_REVIEW.md" && exit 1)
+
+      - name: VS Code integration tests
+        run: xvfb-run -a npm test
