@@ -73,6 +73,8 @@ The glossary decides how technical terms are treated, and its main treatment is 
 - A term written only in capitals (`IT`, `PO`, `PAN`) matches only in capitals, so ordinary words like "it" stay translatable.
 - Gujarati and Marathi suffixes attach after the placeholder, so `SKIP_010ને` restores as `arrayને`.
 
+**Review gate:** a built-in `annotate` or `translate` rendering is used only when it is marked `"reviewed": true`. Until then its term is treated as `keep`, so no unchecked Gujarati or Marathi reaches users. A workspace glossary's own entries are trusted unless marked `false`.
+
 **Validation:** every file is checked on load. Ids must be unique, and a term listed in two domains must be treated the same way in both. A test also blocks ordinary words such as push, order or balance from the keep lists.
 
 **Workspace glossary:** a project can add `.bhashabridge/glossary.json` with the same three sections. It is read on every translation, and its entries replace any built-in treatment of the same term.

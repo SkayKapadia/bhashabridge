@@ -62,4 +62,20 @@ describe('applyWorkspaceGlossary', () => {
   it('changes nothing without a project file', () => {
     expect(applyWorkspaceGlossary(BUILT_IN, undefined)).toBe(BUILT_IN);
   });
+
+  it("trusts a project's own renderings unless marked reviewed: false", () => {
+    const parsed = parseWorkspaceGlossary(
+      {
+        annotate: {
+          settlement: { gu: 'ચુકવણીની પતાવટ', mr: 'देयकाची पूर्तता' },
+          payout: { gu: 'ચુકવણી', mr: 'देयक', reviewed: false },
+        },
+      },
+      'g.json',
+    );
+
+    expect(Object.keys(parsed.annotate)).toEqual(['settlement']);
+    expect(parsed.keep).toEqual(['payout']);
+  });
 });
+

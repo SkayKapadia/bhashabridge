@@ -43,7 +43,9 @@ describe('glossary domain files', () => {
     for (const term of ['variable', 'function', 'loop', 'array', 'object', 'polymorphism', 'dependency injection', 'asynchronous', 'callback', 'promise', 'API', 'database', 'query', 'compiler', 'runtime']) {
       expect(glossary.keep, term).toContain(term);
     }
-    expect(promptGlossary(glossary, 'gu')).toEqual({ inheritance: 'અનુવંશિકતા (inheritance)' });
+    // The inheritance rendering is not reviewed yet, so the term stays in English for now.
+    expect(promptGlossary(glossary, 'gu')).toEqual({});
+    expect(glossary.keep).toContain('inheritance');
   });
 
   it('match the domain list in package.json, so Settings offers every domain', async () => {
@@ -71,13 +73,28 @@ describe('glossary domain files', () => {
 describe('parseDomain', () => {
   const valid = { id: 'x', label: 'X', group: 'business', default: false, description: '', keep: ['SKU'] };
 
-  it('reads a valid file', () => {
-    expect(parseDomain({ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही', reviewed: false } } }, 'x.json')).toMatchObject({
+  it('reads a valid file and uses its reviewed renderings', () => {
+    expect(parseDomain({ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही', reviewed: true } } }, 'x.json')).toMatchObject({
       id: 'x',
       isDefault: false,
       keep: ['SKU'],
       annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही' } },
     });
+  });
+
+  it.each([[false], [undefined]])('keeps a term in English while its rendering is not reviewed (reviewed: %s)', reviewed => {
+    const domain = parseDomain(
+      {
+        ...valid,
+        annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही', reviewed } },
+        translate: { inheritance: { gu: 'અનુવંશિકતા', mr: 'अनुवांशिकता', reviewed } },
+      },
+      'x.json',
+    );
+
+    expect(domain.annotate).toEqual({});
+    expect(domain.translate).toEqual({});
+    expect(domain.keep).toEqual(['SKU', 'ledger', 'inheritance']);
   });
 
   it.each([

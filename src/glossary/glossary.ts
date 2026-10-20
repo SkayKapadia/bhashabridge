@@ -74,7 +74,7 @@ export function parseDomain(data: unknown, source: string): GlossaryDomain {
     group: d.group as GlossaryDomain['group'],
     isDefault: d.default as boolean,
     description: d.description as string,
-    ...parseTerms(d, fail),
+    ...parseTerms(d, fail, reviewed => reviewed === true),
   };
 }
 
@@ -83,7 +83,8 @@ export function parseDomain(data: unknown, source: string): GlossaryDomain {
 export function parseWorkspaceGlossary(data: unknown, source: string): LoadedGlossary {
   const fail = failFor(source);
   if (typeof data !== 'object' || data === null || Array.isArray(data)) fail('must be a JSON object.');
-  const glossary = parseTerms(data as Record<string, unknown>, fail);
+  // A project's own entries are trusted unless marked "reviewed": false.
+  const glossary = parseTerms(data as Record<string, unknown>, fail, reviewed => reviewed !== false);
 
   const seen = new Set<string>();
   for (const term of [...glossary.keep, ...Object.keys(glossary.annotate), ...Object.keys(glossary.translate)]) {
@@ -119,9 +120,16 @@ function failFor(source: string): (problem: string) => never {
   };
 }
 
-function parseTerms(d: Record<string, unknown>, fail: (problem: string) => never): LoadedGlossary {
+// A rendering nobody has checked yet is not shown to users: until it is marked
+// reviewed, its term is kept in English like any "keep" term.
+function parseTerms(
+  d: Record<string, unknown>,
+  fail: (problem: string) => never,
+  isTrusted: (reviewed: unknown) => boolean,
+): LoadedGlossary {
   const keep = d.keep ?? [];
   if (!Array.isArray(keep) || !keep.every(t => typeof t === 'string' && t.trim())) fail('"keep" must be a list of terms.');
+  const unreviewed: string[] = [];
 
   const renderings = (key: 'annotate' | 'translate'): Record<string, Renderings> => {
     const value = d[key] ?? {};
@@ -133,12 +141,18 @@ function parseTerms(d: Record<string, unknown>, fail: (problem: string) => never
         fail(`${key} term "${term}" needs "gu" and "mr" text.`);
       }
       if (reviewed !== undefined && typeof reviewed !== 'boolean') fail(`${key} term "${term}": "reviewed" must be true or false.`);
-      out[term] = { gu: gu as string, mr: mr as string };
+      if (isTrusted(reviewed)) {
+        out[term] = { gu: gu as string, mr: mr as string };
+      } else {
+        unreviewed.push(term);
+      }
     }
     return out;
   };
 
-  return { keep: keep as string[], annotate: renderings('annotate'), translate: renderings('translate') };
+  const annotate = renderings('annotate');
+  const translate = renderings('translate');
+  return { keep: [...(keep as string[]), ...unreviewed], annotate, translate };
 }
 
 // Across all domains: ids are unique, and a term listed in two domains (KYC in both
