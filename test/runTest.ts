@@ -7,7 +7,8 @@ async function main(): Promise<void> {
   delete process.env.ELECTRON_RUN_AS_NODE;
 
   try {
-    const extensionDevelopmentPath = path.resolve(__dirname, '../../');
+    // BHASHABRIDGE_EXTENSION_PATH points the tests at an unpacked .vsix, to check what ships.
+    const extensionDevelopmentPath = process.env.BHASHABRIDGE_EXTENSION_PATH ?? path.resolve(__dirname, '../../');
     const extensionTestsPath = path.resolve(__dirname, './integration/index');
 
     await runTests({

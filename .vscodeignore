@@ -1,0 +1,18 @@
+# Only the compiled extension, its page assets, the glossary and the docs ship in the .vsix.
+src/**
+test/**
+out/test/**
+**/*.map
+scripts/**
+docs/**
+.github/**
+.vscode/**
+.vscode-test/**
+*.vsix
+.env
+.env.*
+CLAUDE.md
+CONTRIBUTING.md
+tsconfig.json
+vitest.config.*
+.gitignore
