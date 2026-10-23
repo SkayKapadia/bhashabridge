@@ -144,17 +144,18 @@ describe('parseMarkdown bare code lines', () => {
     const input = `${sentence}\n${codeLine}`;
     const result = parseMarkdown(input);
 
-    expect(result.text).toBe(`${sentence}\nSKIP_001`);
-    expect(result.placeholders.get('SKIP_001')).toBe(codeLine);
-    expect(result.segments.map(s => s.text)).toEqual([sentence]);
+    // users and map also appear in the code line, so they are kept in English in the sentence too.
+    expect(result.text).toBe('The function fails because SKIP_001 is undefined. Add a check before calling SKIP_002.\nSKIP_003');
+    expect(result.placeholders.get('SKIP_003')).toBe(codeLine);
+    expect(result.segments.map(s => s.text)).toEqual(['The function fails because SKIP_001 is undefined. Add a check before calling SKIP_002.']);
     expect(restore(result.text, result.placeholders)).toBe(input);
   });
 
   it('extracts the sample code line when it is its own paragraph', () => {
     const result = parseMarkdown(`${sentence}\n\n${codeLine}`);
 
-    expect(result.placeholders.get('SKIP_001')).toBe(codeLine);
-    expect(result.segments.map(s => s.text)).toEqual([sentence]);
+    expect(result.placeholders.get('SKIP_003')).toBe(codeLine);
+    expect(result.segments.map(s => s.text)).toEqual(['The function fails because SKIP_001 is undefined. Add a check before calling SKIP_002.']);
   });
 
   it('extracts several kinds of bare code lines', () => {
@@ -283,10 +284,17 @@ describe('parseMarkdown tables, task lists and addresses', () => {
     expect(result.placeholders.get('SKIP_001')).toBe('https://dashboard.sarvam.ai');
   });
 
-  it('still translates the words of a normal link', () => {
-    const result = parseMarkdown('Read [the guide](https://example.com/guide) first.');
+  it('translates the words of a link but hides its address', () => {
+    const result = parseMarkdown('Read [the guide](https://example.com/guide "Guide") first.');
 
-    expect(result.placeholders.size).toBe(0);
+    expect(result.segments.map(s => s.text)).toEqual(['Read [the guide]SKIP_001 first.']);
+    expect(result.placeholders.get('SKIP_001')).toBe('(https://example.com/guide "Guide")');
+  });
+
+  it('hides an image whole', () => {
+    const result = parseMarkdown('See ![the panel](docs/images/panel.png) here.');
+
+    expect([...result.placeholders.values()]).toEqual(['![the panel](docs/images/panel.png)']);
   });
 });
 
@@ -334,9 +342,38 @@ describe('parseMarkdown code-shaped words without backticks', () => {
     'On the 2nd and 3rd day (dev era) we met in Ahmedabad.',
     "Don't worry: it's fine, e.g. when you're done.",
     'The A team said: I agree.',
-    'Read [the guide](https://example.com/guide) first.',
   ])('leaves ordinary writing alone: %s', text => {
     expect(parseMarkdown(text).placeholders.size).toBe(0);
+  });
+});
+
+describe('parseMarkdown names from the answer\'s own code', () => {
+  it('keeps names used in the code in English in the sentences, even without backticks', () => {
+    const input = 'Give users a default value before calling map.\n\n```js\nconst [users, setUsers] = useState([]);\nusers.map(getName);\n```';
+    const words = [...parseMarkdown(input).placeholders.values()].filter(v => !v.startsWith('```'));
+
+    expect(words).toEqual(['users', 'map']);
+  });
+
+  it('does nothing when the answer has no code', () => {
+    expect(parseMarkdown('Give users a default value before calling map.').placeholders.size).toBe(0);
+  });
+
+  it('never reuses common English words found in code or its comments', () => {
+    const input = 'Check the value for each new item.\n\n```js\n// check the value for each new item\nfor (const item of items) { new Item(item); }\n```';
+    const words = [...parseMarkdown(input).placeholders.values()].filter(v => !v.startsWith('```'));
+
+    // "item" is a real name in the code; "the", "for", "each", "new" are not reused.
+    expect(words).toEqual(['item']);
+  });
+});
+
+describe('identifiersIn', () => {
+  it('ignores comments and quoted strings', async () => {
+    const { identifiersIn } = await import('../../src/parser/codeWords');
+    const names = identifiersIn('// fetch the users\nconst label = "Hello users"; # note\n/* old code */ const url = "https://x.io"; render(label);');
+
+    expect([...names].sort()).toEqual(['const', 'label', 'render', 'url'].filter(n => n.length >= 3).sort());
   });
 });
 

@@ -29,9 +29,38 @@ export function isCodeShapedWord(word: string): boolean {
   );
 }
 
+// Common English words that also turn up in code (keywords, comments). Seeing one in
+// code is no reason to keep it in English in the explanation.
+const ENGLISH_WORDS = new Set(
+  ('the and for not but with from this that these those there their they them then than are was were has have had ' +
+    'can could will would should may might must you your its our out all any one two new old use get set put add ' +
+    'run let var try end not now how why who what when where which while each else into onto over under about ' +
+    'after before again also just only more most some such very here same other first last next true false null')
+    .split(' '),
+);
+
+// Names used in the code of an answer (`users`, `setUsers`, `getName`), so the same
+// names in its sentences can be kept in English even when written without backticks.
+export function identifiersIn(code: string): Set<string> {
+  // Comments and quoted strings hold English text, not names.
+  const withoutProse = code
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ')
+    .replace(/(^|\s)#[^\n]*/g, '$1 ')
+    .replace(/(["'`])(?:\\.|(?!\1)[^\\\n])*\1/g, ' ');
+  const names = new Set<string>();
+  for (const [name] of withoutProse.matchAll(/[A-Za-z_$][\w$]*/g)) {
+    if (name.length >= 3 && !ENGLISH_WORDS.has(name.toLowerCase())) {
+      names.add(name);
+    }
+  }
+  return names;
+}
+
 // Every code-shaped word in the text, as offsets, with surrounding punctuation left out.
-// A "property: value" pair (min-height: auto) is one span.
-export function findCodeShapedWords(text: string): { start: number; end: number }[] {
+// A "property: value" pair (min-height: auto) is one span, and a word in `knownNames`
+// (a name from the answer's own code) counts as code whatever its shape.
+export function findCodeShapedWords(text: string, knownNames: ReadonlySet<string> = new Set()): { start: number; end: number }[] {
   const spans: { start: number; end: number }[] = [];
   for (const match of text.matchAll(/[a-z]+(?:-[a-z]+)+:\s*[\w#.%-]+/g)) {
     spans.push({ start: match.index, end: match.index + match[0].length });
@@ -40,7 +69,7 @@ export function findCodeShapedWords(text: string): { start: number; end: number 
     const { word, offset } = trimPunctuation(match[0]);
     const start = match.index + offset;
     const end = start + word.length;
-    if (isCodeShapedWord(word) && !spans.some(s => s.start < end && s.end > start)) {
+    if ((isCodeShapedWord(word) || knownNames.has(word)) && !spans.some(s => s.start < end && s.end > start)) {
       spans.push({ start, end });
     }
   }

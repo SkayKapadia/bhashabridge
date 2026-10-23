@@ -1,6 +1,6 @@
 import type { Nodes } from 'mdast';
 import { looksLikeCodeLine } from './codeLine';
-import { findCodeShapedWords } from './codeWords';
+import { findCodeShapedWords, identifiersIn } from './codeWords';
 import { parseMarkdownTree } from './markdownSyntax';
 
 export interface Segment {
@@ -29,6 +29,8 @@ interface Range {
   start: number;
   end: number;
   isBlock?: boolean;
+  // Real code (a block, inline code or a code line), whose names are worth reusing.
+  isCode?: boolean;
 }
 
 interface Block extends Range {
@@ -43,7 +45,7 @@ export function parseMarkdown(input: string): ParseResult {
   const tree = parseMarkdownTree(input);
 
   const spans: Range[] = [];
-  collectCodeSpans(tree, spans);
+  collectCodeSpans(tree, spans, input);
 
   const blocks: Block[] = [];
   collectTextBlocks(tree, blocks);
@@ -52,7 +54,9 @@ export function parseMarkdown(input: string): ParseResult {
     collectBareCodeLines(input, block, spans);
     collectSettingValues(input, block, spans);
   }
-  collectCodeShapedWords(tree, input, spans);
+  // Names from the answer's own code are kept in English in its sentences too.
+  const knownNames = new Set(spans.filter(span => span.isCode).flatMap(span => [...identifiersIn(input.slice(span.start, span.end))]));
+  collectCodeShapedWords(tree, input, spans, knownNames);
   spans.sort((a, b) => a.start - b.start);
 
   const blockTokens = new Set<string>();
@@ -93,19 +97,29 @@ export function parseMarkdown(input: string): ParseResult {
 }
 
 // Walks the AST in document order. Code nodes have no children, so spans never overlap.
-function collectCodeSpans(node: Nodes, spans: Range[]): void {
-  if (node.type === 'code' || node.type === 'inlineCode' || isBareAddress(node)) {
+function collectCodeSpans(node: Nodes, spans: Range[], input: string): void {
+  if (node.type === 'code' || node.type === 'inlineCode' || node.type === 'image' || isBareAddress(node)) {
     const start = node.position?.start.offset;
     const end = node.position?.end.offset;
     if (start !== undefined && end !== undefined) {
-      spans.push({ start, end, isBlock: node.type === 'code' });
+      spans.push({ start, end, isBlock: node.type === 'code', isCode: node.type === 'code' || node.type === 'inlineCode' });
     }
     return;
   }
 
+  // A link's words are translated but its address is not: only "[the docs]" is sent,
+  // and the "(https://…)" after it is hidden like code.
+  if (node.type === 'link') {
+    const textEnd = node.children.at(-1)?.position?.end.offset;
+    const end = node.position?.end.offset;
+    if (textEnd !== undefined && end !== undefined && input.slice(textEnd, textEnd + 2) === '](') {
+      spans.push({ start: textEnd + 1, end });
+    }
+  }
+
   if ('children' in node) {
     for (const child of node.children) {
-      collectCodeSpans(child, spans);
+      collectCodeSpans(child, spans, input);
     }
   }
 }
@@ -149,7 +163,7 @@ const SETTING_VALUE = /"[\w.@/-]+"\s*:\s*(?:true|false|null|-?\d+(?:\.\d+)?|"[^"
 // Paths, file names, snake_case, camelCase, CSS classes and acronyms written without
 // backticks (src/parser/codeWords.ts says which shapes count). Only the document's
 // own text is read, never markdown syntax such as a link's [text](address).
-function collectCodeShapedWords(node: Nodes, input: string, spans: Range[]): void {
+function collectCodeShapedWords(node: Nodes, input: string, spans: Range[], knownNames: ReadonlySet<string>): void {
   if (node.type === 'text') {
     const start = node.position?.start.offset;
     const end = node.position?.end.offset;
@@ -157,7 +171,7 @@ function collectCodeShapedWords(node: Nodes, input: string, spans: Range[]): voi
     if (start === undefined || end === undefined || input.slice(start, end) !== node.value) {
       return;
     }
-    for (const word of findCodeShapedWords(node.value)) {
+    for (const word of findCodeShapedWords(node.value, knownNames)) {
       const wordStart = start + word.start;
       const wordEnd = start + word.end;
       if (!spans.some(span => span.start < wordEnd && span.end > wordStart)) {
@@ -168,7 +182,7 @@ function collectCodeShapedWords(node: Nodes, input: string, spans: Range[]): voi
   }
   if ('children' in node) {
     for (const child of node.children) {
-      collectCodeShapedWords(child, input, spans);
+      collectCodeShapedWords(child, input, spans, knownNames);
     }
   }
 }
@@ -193,7 +207,7 @@ function collectBareCodeLines(input: string, block: Range, spans: Range[]): void
 
     const overlapsCode = spans.some(span => span.start < end && span.end > start);
     if (end > start && !overlapsCode && looksLikeCodeLine(input.slice(start, end))) {
-      spans.push({ start, end, isBlock: true });
+      spans.push({ start, end, isBlock: true, isCode: true });
     }
   }
 }

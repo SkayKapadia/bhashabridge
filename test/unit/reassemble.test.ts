@@ -6,8 +6,10 @@ const CODE = 'const names = users.map(getName);';
 const SENTENCE = 'The function fails because users is undefined.';
 
 // What a translator returns for one segment: its own language, tokens kept.
-const GUJARATI = 'users undefined હોવાથી function fail થાય છે.';
-const MARATHI = 'users undefined असल्यामुळे function fail होते.';
+// What a translator returns for the sentence: its own language, the placeholder for
+// `users` (a name from the code, so hidden too) kept in place.
+const GUJARATI = 'SKIP_001 undefined હોવાથી function fail થાય છે.';
+const MARATHI = 'SKIP_001 undefined असल्यामुळे function fail होते.';
 
 function occurrences(text: string, part: string): number {
   return text.split(part).length - 1;
@@ -19,11 +21,11 @@ describe('reassemble (test example)', () => {
     ['Marathi', MARATHI],
   ])('puts the code back exactly after a %s translation', (_language, translation) => {
     const parsed = parseMarkdown(`${SENTENCE}\n${CODE}`);
-    expect(parsed.segments.map(s => s.text)).toEqual([SENTENCE]);
+    expect(parsed.segments.map(s => s.text)).toEqual(['The function fails because SKIP_001 is undefined.']);
 
     const result = reassemble(parsed, [translation]);
 
-    expect(result).toBe(`${translation}\n${CODE}`);
+    expect(result).toBe(`${translation.replace('SKIP_001', 'users')}\n${CODE}`);
     expect(occurrences(result, CODE)).toBe(1);
     expect(result).not.toContain('SKIP_');
   });
@@ -34,7 +36,7 @@ describe('reassemble (test example)', () => {
 
     const result = reassemble(parsed, [GUJARATI]);
 
-    expect(result).toBe(`${GUJARATI}\n\n${fenced}`);
+    expect(result).toBe(`${GUJARATI.replace('SKIP_001', 'users')}\n\n${fenced}`);
   });
 });
 

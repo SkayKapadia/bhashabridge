@@ -34,7 +34,8 @@ describe('translateMarkdown', () => {
     const result = await translateMarkdown(input, { provider, targetLanguage: 'gu' });
 
     expect(result).toBe('[gu] The function fails because users is undefined. Add a check before calling map.\nconst names = users.map(getName);');
-    expect(provider.calls.map(c => c.text)).toEqual(['The function fails because users is undefined. Add a check before calling map.']);
+    // users and map appear in the code line, so they never reach the provider either.
+    expect(provider.calls.map(c => c.text)).toEqual(['The function fails because SKIP_001 is undefined. Add a check before calling SKIP_002.']);
   });
 
   it('keeps segment order even when replies arrive out of order', async () => {
