@@ -102,4 +102,16 @@ describe('handleTranslate', () => {
     const posted = await run({ text: INPUT, language: 'gu' }, slow, controller.signal);
     expect(posted.some(m => m.type === 'result' || m.type === 'error')).toBe(false);
   });
+
+  it('repairs a table copied from a rendered page before translating', async () => {
+    const posted = await run({ text: 'Ways to share:\n\nOption\tNeeds\nA vsix file\tVS Code', language: 'gu' });
+    const result = posted.at(-1);
+
+    expect(result?.type).toBe('result');
+    if (result?.type === 'result') {
+      expect(result.markdown).toContain('| અનુવાદ: Option | અનુવાદ: Needs |');
+      expect(result.html).toContain('<table>');
+      expect(result.blocks).toHaveLength(2); // the sentence and the table, paired with the English
+    }
+  });
 });

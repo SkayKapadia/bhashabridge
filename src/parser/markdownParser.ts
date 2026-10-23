@@ -1,10 +1,12 @@
-import { fromMarkdown } from 'mdast-util-from-markdown';
 import type { Nodes } from 'mdast';
 import { looksLikeCodeLine } from './codeLine';
+import { parseMarkdownTree } from './markdownSyntax';
 
 export interface Segment {
-  // One paragraph, heading or list item to translate, with its placeholders in place.
+  // One paragraph, heading, list item or table cell to translate, with its placeholders in place.
   text: string;
+  // A table cell: its translation must stay on one line with no bare | in it.
+  isTableCell?: boolean;
   // Where the segment sits in ParseResult.text, so a translation can be spliced back.
   start: number;
   end: number;
@@ -24,17 +26,21 @@ interface Range {
   end: number;
 }
 
+interface Block extends Range {
+  isTableCell: boolean;
+}
+
 interface Replacement extends Range {
   token: string;
 }
 
 export function parseMarkdown(input: string): ParseResult {
-  const tree = fromMarkdown(input);
+  const tree = parseMarkdownTree(input);
 
   const spans: Range[] = [];
   collectCodeSpans(tree, spans);
 
-  const blocks: Range[] = [];
+  const blocks: Block[] = [];
   collectTextBlocks(tree, blocks);
 
   for (const block of blocks) {
@@ -69,7 +75,7 @@ export function parseMarkdown(input: string): ParseResult {
   for (const block of blocks) {
     const segment = trimSegment(text, toOutputOffset(block.start, replacements), toOutputOffset(block.end, replacements), tokens);
     if (segment) {
-      segments.push(segment);
+      segments.push(block.isTableCell ? { ...segment, isTableCell: true } : segment);
     }
   }
 
@@ -78,7 +84,7 @@ export function parseMarkdown(input: string): ParseResult {
 
 // Walks the AST in document order. Code nodes have no children, so spans never overlap.
 function collectCodeSpans(node: Nodes, spans: Range[]): void {
-  if (node.type === 'code' || node.type === 'inlineCode') {
+  if (node.type === 'code' || node.type === 'inlineCode' || isBareAddress(node)) {
     const start = node.position?.start.offset;
     const end = node.position?.end.offset;
     if (start !== undefined && end !== undefined) {
@@ -95,12 +101,23 @@ function collectCodeSpans(node: Nodes, spans: Range[]): void {
 }
 
 // Paragraphs and headings, as the range their content covers (a heading's # left out).
-function collectTextBlocks(node: Nodes, blocks: Range[]): void {
-  if (node.type === 'paragraph' || node.type === 'heading') {
+// A web address written as itself (https://example.com): a translator could change it.
+function isBareAddress(node: Nodes): boolean {
+  if (node.type !== 'link' || node.children.length !== 1 || node.children[0]?.type !== 'text') {
+    return false;
+  }
+  const text = node.children[0].value;
+  return node.url === text || node.url === `mailto:${text}` || node.url === `http://${text}` || node.url === `https://${text}`;
+}
+
+// Paragraphs, headings and table cells, as the range their content covers (a heading's
+// # and a cell's | borders left out, so the table's structure is never sent).
+function collectTextBlocks(node: Nodes, blocks: Block[]): void {
+  if (node.type === 'paragraph' || node.type === 'heading' || node.type === 'tableCell') {
     const start = node.children[0]?.position?.start.offset;
     const end = node.children.at(-1)?.position?.end.offset;
     if (start !== undefined && end !== undefined) {
-      blocks.push({ start, end });
+      blocks.push({ start, end, isTableCell: node.type === 'tableCell' });
     }
     return;
   }

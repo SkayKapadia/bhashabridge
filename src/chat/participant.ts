@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { glossaryOptions } from '../glossary/glossary';
+import { normalizePastedText } from '../parser/normalizePaste';
 import { currentGlossary, currentSettings } from '../settings/current';
 import { TranslationError } from '../translation/errors';
 import { createProviders } from '../translation/providers';
@@ -35,7 +36,7 @@ export function registerChatParticipant(context: vscode.ExtensionContext): void 
             if (!provider) {
               throw new TranslationError('api', 'The default provider in Settings > BhashaBridge is not available.');
             }
-            return translateMarkdown(markdown, {
+            return translateMarkdown(normalizePastedText(markdown), {
               provider,
               targetLanguage: settings.defaultLanguage,
               ...glossaryOptions(await currentGlossary(context), settings.defaultLanguage),

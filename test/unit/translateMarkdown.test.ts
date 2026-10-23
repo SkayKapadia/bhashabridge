@@ -206,5 +206,21 @@ describe('translateMarkdown', () => {
     expect(provider.calls.map(c => c.text).join(' ')).not.toContain('ledger');
     expect(result).toBe('[gu] Check the ledger (ખાતાવહી) first.\n\n[gu] Then close the ledger.');
   });
-});
 
+  it('keeps a table whole: each cell translated, one line, no stray |', async () => {
+    const provider: TranslationProvider = {
+      id: 'odd',
+      async translate(request) {
+        // A translator that adds a line break and a | inside cell text.
+        const count = request.text.match(/<<<\\d+>>>/g)?.length ?? 0;
+        const parts = count > 0 ? splitChunkReply(request.text, count)! : [request.text];
+        const translated = parts.map(p => (p === 'Needs' ? 'જરૂર\na|b' : `[gu] ${p}`));
+        return { translatedText: count > 0 ? joinChunk(translated) : translated[0]! };
+      },
+    };
+
+    const result = await translateMarkdown('| Option | Needs |\n| --- | --- |\n| Share | VS Code |', { provider, targetLanguage: 'gu' });
+
+    expect(result).toBe('| [gu] Option | જરૂર a\\|b |\n| --- | --- |\n| [gu] Share | [gu] VS Code |');
+  });
+});

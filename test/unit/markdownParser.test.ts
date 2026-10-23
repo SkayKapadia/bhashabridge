@@ -259,3 +259,32 @@ describe('parseMarkdown setting values', () => {
   });
 });
 
+describe('parseMarkdown tables, task lists and addresses', () => {
+  it('translates each table cell on its own and never sends the table structure', () => {
+    const input = '| Option | Needs |\n| --- | --- |\n| Share the `.vsix` | VS Code |';
+    const result = parseMarkdown(input);
+
+    expect(result.segments.map(s => s.text)).toEqual(['Option', 'Needs', 'Share the SKIP_001', 'VS Code']);
+    expect(result.segments.every(s => s.isTableCell)).toBe(true);
+    expect(result.text).toBe('| Option | Needs |\n| --- | --- |\n| Share the SKIP_001 | VS Code |');
+  });
+
+  it('keeps task list markers out of the text to translate', () => {
+    const result = parseMarkdown('- [ ] Add a check\n- [x] Run the tests');
+
+    expect(result.segments.map(s => s.text)).toEqual(['Add a check', 'Run the tests']);
+  });
+
+  it('protects a bare web address', () => {
+    const result = parseMarkdown('Get a key at https://dashboard.sarvam.ai today.');
+
+    expect(result.text).toBe('Get a key at SKIP_001 today.');
+    expect(result.placeholders.get('SKIP_001')).toBe('https://dashboard.sarvam.ai');
+  });
+
+  it('still translates the words of a normal link', () => {
+    const result = parseMarkdown('Read [the guide](https://example.com/guide) first.');
+
+    expect(result.placeholders.size).toBe(0);
+  });
+});

@@ -1,13 +1,34 @@
-import { fromMarkdown } from 'mdast-util-from-markdown';
+import type { Nodes, PhrasingContent } from 'mdast';
 import { sanitize } from 'hast-util-sanitize';
 import { toHtml } from 'hast-util-to-html';
 import { toHast } from 'mdast-util-to-hast';
+import { parseMarkdownTree } from '../parser/markdownSyntax';
 
 // Markdown to HTML that is safe to show in the webview. Raw HTML in the markdown is
 // dropped (toHast keeps none by default), and the sanitizer removes anything left that
 // could run code, such as javascript: links or event handler attributes.
+// Every line break in the text is kept on screen, as written: pasted text often has
+// one line per point, and plain markdown would run those lines together.
 export function renderMarkdown(markdown: string): string {
-  return toHtml(sanitize(toHast(fromMarkdown(markdown))));
+  const tree = parseMarkdownTree(markdown);
+  keepLineBreaks(tree);
+  return toHtml(sanitize(toHast(tree)));
+}
+
+function keepLineBreaks(node: Nodes): void {
+  if (!('children' in node)) {
+    return;
+  }
+  for (const child of node.children) {
+    keepLineBreaks(child);
+  }
+  if (node.children.some(child => child.type === 'text' && child.value.includes('\n'))) {
+    (node.children as PhrasingContent[]) = (node.children as PhrasingContent[]).flatMap(child =>
+      child.type === 'text' && child.value.includes('\n')
+        ? child.value.split('\n').flatMap((line, i): PhrasingContent[] => (i === 0 ? [{ type: 'text', value: line }] : [{ type: 'break' }, { type: 'text', value: line }]))
+        : [child],
+    );
+  }
 }
 
 export interface BlockPair {
@@ -28,7 +49,7 @@ export function renderBlockPairs(englishMarkdown: string, translatedMarkdown: st
 }
 
 function topLevelBlocks(markdown: string): string[] {
-  return fromMarkdown(markdown).children.flatMap(node => {
+  return parseMarkdownTree(markdown).children.flatMap(node => {
     const start = node.position?.start.offset;
     const end = node.position?.end.offset;
     return start === undefined || end === undefined ? [] : [markdown.slice(start, end)];

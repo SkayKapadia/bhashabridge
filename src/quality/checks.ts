@@ -1,6 +1,6 @@
-import { fromMarkdown } from 'mdast-util-from-markdown';
 import { protectTerms } from '../glossary/protectTerms';
 import { parseMarkdown } from '../parser/markdownParser';
+import { parseMarkdownTree } from '../parser/markdownSyntax';
 
 // Automatic checks for one translation in the quality report. They cannot judge how
 // natural the Gujarati or Marathi reads (a person scores that), but they catch every
@@ -22,8 +22,8 @@ export function checkTranslation(input: string, output: string, keepTerms: reado
 
   const leftovers = [...new Set(output.match(/SKIP_\d+|<<<\d+>>>/g) ?? [])].filter(token => !input.includes(token));
 
-  const inputBlocks = fromMarkdown(input).children.length;
-  const outputBlocks = fromMarkdown(output).children.length;
+  const inputBlocks = parseMarkdownTree(input).children.length;
+  const outputBlocks = parseMarkdownTree(output).children.length;
 
   return [
     {

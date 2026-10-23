@@ -62,3 +62,21 @@ describe('renderBlockPairs', () => {
   });
 });
 
+describe('renderMarkdown keeps the layout', () => {
+  it('keeps every line break', () => {
+    expect(renderMarkdown('First line\nSecond line')).toBe('<p>First line<br>\nSecond line</p>');
+  });
+
+  it('draws tables, task lists and strikethrough', () => {
+    const html = renderMarkdown('| A | B |\n| --- | --- |\n| 1 | 2 |\n\n- [x] done\n- [ ] todo\n\n~~old~~');
+
+    expect(html).toContain('<table>');
+    expect(html).toContain('<td>1</td>');
+    expect(html).toMatch(/<input[^>]*type="checkbox"[^>]*checked/);
+    expect(html).toContain('<del>old</del>');
+  });
+
+  it('does not add breaks inside code', () => {
+    expect(renderMarkdown('```\na\nb\n```')).toBe('<pre><code>a\nb\n</code></pre>');
+  });
+});

@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { describe, expect, it } from 'vitest';
+import { protectTerms } from '../../src/glossary/protectTerms';
 import {
   annotations,
   checkDomains,
@@ -46,6 +47,15 @@ describe('glossary domain files', () => {
     // The inheritance rendering is not reviewed yet, so the term stays in English for now.
     expect(promptGlossary(glossary, 'gu')).toEqual({});
     expect(glossary.keep).toContain('inheritance');
+  });
+
+  it('protect common commands written without backticks', async () => {
+    const domains = await loadGlossaryDomains(ROOT);
+    const glossary = combineDomains(domains, domains.filter(d => d.isDefault).map(d => d.id));
+    const guarded = protectTerms('Clone it, run npm install, then git push your branch.', protectedTerms(glossary));
+
+    expect([...guarded.placeholders.values()]).toContain('npm install');
+    expect([...guarded.placeholders.values()]).toContain('git push');
   });
 
   it('match the domain list in package.json, so Settings offers every domain', async () => {

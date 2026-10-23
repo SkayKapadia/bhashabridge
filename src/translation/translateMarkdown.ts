@@ -107,6 +107,10 @@ export async function translateMarkdown(input: string, options: TranslateMarkdow
   await Promise.all(Array.from({ length: workers }, worker));
 
   let translations = translatedParts.map((parts, segment) => joinParts(parts, plan.gaps[segment]!));
+  // A table cell holds one line and no bare |, or the table would break apart.
+  translations = translations.map((text, i) =>
+    parsed.segments[i]!.isTableCell ? text.replace(/\s*\n\s*/g, ' ').replace(/(?<!\\)\|/g, '\\|') : text,
+  );
   if (options.annotations) {
     translations = annotateFirstUse(translations, options.annotations);
   }

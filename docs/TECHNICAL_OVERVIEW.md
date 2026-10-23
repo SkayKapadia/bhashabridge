@@ -54,6 +54,8 @@ The parser (`src/parser/markdownParser.ts`) turns pasted text into a version whe
 3. **Placeholders** `SKIP_001`, `SKIP_002`, … replace each code span. A token that already appears in the input is skipped, so restoring never confuses user text with a placeholder.
 4. **Segments** are the parts to translate: one per paragraph, heading or list item, each with its start and end offset in the replaced text. Lines that hold only placeholders are trimmed off, and a segment with no letters left is dropped.
 
+**Layout is kept as written.** Markdown is read GitHub-style (tables, task lists, strikethrough), and each table cell is its own segment, so the table's `|` structure is never sent. Text copied from a rendered page is repaired first (`src/parser/normalizePaste.ts`): tab-separated lines become a table and `•` lines a list. The display keeps every line break. Bare web addresses and settings such as `"reviewed": false` are protected like code.
+
 The result is `{ text, placeholders, segments }`. Restoring the placeholders into `text` gives back the original input character for character, which a test checks.
 
 ## Glossary

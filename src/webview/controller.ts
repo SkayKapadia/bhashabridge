@@ -1,4 +1,5 @@
 import { glossaryOptions, type LoadedGlossary } from '../glossary/glossary';
+import { normalizePastedText } from '../parser/normalizePaste';
 import { ReassemblyError } from '../reassembly/reassemble';
 import { TranslationError } from '../translation/errors';
 import { translateMarkdown } from '../translation/translateMarkdown';
@@ -28,8 +29,12 @@ export async function handleTranslate(
     return;
   }
 
+  // Text copied from a rendered page gets its tables and lists back first, and the
+  // English side of learning mode uses the same repaired text, so the blocks line up.
+  const input = normalizePastedText(message.text);
+
   try {
-    const markdown = await translateMarkdown(message.text, {
+    const markdown = await translateMarkdown(input, {
       provider,
       targetLanguage: message.language as TargetLanguage,
       ...glossaryOptions(glossary, message.language as TargetLanguage),
@@ -37,7 +42,7 @@ export async function handleTranslate(
       onProgress: (done, total) => post({ type: 'progress', done, total }),
     });
     if (!signal?.aborted) {
-      post({ type: 'result', html: renderMarkdown(markdown), markdown, blocks: renderBlockPairs(message.text, markdown) });
+      post({ type: 'result', html: renderMarkdown(markdown), markdown, blocks: renderBlockPairs(input, markdown) });
     }
   } catch (error) {
     if (signal?.aborted) {

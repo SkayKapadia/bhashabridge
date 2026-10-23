@@ -1,10 +1,10 @@
 # BhashaBridge preview: testing guide
 
-Thank you for trying BhashaBridge before its public release. It translates AI coding explanations into **Gujarati** or **Marathi** while keeping all code and technical terms in English. This is preview `0.1.0-preview.2`; things may break, and your feedback decides what gets fixed first.
+Thank you for trying BhashaBridge before its public release. It translates AI coding explanations into **Gujarati** or **Marathi** while keeping all code and technical terms in English. This is preview `0.1.0-preview.3`; things may break, and your feedback decides what gets fixed first.
 
 ## 1. Install (2 minutes)
 
-1. Save the file `bhashabridge-0.1.0-preview.2.vsix` you received.
+1. Save the file `bhashabridge-0.1.0-preview.3.vsix` you received.
 2. In VS Code (1.90 or newer), open the **Extensions** view (`Ctrl+Shift+X` / `Cmd+Shift+X`).
 3. Click the **…** menu at the top of the view → **Install from VSIX…** → pick the file.
 
