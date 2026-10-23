@@ -225,3 +225,37 @@ describe('parseMarkdown segments', () => {
   });
 });
 
+describe('parseMarkdown setting values', () => {
+  it('protects a setting written into a sentence without backticks (the real Gujarati test)', () => {
+    const result = parseMarkdown('A rendering is used only when it is marked "reviewed": true. Until then it stays in English.');
+
+    expect(result.text).toBe('A rendering is used only when it is marked SKIP_001. Until then it stays in English.');
+    expect(result.placeholders.get('SKIP_001')).toBe('"reviewed": true');
+  });
+
+  it.each([
+    ['"reviewed": false', 'boolean'],
+    ['"timeout": 30', 'number'],
+    ['"retries": -1', 'negative number'],
+    ['"provider": "sarvam"', 'string'],
+    ['"bhashabridge.defaultLanguage": "gu"', 'dotted key'],
+    ['"value": null', 'null'],
+  ])('treats %s as code (%s)', setting => {
+    const result = parseMarkdown(`Set ${setting} in the file.`);
+
+    expect([...result.placeholders.values()]).toEqual([setting]);
+  });
+
+  it('leaves ordinary quotes and colons alone', () => {
+    for (const text of ['He said "yes": then left.', 'The word "false" means not true.', 'Note: "draft" items are hidden.']) {
+      expect(parseMarkdown(text).placeholders.size, text).toBe(0);
+    }
+  });
+
+  it('does not double-protect a setting already in backticks', () => {
+    const result = parseMarkdown('Mark it `"reviewed": true` first.');
+
+    expect([...result.placeholders.values()]).toEqual(['`"reviewed": true`']);
+  });
+});
+

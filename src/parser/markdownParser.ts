@@ -39,6 +39,7 @@ export function parseMarkdown(input: string): ParseResult {
 
   for (const block of blocks) {
     collectBareCodeLines(input, block, spans);
+    collectSettingValues(input, block, spans);
   }
   spans.sort((a, b) => a.start - b.start);
 
@@ -113,6 +114,21 @@ function collectTextBlocks(node: Nodes, blocks: Range[]): void {
 
 // Code pasted into prose without backticks reads as paragraph text to the markdown
 // parser, so each line of a block is checked on its own.
+// A setting written into a sentence without backticks, such as "reviewed": false. Left
+// as prose, the value reads as an ordinary word ("false" becomes "wrong"), so the
+// whole key-value pair is treated as code.
+const SETTING_VALUE = /"[\w.@/-]+"\s*:\s*(?:true|false|null|-?\d+(?:\.\d+)?|"[^"\n]*")/g;
+
+function collectSettingValues(input: string, block: Range, spans: Range[]): void {
+  for (const match of input.slice(block.start, block.end).matchAll(SETTING_VALUE)) {
+    const start = block.start + match.index;
+    const end = start + match[0].length;
+    if (!spans.some(span => span.start < end && span.end > start)) {
+      spans.push({ start, end });
+    }
+  }
+}
+
 function collectBareCodeLines(input: string, block: Range, spans: Range[]): void {
   let lineStart = block.start;
   for (const line of input.slice(block.start, block.end).split('\n')) {

@@ -74,6 +74,11 @@ describe('buildSystemPrompt', () => {
     expect(prompt).not.toContain('Glossary');
   });
 
+  it('asks the model never to spell English words in the target script', () => {
+    expect(buildSystemPrompt('gu')).toContain('Never spell an English word in Gujarati script');
+    expect(buildSystemPrompt('mr')).toContain('Never spell an English word in Devanagari script');
+  });
+
   it('lists glossary entries', () => {
     const prompt = buildSystemPrompt('gu', { inheritance: 'anuvanshikta (inheritance)', API: 'API' });
 
