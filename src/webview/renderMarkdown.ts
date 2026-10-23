@@ -2,6 +2,7 @@ import type { Nodes, PhrasingContent } from 'mdast';
 import { sanitize } from 'hast-util-sanitize';
 import { toHtml } from 'hast-util-to-html';
 import { toHast } from 'mdast-util-to-hast';
+import { parseMarkdown } from '../parser/markdownParser';
 import { parseMarkdownTree } from '../parser/markdownSyntax';
 
 // Markdown to HTML that is safe to show in the webview. Raw HTML in the markdown is
@@ -34,6 +35,9 @@ function keepLineBreaks(node: Nodes): void {
 export interface BlockPair {
   english: string; // safe HTML
   translated: string; // safe HTML
+  // Nothing in this block was translated (a code block, a command line): side by side
+  // shows it once, on the English side, instead of repeating it.
+  isCode: boolean;
 }
 
 // Pairs each top-level block of the translation (heading, paragraph, list, code) with
@@ -43,9 +47,13 @@ export function renderBlockPairs(englishMarkdown: string, translatedMarkdown: st
   const english = topLevelBlocks(englishMarkdown);
   const translated = topLevelBlocks(translatedMarkdown);
   if (english.length === 0 || english.length !== translated.length) {
-    return [{ english: renderMarkdown(englishMarkdown), translated: renderMarkdown(translatedMarkdown) }];
+    return [{ english: renderMarkdown(englishMarkdown), translated: renderMarkdown(translatedMarkdown), isCode: false }];
   }
-  return english.map((block, i) => ({ english: renderMarkdown(block), translated: renderMarkdown(translated[i]!) }));
+  return english.map((block, i) => ({
+    english: renderMarkdown(block),
+    translated: renderMarkdown(translated[i]!),
+    isCode: parseMarkdown(block).segments.length === 0,
+  }));
 }
 
 function topLevelBlocks(markdown: string): string[] {

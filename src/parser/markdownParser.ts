@@ -1,5 +1,6 @@
 import type { Nodes } from 'mdast';
 import { looksLikeCodeLine } from './codeLine';
+import { findCodeShapedWords } from './codeWords';
 import { parseMarkdownTree } from './markdownSyntax';
 
 export interface Segment {
@@ -17,6 +18,9 @@ export interface ParseResult {
   text: string;
   // Placeholder token -> exact original source of the code it replaced.
   placeholders: Map<string, string>;
+  // The placeholders that stand for a whole block (a code block or a code line), which
+  // must stay on a line of their own; every other placeholder sits inside a sentence.
+  blockTokens: Set<string>;
   // The parts of `text` to translate, in document order. Code-only parts are left out.
   segments: Segment[];
 }
@@ -24,6 +28,7 @@ export interface ParseResult {
 interface Range {
   start: number;
   end: number;
+  isBlock?: boolean;
 }
 
 interface Block extends Range {
@@ -47,8 +52,10 @@ export function parseMarkdown(input: string): ParseResult {
     collectBareCodeLines(input, block, spans);
     collectSettingValues(input, block, spans);
   }
+  collectCodeShapedWords(tree, input, spans);
   spans.sort((a, b) => a.start - b.start);
 
+  const blockTokens = new Set<string>();
   const placeholders = new Map<string, string>();
   const replacements: Replacement[] = [];
   let text = '';
@@ -63,6 +70,9 @@ export function parseMarkdown(input: string): ParseResult {
     } while (input.includes(token)); // never reuse a token that already appears in the input
 
     placeholders.set(token, input.slice(span.start, span.end));
+    if (span.isBlock) {
+      blockTokens.add(token);
+    }
     replacements.push({ ...span, token });
     text += input.slice(cursor, span.start) + token;
     cursor = span.end;
@@ -79,7 +89,7 @@ export function parseMarkdown(input: string): ParseResult {
     }
   }
 
-  return { text, placeholders, segments };
+  return { text, placeholders, blockTokens, segments };
 }
 
 // Walks the AST in document order. Code nodes have no children, so spans never overlap.
@@ -88,7 +98,7 @@ function collectCodeSpans(node: Nodes, spans: Range[]): void {
     const start = node.position?.start.offset;
     const end = node.position?.end.offset;
     if (start !== undefined && end !== undefined) {
-      spans.push({ start, end });
+      spans.push({ start, end, isBlock: node.type === 'code' });
     }
     return;
   }
@@ -136,6 +146,33 @@ function collectTextBlocks(node: Nodes, blocks: Block[]): void {
 // whole key-value pair is treated as code.
 const SETTING_VALUE = /"[\w.@/-]+"\s*:\s*(?:true|false|null|-?\d+(?:\.\d+)?|"[^"\n]*")/g;
 
+// Paths, file names, snake_case, camelCase, CSS classes and acronyms written without
+// backticks (src/parser/codeWords.ts says which shapes count). Only the document's
+// own text is read, never markdown syntax such as a link's [text](address).
+function collectCodeShapedWords(node: Nodes, input: string, spans: Range[]): void {
+  if (node.type === 'text') {
+    const start = node.position?.start.offset;
+    const end = node.position?.end.offset;
+    // Skip text whose source differs from its value (escapes, entities): offsets would not line up.
+    if (start === undefined || end === undefined || input.slice(start, end) !== node.value) {
+      return;
+    }
+    for (const word of findCodeShapedWords(node.value)) {
+      const wordStart = start + word.start;
+      const wordEnd = start + word.end;
+      if (!spans.some(span => span.start < wordEnd && span.end > wordStart)) {
+        spans.push({ start: wordStart, end: wordEnd });
+      }
+    }
+    return;
+  }
+  if ('children' in node) {
+    for (const child of node.children) {
+      collectCodeShapedWords(child, input, spans);
+    }
+  }
+}
+
 function collectSettingValues(input: string, block: Range, spans: Range[]): void {
   for (const match of input.slice(block.start, block.end).matchAll(SETTING_VALUE)) {
     const start = block.start + match.index;
@@ -156,7 +193,7 @@ function collectBareCodeLines(input: string, block: Range, spans: Range[]): void
 
     const overlapsCode = spans.some(span => span.start < end && span.end > start);
     if (end > start && !overlapsCode && looksLikeCodeLine(input.slice(start, end))) {
-      spans.push({ start, end });
+      spans.push({ start, end, isBlock: true });
     }
   }
 }

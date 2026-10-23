@@ -152,3 +152,5 @@ button.link {
   text-decoration: underline;
 }
 button.link:hover:not(:disabled) { color: var(--vscode-textLink-activeForeground); background: none; }
+
+.output.pairs .code-note { color: var(--vscode-descriptionForeground); font-style: italic; }

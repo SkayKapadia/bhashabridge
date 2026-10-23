@@ -1,0 +1,106 @@
+// Words whose shape says "code" even when nobody put them in backticks, as happens
+// when an answer is copied from a rendered chat window: paths, file names, snake_case,
+// camelCase, CSS classes, names with digits and short acronyms. Ordinary words never
+// have these shapes, so treating them as code freezes no normal sentence.
+
+const FILE_EXTENSIONS = new Set([
+  'ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'json', 'md', 'py', 'java', 'kt', 'swift', 'go', 'rs', 'rb', 'php',
+  'cs', 'cpp', 'c', 'h', 'css', 'scss', 'html', 'vue', 'svelte', 'yml', 'yaml', 'toml', 'xml', 'sql', 'sh',
+  'env', 'lock', 'txt', 'csv', 'log', 'ini', 'cfg', 'gradle', 'vsix', 'dockerfile',
+]);
+
+// Capitals that are ordinary English words, not acronyms.
+const NOT_ACRONYMS = new Set(['A', 'I', 'OR', 'AND', 'NOT', 'THE', 'IS', 'IT', 'TO', 'OF', 'IN', 'ON', 'NO', 'YES', 'OK', 'AN', 'AS', 'AT', 'BE', 'BY', 'DO', 'IF', 'SO', 'UP', 'WE', 'MY', 'ME', 'US']);
+
+export function isCodeShapedWord(word: string): boolean {
+  if (word.length < 2) {
+    return false;
+  }
+  return (
+    isPath(word) ||
+    isFileName(word) ||
+    /^[A-Za-z0-9]+(?:_[A-Za-z0-9]+)+$/.test(word) || // snake_case, UPPER_SNAKE
+    /^[a-z]+[A-Z][A-Za-z0-9]*$/.test(word) || // camelCase
+    /^[A-Z][a-z0-9]+[A-Z][A-Za-z0-9]*$/.test(word) || // PascalCase: JollySparrow665, GitHub
+    isKebabCode(word) ||
+    /[A-Za-z0-9_]\(|[[\]{}=<>;]/.test(word) || // calls and brackets: getName(), h-[calc(...)]
+    (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9.]+$/.test(word) && !/^\d+(?:st|nd|rd|th)$/i.test(word)) || // v2, 100vh
+    isAcronym(word)
+  );
+}
+
+// Every code-shaped word in the text, as offsets, with surrounding punctuation left out.
+// A "property: value" pair (min-height: auto) is one span.
+export function findCodeShapedWords(text: string): { start: number; end: number }[] {
+  const spans: { start: number; end: number }[] = [];
+  for (const match of text.matchAll(/[a-z]+(?:-[a-z]+)+:\s*[\w#.%-]+/g)) {
+    spans.push({ start: match.index, end: match.index + match[0].length });
+  }
+  for (const match of text.matchAll(/\S+/g)) {
+    const { word, offset } = trimPunctuation(match[0]);
+    const start = match.index + offset;
+    const end = start + word.length;
+    if (isCodeShapedWord(word) && !spans.some(s => s.start < end && s.end > start)) {
+      spans.push({ start, end });
+    }
+  }
+  return spans.sort((a, b) => a.start - b.start);
+}
+
+function isPath(word: string): boolean {
+  if (!/[A-Za-z]/.test(word) || !word.includes('/') || /^[a-z]+:\/\//i.test(word)) {
+    return false;
+  }
+  const slashes = word.split('/').length - 1;
+  return /^(?:\.{0,2}|~)\//.test(word) || word.endsWith('/') || slashes >= 2 || /[._-]/.test(word);
+}
+
+function isFileName(word: string): boolean {
+  const match = word.match(/^[\w.-]*[A-Za-z0-9_]\.([A-Za-z]+)$/);
+  return match !== null && FILE_EXTENSIONS.has(match[1]!.toLowerCase());
+}
+
+// Hyphenated words that carry a digit or a one-letter part (flex-1, min-h-0,
+// overflow-y-auto): CSS utilities and ids, never English like "up-to-date".
+function isKebabCode(word: string): boolean {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)+$/.test(word)) {
+    return false;
+  }
+  const parts = word.split('-');
+  return /\d/.test(word) || parts.some(part => part.length === 1 && part !== 'a');
+}
+
+function isAcronym(word: string): boolean {
+  const bare = word.replace(/s$/, '');
+  return /^[A-Z]{2,6}$/.test(bare) && !NOT_ACRONYMS.has(bare);
+}
+
+// Strips sentence punctuation around a word, but keeps a closing bracket that closes
+// one opened inside the word: getName() stays whole, "(getName)" loses its brackets.
+function trimPunctuation(raw: string): { word: string; offset: number } {
+  let start = 0;
+  let end = raw.length;
+  const balanced = (open: string, close: string, text: string) => text.split(open).length === text.split(close).length;
+
+  for (;;) {
+    const word = raw.slice(start, end);
+    const first = word[0];
+    const last = word.at(-1);
+    if (first && /["'“‘(`]/.test(first) && (first !== '(' || !balanced('(', ')', word))) {
+      start++;
+    } else if (/['’]s$/.test(word)) {
+      end -= 2; // a possessive: JollySparrow665's
+    } else if (last && /[.,;:!?"'”’`]/.test(last)) {
+      end--;
+    } else if (last === ')' && !balanced('(', ')', word)) {
+      end--;
+    } else if (last === ']' && !balanced('[', ']', word)) {
+      end--;
+    } else {
+      return { word, offset: start };
+    }
+    if (end <= start) {
+      return { word: '', offset: start };
+    }
+  }
+}

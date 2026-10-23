@@ -72,6 +72,10 @@
         translated.className = 'translated';
         translated.innerHTML = pair.translated;
         if (sideBySide.checked) {
+          if (pair.isCode) {
+            // Code is identical in both languages: shown once, on the English side.
+            translated.replaceChildren(Object.assign(document.createElement('p'), { className: 'code-note', textContent: 'Code: see the English' }));
+          }
           row.append(english, translated);
         } else {
           // Learning mode: the English stays hidden until the paragraph is clicked.

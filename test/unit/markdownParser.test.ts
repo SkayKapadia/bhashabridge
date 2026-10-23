@@ -89,8 +89,10 @@ describe('parseMarkdown', () => {
     const input = 'The text mentions SKIP_001 and `code`.';
     const result = parseMarkdown(input);
 
-    expect(result.text).toBe('The text mentions SKIP_001 and SKIP_002.');
-    expect(result.placeholders.get('SKIP_002')).toBe('`code`');
+    // SKIP_001 in the input is itself code-shaped, so it is protected too, under a new token.
+    expect(result.text).toBe('The text mentions SKIP_002 and SKIP_003.');
+    expect(result.placeholders.get('SKIP_002')).toBe('SKIP_001');
+    expect(result.placeholders.get('SKIP_003')).toBe('`code`');
     expect(result.placeholders.has('SKIP_001')).toBe(false);
   });
 
@@ -175,7 +177,6 @@ describe('parseMarkdown bare code lines', () => {
     const sentences = [
       'Set the value to 5.',
       'Return the list when it is empty.',
-      'Call map(getName) on the array, then return the result.',
       'If you want, you can import the file later:',
       'For each user, check the name first.',
       'The value x = 5 is the default.',
@@ -264,9 +265,9 @@ describe('parseMarkdown tables, task lists and addresses', () => {
     const input = '| Option | Needs |\n| --- | --- |\n| Share the `.vsix` | VS Code |';
     const result = parseMarkdown(input);
 
-    expect(result.segments.map(s => s.text)).toEqual(['Option', 'Needs', 'Share the SKIP_001', 'VS Code']);
+    expect(result.segments.map(s => s.text)).toEqual(['Option', 'Needs', 'Share the SKIP_001', 'SKIP_002 Code']);
     expect(result.segments.every(s => s.isTableCell)).toBe(true);
-    expect(result.text).toBe('| Option | Needs |\n| --- | --- |\n| Share the SKIP_001 | VS Code |');
+    expect(result.text).toBe('| Option | Needs |\n| --- | --- |\n| Share the SKIP_001 | SKIP_002 Code |');
   });
 
   it('keeps task list markers out of the text to translate', () => {
@@ -288,3 +289,54 @@ describe('parseMarkdown tables, task lists and addresses', () => {
     expect(result.placeholders.size).toBe(0);
   });
 });
+
+describe('parseMarkdown code-shaped words without backticks', () => {
+  // From the real plain-text paste: everything here was code, but the backticks were lost.
+  const PASTED =
+    'This machine has photos in backend/uploads/profile-photos/ and the DB has records whose files were never in the GCS bucket. ' +
+    "JollySparrow665's photos are missing. The column needs min-h-0/overflow-hidden inside h-[calc(100vh-200px)], " +
+    'not min-height: auto, so flex-1 overflow-y-auto works. See config.ts and useEffect for API_KEY.';
+
+  it('protects paths, acronyms, names with digits, CSS classes, files, camelCase and snake_case', () => {
+    const protectedWords = [...parseMarkdown(PASTED).placeholders.values()];
+
+    expect(protectedWords).toEqual([
+      'backend/uploads/profile-photos/',
+      'DB',
+      'GCS',
+      'JollySparrow665',
+      'min-h-0/overflow-hidden',
+      'h-[calc(100vh-200px)]',
+      'min-height: auto',
+      'flex-1',
+      'overflow-y-auto',
+      'config.ts',
+      'useEffect',
+      'API_KEY',
+    ]);
+  });
+
+  it('marks them as inline, so they stay inside their sentence', () => {
+    const result = parseMarkdown('The GCS bucket is empty.');
+
+    expect(result.blockTokens.size).toBe(0);
+  });
+
+  it('marks code blocks and code lines as blocks', () => {
+    const result = parseMarkdown('Run this:\nconst x = 1;\n\n```js\nrun();\n```');
+
+    expect(result.blockTokens.size).toBe(2);
+  });
+
+  it.each([
+    'It is up-to-date and state-of-the-art, one at a time.',
+    'Use and/or as you like; it is OK, and NOT a problem.',
+    'On the 2nd and 3rd day (dev era) we met in Ahmedabad.',
+    "Don't worry: it's fine, e.g. when you're done.",
+    'The A team said: I agree.',
+    'Read [the guide](https://example.com/guide) first.',
+  ])('leaves ordinary writing alone: %s', text => {
+    expect(parseMarkdown(text).placeholders.size).toBe(0);
+  });
+});
+

@@ -43,16 +43,17 @@ describe('renderBlockPairs', () => {
     const pairs = renderBlockPairs(english, gujarati);
 
     expect(pairs).toHaveLength(4);
-    expect(pairs[0]).toEqual({ english: '<h1>Why it fails</h1>', translated: '<h1>તે કેમ નિષ્ફળ જાય છે</h1>' });
+    expect(pairs[0]).toEqual({ english: '<h1>Why it fails</h1>', translated: '<h1>તે કેમ નિષ્ફળ જાય છે</h1>', isCode: false });
     expect(pairs[1]!.translated).toContain('<code>users</code> array undefined છે.');
     expect(pairs[2]!.english).toBe(pairs[2]!.translated); // code is identical on both sides
+    expect(pairs.map(p => p.isCode)).toEqual([false, false, true, false]); // side by side shows it once
     expect(pairs[3]!.translated).toContain('<li>check ઉમેરો</li>');
   });
 
   it('falls back to the two whole texts when the structure differs', () => {
     const pairs = renderBlockPairs('One.\n\nTwo.', 'એક અને બે.');
 
-    expect(pairs).toEqual([{ english: '<p>One.</p>\n<p>Two.</p>', translated: '<p>એક અને બે.</p>' }]);
+    expect(pairs).toEqual([{ english: '<p>One.</p>\n<p>Two.</p>', translated: '<p>એક અને બે.</p>', isCode: false }]);
   });
 
   it('keeps every block safe', () => {

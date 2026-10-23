@@ -123,7 +123,7 @@ describe('restorePlaceholders never modifies code', () => {
 
   it('leaves token-like text that was ordinary input alone', () => {
     const parsed = parseMarkdown('The log says SKIP_001 when `run()` fails.');
-    const result = restorePlaceholders(parsed.text, parsed.placeholders);
+    const result = restorePlaceholders(parsed.text, parsed.placeholders, parsed.blockTokens);
 
     expect(result).toBe('The log says SKIP_001 when `run()` fails.');
   });
@@ -185,3 +185,13 @@ describe('restorePlaceholders keeps code blocks on their own line', () => {
     expect(result).toBe('Call `fetchData()` first.');
   });
 });
+
+describe('reassemble keeps code-shaped words in their sentence', () => {
+  it('restores a word protected without backticks inline, not on its own line', () => {
+    const parsed = parseMarkdown('The GCS bucket has no files in backend/uploads/ yet.');
+    const translated = parsed.segments.map(s => `[gu] ${s.text}`);
+
+    expect(reassemble(parsed, translated)).toBe('[gu] The GCS bucket has no files in backend/uploads/ yet.');
+  });
+});
+

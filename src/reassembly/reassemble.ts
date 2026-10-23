@@ -34,11 +34,17 @@ export function reassemble(parsed: ParseResult, translatedSegments: readonly str
     text = text.slice(0, start) + translatedSegments[i] + text.slice(end);
   }
 
-  return restorePlaceholders(text, parsed.placeholders);
+  return restorePlaceholders(text, parsed.placeholders, parsed.blockTokens);
 }
 
 // Replaces each placeholder token with the exact original code from the parser's map.
-export function restorePlaceholders(translated: string, placeholders: ReadonlyMap<string, string>): string {
+// `blockTokens` names the placeholders that stand for a whole block; without it, a
+// block is recognised by its content (multi-line, or not wrapped in backticks).
+export function restorePlaceholders(
+  translated: string,
+  placeholders: ReadonlyMap<string, string>,
+  blockTokens?: ReadonlySet<string>,
+): string {
   const counts = new Map<string, number>();
   for (const token of translated.match(TOKEN) ?? []) {
     if (placeholders.has(token)) {
@@ -56,7 +62,7 @@ export function restorePlaceholders(translated: string, placeholders: ReadonlyMa
   // A token that is not in the map was ordinary text in the input and is left alone.
   return translated.replace(TOKEN_WITH_SPACES, (match: string, lead: string, token: string, trail: string, offset: number) => {
     const code = placeholders.get(token);
-    if (code === undefined || !isBlock(code)) {
+    if (code === undefined || !(blockTokens ? blockTokens.has(token) : isBlock(code))) {
       return lead + (code ?? token) + trail;
     }
     return onOwnLine(code, translated, offset, match.length, lead);
