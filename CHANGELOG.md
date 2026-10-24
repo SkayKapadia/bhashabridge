@@ -4,6 +4,7 @@
 
 - Text copied out of a chat window translates as whole sentences again: a file link that landed on a line of its own (`agent.py:L72`) is joined back into its sentence.
 - Tables copied from a terminal (drawn with `┌─┬─┐` or `+---+`) become real tables, with cells that wrapped over several lines joined back together.
+- A busy moment no longer fails a translation: rate limits, dropped connections and busy servers are retried twice, after a short wait.
 - Code copied without its fences is shown as code: a language name above code (`python`) becomes a code block, and names like `__init__` no longer show in bold.
 - Part markers such as `<<<1>>>` no longer show up in a translation. They appeared when table cells were translated one at a time.
 - List labels such as `A.`, `b)` and `(c)` stay exactly as written instead of being spelled in Gujarati (`બી.`).

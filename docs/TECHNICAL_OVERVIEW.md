@@ -193,7 +193,7 @@ Every expected failure is a `TranslationError` with a code and a message written
 | `unavailable` | No VS Code model, or access refused | Install or sign in to Copilot, or pick Sarvam |
 | `api` | Other HTTP errors, an empty reply, a cancelled request | The provider's own message |
 
-A `ReassemblyError` (code could not be put back) and a `GlossaryError` (a bad glossary file, named with the term) are reported the same way. Anything unexpected shows a plain "Something went wrong" without internal details. Retries with exponential backoff, listed in the SDD, are not built yet.
+A `ReassemblyError` (code could not be put back) and a `GlossaryError` (a bad glossary file, named with the term) are reported the same way. Anything unexpected shows a plain "Something went wrong" without internal details. **Retries:** `withRetry` (`src/translation/retry.ts`) wraps each provider inside the cache. A rate limit, a dropped connection or a busy server (HTTP 500, 502, 503, 504) is tried twice more, after 1 s and 3 s, or after Sarvam's `Retry-After` (up to 10 s). A wrong key, a timeout or lost placeholders fail at once, and cancelling ends the wait.
 
 ## Testing and quality
 
@@ -259,7 +259,7 @@ The code-safety guarantees are tested thoroughly; translation quality still need
 - Unusual code pasted without backticks can still be translated, because the bare-line rules are strict on purpose.
 - Identifiers from the user's own code are protected only in backticks or on code lines; the glossary covers general terms.
 - Sizes are measured in characters, not tokens, so the 2,000-character chunk limit is an estimate.
-- No retries with backoff yet, and no streaming of partial results.
+- No streaming of partial results.
 - Copilot features and clicks inside the panel are tested with stand-ins only.
 - 60 glossary renderings and the translation quality await native-speaker review.
 - Sarvam sometimes writes English words in Gujarati script (for example "ફંક્શન" for function) despite the prompt asking it not to.
@@ -269,6 +269,5 @@ The code-safety guarantees are tested thoroughly; translation quality still need
 - [ ] First real quality report scored by a native speaker
 - [ ] Review the remaining 60 glossary renderings
 - [ ] Decide whether Gujarati-script loanwords are acceptable, or enforce English spelling
-- [ ] Retries with backoff for rate limits and network errors
 - [ ] More languages from contributors (see [`ADDING_A_LANGUAGE.md`](ADDING_A_LANGUAGE.md))
 - [ ] Publish to Open VSX for VSCodium and Cursor
