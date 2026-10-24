@@ -69,7 +69,7 @@ export class SarvamAdapter implements TranslationProvider {
         body: JSON.stringify({
           model: SARVAM_MODEL,
           messages: [
-            { role: 'system', content: buildSystemPrompt(request.targetLanguage, request.glossary) },
+            { role: 'system', content: buildSystemPrompt(request.targetLanguage, request.glossary, request.text) },
             { role: 'user', content: request.text },
           ],
           temperature: 0.2,

@@ -225,3 +225,34 @@ describe('translateMarkdown', () => {
     expect(result).toBe('| [gu] Option | જરૂર a\\|b |\n| --- | --- |\n| [gu] Share | [gu] VS Code |');
   });
 });
+
+// From the channel table in a real Gujarati test: cells sent one at a time came back with
+// "<<<1>>>" markers the model made up, and they showed in the translation.
+describe('translateMarkdown: made-up part markers', () => {
+  it('keeps only the first part of the reply for a single paragraph', async () => {
+    const provider: TranslationProvider = {
+      id: 'fake',
+      async translate() {
+        return { translatedText: '<<<1>>> કોઈ ચેનલો પબ્લિશ નથી થઈ <<<2>>> No channels published <<<3>>> કોઈ ચેનલો પબ્લિશ નથી થઈ' };
+      },
+    };
+
+    expect(await translateMarkdown('No channels published', { provider, targetLanguage: 'gu' })).toBe('કોઈ ચેનલો પબ્લિશ નથી થઈ');
+  });
+
+  it('cleans the replies of cells re-sent one at a time', async () => {
+    const provider: TranslationProvider = {
+      id: 'fake',
+      async translate(request) {
+        if (request.text.includes('<<<1>>>')) {
+          return { translatedText: 'the markers got lost' };
+        }
+        return { translatedText: `<<<1>>>\n[gu] ${request.text}\n<<<2>>>` };
+      },
+    };
+
+    expect(await translateMarkdown('| Status | Message |\n| --- | --- |\n| Not included | Omitted from active channels |', { provider, targetLanguage: 'gu' })).toBe(
+      '| [gu] Status | [gu] Message |\n| --- | --- |\n| [gu] Not included | [gu] Omitted from active channels |',
+    );
+  });
+});

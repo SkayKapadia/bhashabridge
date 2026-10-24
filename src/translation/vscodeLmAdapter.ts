@@ -36,7 +36,7 @@ export class VscodeLmAdapter implements TranslationProvider {
     const started = Date.now();
 
     // This API has no system role, so the instructions lead the one user message.
-    const prompt = `${buildSystemPrompt(request.targetLanguage, request.glossary)}\n\nText to translate:\n\n${request.text}`;
+    const prompt = `${buildSystemPrompt(request.targetLanguage, request.glossary, request.text)}\n\nText to translate:\n\n${request.text}`;
     let text = '';
     try {
       for await (const part of model.send(prompt, combined)) {

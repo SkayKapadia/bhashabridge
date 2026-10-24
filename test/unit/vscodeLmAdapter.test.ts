@@ -40,7 +40,7 @@ describe('VscodeLmAdapter', () => {
     const response = await adapter.translate(REQUEST);
 
     expect(response.translatedText).toBe('SKIP_001 render પહેલાં call કરો.');
-    expect(prompts).toEqual([`${buildSystemPrompt('gu', REQUEST.glossary)}\n\nText to translate:\n\n${REQUEST.text}`]);
+    expect(prompts).toEqual([`${buildSystemPrompt('gu', REQUEST.glossary, REQUEST.text)}\n\nText to translate:\n\n${REQUEST.text}`]);
   });
 
   it('says clearly when no model is available, for people without Copilot', async () => {

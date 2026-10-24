@@ -74,6 +74,11 @@ describe('buildSystemPrompt', () => {
     expect(prompt).not.toContain('Glossary');
   });
 
+  it('mentions the part markers only when the text has them', () => {
+    expect(buildSystemPrompt('gu', {}, 'One paragraph.')).not.toContain('<<<1>>>');
+    expect(buildSystemPrompt('gu', {}, '<<<1>>>\nFirst.\n\n<<<2>>>\nSecond.')).toContain('Lines like <<<1>>> separate parts');
+  });
+
   it('asks the model never to spell English words in the target script', () => {
     expect(buildSystemPrompt('gu')).toContain('Never spell an English word in Gujarati script');
   });

@@ -77,7 +77,7 @@ export class TranslationCache {
 // Everything that shapes a reply: the provider, the language, the full instructions
 // (so a changed prompt or glossary is a new key) and the text itself.
 export function cacheKey(providerId: string, request: TranslateRequest): string {
-  const parts = [providerId, request.targetLanguage, buildSystemPrompt(request.targetLanguage, request.glossary), request.text];
+  const parts = [providerId, request.targetLanguage, buildSystemPrompt(request.targetLanguage, request.glossary, request.text), request.text];
   return createHash('sha256').update(JSON.stringify(parts)).digest('hex');
 }
 

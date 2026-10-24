@@ -61,7 +61,7 @@ export async function translateMarkdown(input: string, options: TranslateMarkdow
   // chunk's pieces are sent one at a time instead: slower, never wrong.
   const translateChunk = async (chunk: Piece[]): Promise<string[]> => {
     if (chunk.length === 1) {
-      return [await translateText(chunk[0]!.text)];
+      return [withoutMadeUpMarkers(await translateText(chunk[0]!.text))];
     }
     try {
       const parts = splitChunkReply(await translateText(joinChunk(chunk.map(p => p.text))), chunk.length);
@@ -77,7 +77,7 @@ export async function translateMarkdown(input: string, options: TranslateMarkdow
     }
     const parts: string[] = [];
     for (const piece of chunk) {
-      parts.push(await translateText(piece.text));
+      parts.push(withoutMadeUpMarkers(await translateText(piece.text)));
     }
     return parts;
   };
@@ -115,6 +115,15 @@ export async function translateMarkdown(input: string, options: TranslateMarkdow
     translations = annotateFirstUse(translations, options.annotations);
   }
   return reassemble(parsed, translations);
+}
+
+// A single piece is sent without markers, so any in its reply were made up by the model,
+// which then tends to repeat the text in several "parts". Keep the first one.
+function withoutMadeUpMarkers(reply: string): string {
+  if (!/<<<\d+>>>/.test(reply)) {
+    return reply;
+  }
+  return reply.split(/\s*<<<\d+>>>\s*/).find(part => part.trim() !== '')?.trim() ?? reply;
 }
 
 function sameTokens(source: string, translated: string): boolean {
