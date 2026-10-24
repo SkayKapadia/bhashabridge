@@ -119,7 +119,7 @@ export class SarvamAdapter implements TranslationProvider {
       return new TranslationError('invalid-key', 'Sarvam AI rejected the API key. Check it and set it again.');
     }
     if (response.status === 429) {
-      return new TranslationError('rate-limit', 'Sarvam AI rate limit or quota reached. Wait a moment and try again.');
+      return new TranslationError('rate-limit', 'Sarvam AI rate limit or quota reached. Wait a moment and try again.', true, retryAfter(response));
     }
 
     let detail = '';
@@ -130,8 +130,15 @@ export class SarvamAdapter implements TranslationProvider {
       // No JSON body: the status alone has to do.
     }
     const message = `Sarvam AI request failed (HTTP ${response.status})${detail ? `: ${detail}` : '.'}`;
-    return new TranslationError('api', message.split(apiKey).join('[key hidden]'));
+    const isBusy = [500, 502, 503, 504].includes(response.status);
+    return new TranslationError('api', message.split(apiKey).join('[key hidden]'), isBusy, isBusy ? retryAfter(response) : undefined);
   }
+}
+
+// The Retry-After header in milliseconds, when it is a number of seconds.
+function retryAfter(response: Response): number | undefined {
+  const seconds = Number(response.headers?.get('retry-after'));
+  return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : undefined;
 }
 
 // The content as text, whether it came as a string or as OpenAI-style parts.

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { TranslationCache, withCache } from '../cache/translationCache';
 import { getSarvamApiKey } from '../secrets/apiKeys';
 import { TranslationError } from './errors';
+import { withRetry } from './retry';
 import { SarvamAdapter } from './sarvamAdapter';
 import type { TranslationProvider } from './translationProvider';
 import { VscodeLmAdapter, type ChatModel } from './vscodeLmAdapter';
@@ -25,8 +26,8 @@ export function translationCache(context: vscode.ExtensionContext): TranslationC
 export function createProviders(context: vscode.ExtensionContext): ReadonlyMap<string, TranslationProvider> {
   const cache = translationCache(context);
   return new Map<string, TranslationProvider>([
-    ['sarvam', withCache(new SarvamAdapter({ getApiKey: () => getSarvamApiKey(context.secrets) }), cache)],
-    ['vscode-lm', withCache(new VscodeLmAdapter({ selectModel: selectCopilotModel }), cache)],
+    ['sarvam', withCache(withRetry(new SarvamAdapter({ getApiKey: () => getSarvamApiKey(context.secrets) })), cache)],
+    ['vscode-lm', withCache(withRetry(new VscodeLmAdapter({ selectModel: selectCopilotModel })), cache)],
   ]);
 }
 

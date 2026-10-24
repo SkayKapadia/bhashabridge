@@ -146,6 +146,22 @@ describe('SarvamAdapter errors', () => {
     expect(error.code).toBe(code);
   });
 
+  it('marks passing failures as worth a retry, with the wait Sarvam asks for', async () => {
+    const busy = (status: number, retryAfter?: string) => async () =>
+      new Response('{}', { status, headers: retryAfter ? { 'Retry-After': retryAfter } : {} });
+
+    const limited = await failure(adapter(busy(429, '2')).translate(REQUEST));
+    expect([limited.retryable, limited.retryAfterMs]).toEqual([true, 2000]);
+    for (const status of [500, 502, 503, 504]) {
+      expect((await failure(adapter(busy(status)).translate(REQUEST))).retryable, String(status)).toBe(true);
+    }
+    for (const status of [400, 401, 403, 404]) {
+      expect((await failure(adapter(busy(status)).translate(REQUEST))).retryable, String(status)).toBe(false);
+    }
+    const offline = await failure(adapter(async () => { throw new TypeError('fetch failed'); }).translate(REQUEST));
+    expect([offline.code, offline.retryable]).toEqual(['network', true]);
+  });
+
   it('never repeats the key, even if the API echoes it back', async () => {
     const error = await failure(adapter(async () => reply(`bad key ${KEY}`, 400)).translate(REQUEST));
 
