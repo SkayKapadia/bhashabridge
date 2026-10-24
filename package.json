@@ -264,5 +264,10 @@
   },
   "bugs": {
     "url": "https://github.com/SkayKapadia/bhashabridge/issues"
+  },
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#0B4F6C",
+    "theme": "dark"
   }
 }
