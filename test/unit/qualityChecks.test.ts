@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { describe, expect, it } from 'vitest';
+import { normalizePastedText } from '../../src/parser/normalizePaste';
 import { checkTranslation, readSample } from '../../src/quality/checks';
 
 const INPUT = 'The `users` array is undefined.\n\n```js\nconst names = users.map(getName);\n```\n\nCheck the API response first.';
@@ -55,10 +56,11 @@ describe('quality samples', () => {
   const files = fs.readdirSync(folder).filter(f => f.endsWith('.md'));
   const domainIds = fs.readdirSync(path.resolve(__dirname, '../../glossary/domains')).map(f => f.replace(/\.json$/, ''));
 
-  it('has 20 samples, each with code', () => {
-    expect(files).toHaveLength(20);
+  it('has 22 samples, each with code', () => {
+    expect(files).toHaveLength(22);
     for (const file of files) {
-      expect(fs.readFileSync(path.join(folder, file), 'utf8'), file).toMatch(/```|`[^`]+`/);
+      // Checked after the paste repair, as in the panel: some samples are copied text.
+      expect(normalizePastedText(fs.readFileSync(path.join(folder, file), 'utf8')), file).toMatch(/```|`[^`]+`/);
     }
   });
 

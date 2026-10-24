@@ -17,6 +17,7 @@ const { SarvamAdapter } = require('../out/src/translation/sarvamAdapter.js');
 const { loadGlossaryDomains, combineDomains, glossaryOptions, protectedTerms } = require('../out/src/glossary/glossary.js');
 const { checkTranslation, readSample } = require('../out/src/quality/checks.js');
 const { LANGUAGES } = require('../out/src/languages.js');
+const { normalizePastedText } = require('../out/src/parser/normalizePaste.js');
 
 const args = process.argv.slice(2);
 const isDryRun = args.includes('--dry-run');
@@ -41,6 +42,8 @@ const files = readdirSync('test/quality/samples').filter(f => f.endsWith('.md'))
 const results = [];
 for (const file of files) {
   const sample = readSample(readFileSync(join('test/quality/samples', file), 'utf8'));
+  // As in the panel: text copied from a chat window gets its layout repaired first.
+  sample.markdown = normalizePastedText(sample.markdown);
   const glossary = combineDomains(domains, [...defaults, ...sample.domains]);
   for (const language of languages) {
     process.stdout.write(`${file} (${language})… `);
