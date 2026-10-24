@@ -51,6 +51,22 @@ describe('readSample', () => {
   });
 });
 
+describe('checkTranslation: whole words', () => {
+  // From the real quality run: these three were false alarms.
+  it.each([
+    ['`customer.getAddress()` is null for customers without an address.', '`customer.getAddress()` સરનામા વગરના ગ્રાહકો માટે null છે.'],
+    ['Call `text.match(re)` once; it matches too much.', '`text.match(re)` એક વાર call કરો; તે વધુ મેચ કરે છે.'],
+    ['The undertrained model needs:\n\n```bash\npython agent.py --train\n```', 'અધૂરું ટ્રેન થયેલું model:\n\n```bash\npython agent.py --train\n```'],
+  ])('does not count code inside longer words: %s', (input, output) => {
+    expect(passed(input, output)['Code unchanged']).toBe(true);
+  });
+
+  it('still notices code that went missing or was translated', () => {
+    expect(passed('Call `customer.save()` now.', 'હવે સાચવો.')['Code unchanged']).toBe(false);
+    expect(passed('Call `save` now, then save again.', 'હવે `સાચવો` કરો.')['Code unchanged']).toBe(false);
+  });
+});
+
 describe('quality samples', () => {
   const folder = path.resolve(__dirname, '../quality/samples');
   const files = fs.readdirSync(folder).filter(f => f.endsWith('.md'));

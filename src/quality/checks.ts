@@ -15,7 +15,7 @@ export interface QualityCheck {
 export function checkTranslation(input: string, output: string, keepTerms: readonly string[]): QualityCheck[] {
   const parsed = parseMarkdown(input);
 
-  const changedCode = [...new Set(parsed.placeholders.values())].filter(code => count(output, code) !== count(input, code));
+  const changedCode = [...new Set(parsed.placeholders.values())].filter(code => countCode(output, code) !== countCode(input, code));
 
   const terms = new Set(parsed.segments.flatMap(s => [...protectTerms(s.text, keepTerms).placeholders.values()]));
   const missingTerms = [...terms].filter(term => !output.includes(term));
@@ -62,8 +62,12 @@ export function readSample(text: string): { domains: string[]; markdown: string 
   };
 }
 
-function count(text: string, part: string): number {
-  return text.split(part).length - 1;
+// Uses of a piece of code, as a whole word where it starts or ends with a letter or
+// digit: `customer` is not counted inside the translated word "customers".
+function countCode(text: string, code: string): number {
+  const escaped = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = `${/^\w/.test(code) ? '(?<!\\w)' : ''}${escaped}${/\w$/.test(code) ? '(?!\\w)' : ''}`;
+  return text.match(new RegExp(pattern, 'g'))?.length ?? 0;
 }
 
 function short(code: string): string {
