@@ -39,19 +39,19 @@
   "annotate": {
     "curriculum": {
       "gu": "અભ્યાસક્રમ",
-      "reviewed": false
+      "reviewed": true
     },
     "formative assessment": {
       "gu": "શીખતી વખતે થતું મૂલ્યાંકન",
-      "reviewed": false
+      "reviewed": true
     },
     "summative assessment": {
       "gu": "અંતે થતું સમગ્ર મૂલ્યાંકન",
-      "reviewed": false
+      "reviewed": true
     },
     "learning outcome": {
       "gu": "શીખવાનું અપેક્ષિત પરિણામ",
-      "reviewed": false
+      "reviewed": true
     }
   },
   "translate": {}

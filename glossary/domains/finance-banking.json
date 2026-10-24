@@ -69,23 +69,23 @@
   "annotate": {
     "ledger": {
       "gu": "ખાતાવહી",
-      "reviewed": false
+      "reviewed": true
     },
     "reconciliation": {
       "gu": "હિસાબનો મેળ મેળવવો",
-      "reviewed": false
+      "reviewed": true
     },
     "accrual": {
       "gu": "મળવાપાત્ર કે ચૂકવવાપાત્ર થયેલી રકમ",
-      "reviewed": false
+      "reviewed": true
     },
     "amortization": {
       "gu": "હપ્તાઓમાં ચુકવણી",
-      "reviewed": false
+      "reviewed": true
     },
     "collateral": {
       "gu": "જામીનગીરી",
-      "reviewed": false
+      "reviewed": true
     },
     "liquidity": {
       "gu": "તરલતા",
@@ -93,7 +93,7 @@
     },
     "double-entry bookkeeping": {
       "gu": "બેવડી નોંધવાળી હિસાબ પદ્ધતિ",
-      "reviewed": false
+      "reviewed": true
     },
     "net worth": {
       "gu": "ચોખ્ખી સંપત્તિ",
