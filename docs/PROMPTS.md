@@ -1,6 +1,6 @@
 # Prompts used to build BhashaBridge
 
-BhashaBridge was built module by module with an AI coding assistant (Claude Code). These are the prompts used for each module, so contributors can follow the same approach. They are quoted as they were written: BhashaBridge first targeted Gujarati and Marathi, and Marathi was later removed so contributors can add it back, along with other languages, by following [ADDING_A_LANGUAGE.md](ADDING_A_LANGUAGE.md).
+BhashaBridge was built module by module with an AI coding assistant (Claude Code). These are the prompts used for each module, so contributors can follow the same approach. Other languages can be added by following [ADDING_A_LANGUAGE.md](ADDING_A_LANGUAGE.md).
 
 ## Working rules
 
@@ -29,9 +29,9 @@ Checks afterwards:
 
 ## Milestone 3: Translation service
 
-> Create a TranslationProvider interface in src/translation. The interface should have a translate method. The method should accept text, target language, and glossary. Create a TranslateRequest type and TranslateResponse type. Do not implement any provider yet. Keep it clean and simple. The target language codes should be gu for Gujarati and mr for Marathi. The interface should be simple enough that SarvamAdapter, ClaudeAdapter, GeminiAdapter, and IndicTrans2Adapter can be added later without changing the core app.
+> Create a TranslationProvider interface in src/translation. The interface should have a translate method. The method should accept text, target language, and glossary. Create a TranslateRequest type and TranslateResponse type. Do not implement any provider yet. Keep it clean and simple. The target language code should be gu for Gujarati. The interface should be simple enough that SarvamAdapter, ClaudeAdapter, GeminiAdapter, and IndicTrans2Adapter can be added later without changing the core app.
 
-> Implement SarvamAdapter using the TranslationProvider interface. It should translate English text into Gujarati or Marathi. It must keep programming keywords, variable names, function names, library names, framework names, and technical terms in English. It should use the Sarvam AI API. It should read the API key from a secure local setting, not from hardcoded values. Add error handling for missing key, network failure, and timeout. Do not log the API key.
+> Implement SarvamAdapter using the TranslationProvider interface. It should translate English text into Gujarati. It must keep programming keywords, variable names, function names, library names, framework names, and technical terms in English. It should use the Sarvam AI API. It should read the API key from a secure local setting, not from hardcoded values. Add error handling for missing key, network failure, and timeout. Do not log the API key.
 >
 > Before running this, read the Sarvam AI docs and check the exact request format. Sarvam may update their API. For your first version, keep only Sarvam AI. Do not add five providers at once.
 
@@ -39,11 +39,11 @@ Checks afterwards:
 
 > Create a reassembly module. It should take translated text and replace placeholder tokens with the original code blocks and inline code from the parser map. It should preserve markdown structure. It should not modify code. Add tests.
 >
-> Test example: "The function fails because users is undefined." with the code `const names = users.map(getName);`. After translation, the paragraph may become Gujarati or Marathi. The code must remain exactly the same. If the translated output changes code, that is a bug.
+> Test example: "The function fails because users is undefined." with the code `const names = users.map(getName);`. After translation, the paragraph becomes Gujarati. The code must remain exactly the same. If the translated output changes code, that is a bug.
 
 ## Milestone 5: Webview UI
 
-> Build the BhashaBridge webview. It should have an input textarea, a language dropdown for Gujarati and Marathi, a translate button, and an output area. When the user clicks translate, send the input to the extension host. The extension host should parse the text, translate the normal text, restore code placeholders, and return final markdown. Render the output safely. Do not allow unsafe HTML. Show loading state and error state.
+> Build the BhashaBridge webview. It should have an input textarea, a language dropdown for Gujarati, a translate button, and an output area. When the user clicks translate, send the input to the extension host. The extension host should parse the text, translate the normal text, restore code placeholders, and return final markdown. Render the output safely. Do not allow unsafe HTML. Show loading state and error state.
 >
 > For version 1, the UI can be simple. It needs: clear input, clear language selection, clear translate button, clear output, clear errors.
 

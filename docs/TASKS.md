@@ -20,7 +20,7 @@ Keep a map to restore code later.
 Milestone 3: Translation service
 Create TranslationProvider interface.
 Create SarvamAdapter.
-Add target language support for gu and mr.
+Add target language support for gu.
 Add prompt instruction to keep technical terms in English.
 Return translated text.
 Milestone 4: Reassembly engine

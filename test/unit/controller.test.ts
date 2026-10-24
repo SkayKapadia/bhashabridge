@@ -38,7 +38,7 @@ describe('handleTranslate', () => {
 
   it.each([
     [{ text: INPUT, language: 'hi' }],
-    [{ text: INPUT, language: 'mr' }],
+    [{ text: INPUT, language: 'ta' }],
     [{ text: 42, language: 'gu' }],
     [{ text: INPUT, language: undefined }],
   ])('rejects a malformed request %#', async message => {

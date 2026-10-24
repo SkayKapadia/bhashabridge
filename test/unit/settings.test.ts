@@ -18,7 +18,7 @@ describe('readSettings', () => {
 
   it.each([
     [{ defaultLanguage: 'hi' }],
-    [{ defaultLanguage: 'mr' }],
+    [{ defaultLanguage: 'ta' }],
     [{ defaultLanguage: 42 }],
     [{ defaultProvider: 'gemini' }],
     [{ defaultProvider: null }],

@@ -5,7 +5,7 @@ Thank you for helping. Contributions are most valuable from developers who think
 ## Ways to help
 
 - **Review Gujarati renderings** in the glossary (the most needed help right now).
-- **Add your language**, such as Marathi or Hindi: see [`docs/ADDING_A_LANGUAGE.md`](docs/ADDING_A_LANGUAGE.md).
+- **Add your language**, such as Hindi or Tamil: see [`docs/ADDING_A_LANGUAGE.md`](docs/ADDING_A_LANGUAGE.md).
 - **Add glossary terms** for a software or business domain.
 - **Report a bad translation** with the *Report translation* button in the panel, or a [translation quality issue](../../issues/new?template=translation-quality.md).
 - **Score sample translations** in a quality report (`npm run quality`).

@@ -115,8 +115,8 @@ describe('parseDomain', () => {
     [{ ...valid, keep: ['ok', ''] }, '"keep"'],
     [{ ...valid, annotate: { ledger: { reviewed: true } } }, 'needs text in at least one language'],
     [{ ...valid, annotate: { ledger: { gu: '  ' } } }, 'needs "gu" text'],
-    [{ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही' } } }, '"mr" is not a language BhashaBridge knows'],
-    [{ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', reviewed: ['gu', 'mr'] } } }, '"reviewed" must be true, false, or a list'],
+    [{ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', hi: 'बहीखाता' } } }, '"hi" is not a language BhashaBridge knows'],
+    [{ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', reviewed: ['gu', 'hi'] } } }, '"reviewed" must be true, false, or a list'],
     [{ ...valid, translate: { x: { gu: 'a', reviewed: 'no' } } }, '"reviewed"'],
   ])('names the problem in a bad file %#', (data, message) => {
     expect(() => parseDomain(data, 'x.json')).toThrow(GlossaryError);

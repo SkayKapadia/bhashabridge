@@ -33,7 +33,7 @@ More detail: [the idea in simple words](docs/SIMPLE_EXPLANATION.md) · [technica
 
 ## Why BhashaBridge?
 
-Developers across Gujarat, Maharashtra, and the rest of India understand loops, functions, APIs, and data structures. But when Copilot or another assistant answers with three paragraphs of dense English explaining *why* the code is broken, the hard part stops being the bug and becomes the English.
+Developers across Gujarat and the rest of India understand loops, functions, APIs, and data structures. But when Copilot or another assistant answers with three paragraphs of dense English explaining *why* the code is broken, the hard part stops being the bug and becomes the English.
 
 Reading complex sentences in a second language while also reasoning about a technical fix is a heavy cognitive load. It slows learning and quietly tells talented developers that the tools were not built for them.
 
@@ -90,7 +90,7 @@ Because code is removed *before* translation, a model never gets the chance to "
 | Language | Code | Status |
 |---|---|---|
 | Gujarati | `gu` | Available (preview) |
-| Marathi, Hindi, Kannada, Tamil, Telugu | | Not yet: [add your language](docs/ADDING_A_LANGUAGE.md) |
+| Hindi, Kannada, Tamil, Telugu and others | | Not yet: [add your language](docs/ADDING_A_LANGUAGE.md) |
 
 | Provider | Status |
 |---|---|
@@ -206,7 +206,7 @@ Gujarati renderings are used only once a native speaker marks them `"reviewed": 
 |---|---|
 | **0.1.0** | Sarvam AI, Gujarati, basic webview, 100-term glossary, Marketplace release |
 | **0.3.0** | IndicTrans2 and Gemini, streaming output, translation history, 300-term glossary |
-| **0.5.0** | More languages from contributors (Marathi, Hindi, Kannada, Tamil, Telugu); context from the open file; glossary voting |
+| **0.5.0** | More languages from contributors (Hindi, Kannada, Tamil, Telugu and others); context from the open file; glossary voting |
 | **1.0.0** | Full test coverage, terminal error translation, Continue.dev integration |
 | **Beyond** | Voice output, browser extension for ChatGPT and Claude, CLI version |
 
@@ -214,7 +214,7 @@ Gujarati renderings are used only once a native speaker marks them `"reviewed": 
 
 Contributions are very welcome, especially from developers who think in Gujarati or another Indian language. You can help by:
 
-- **Adding your language.** [`docs/ADDING_A_LANGUAGE.md`](docs/ADDING_A_LANGUAGE.md) walks through it, using Marathi as the example.
+- **Adding your language.** [`docs/ADDING_A_LANGUAGE.md`](docs/ADDING_A_LANGUAGE.md) walks through it, using Hindi as the example.
 
 - **Improving the glossary.** Suggest how a technical term should be handled.
 - **Reporting translation quality.** Share an explanation that came out wrong and what it should have said.

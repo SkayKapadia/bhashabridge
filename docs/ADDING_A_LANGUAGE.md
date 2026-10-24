@@ -1,14 +1,14 @@
 # Adding a language to BhashaBridge
 
-BhashaBridge translates into Gujarati today, and is built so that any Indian language can be added by its own speakers. This guide walks through adding one, using **Marathi** as the example. Replace the Marathi details with your language's.
+BhashaBridge translates into Gujarati today, and is built so that any Indian language can be added by its own speakers. This guide walks through adding one, using **Hindi** as the example. Replace the Hindi details with your language's.
 
 Most of the work is not code: it is checking that translations read naturally. The code part is a few small changes, and the tests tell you if one is missing.
 
 ## Before you start
 
 - **You, or someone helping you, should be a native speaker.** You will judge translation quality and review glossary meanings.
-- **Check the translation providers support your language.** Sarvam AI supports 22 Indian languages, including Marathi (`mr-IN`); see its [language list](https://docs.sarvam.ai/api-reference/text/translate-text). The VS Code model (Copilot) handles most major languages.
-- **Open an issue first,** for example "Add Marathi", so others know you are working on it and can help.
+- **Check the translation providers support your language.** Sarvam AI supports 22 Indian languages, including Hindi (`hi-IN`); see its [language list](https://docs.sarvam.ai/api-reference/text/translate-text). The VS Code model (Copilot) handles most major languages.
+- **Open an issue first,** for example "Add Hindi", so others know you are working on it and can help.
 - **Set up the project:** see [CONTRIBUTING.md](../CONTRIBUTING.md#set-up).
 
 ## The changes, at a glance
@@ -29,13 +29,13 @@ Open `src/languages.ts` and add one entry to `LANGUAGES`:
 ```ts
 export const LANGUAGES = [
   { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી', script: 'Gujarati' },
-  { code: 'mr', name: 'Marathi', nativeName: 'मराठी', script: 'Devanagari' },
+  { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी', script: 'Devanagari' },
 ] as const satisfies readonly Language[];
 ```
 
-- **`code`:** the two-letter ISO 639-1 code (`mr`, `hi`, `ta`, `te`, `kn`, `bn`, `pa`, `ml`, `or`). Use the three-letter code only if there is no two-letter one.
-- **`name`:** the English name. It appears in the prompt ("Translate … into Marathi") and the interface.
-- **`nativeName`:** the language's own name, shown in the dropdown as "Marathi (मराठी)".
+- **`code`:** the two-letter ISO 639-1 code (`hi`, `ta`, `te`, `kn`, `bn`, `pa`, `ml`, `or`). Use the three-letter code only if there is no two-letter one.
+- **`name`:** the English name. It appears in the prompt ("Translate … into Hindi") and the interface.
+- **`nativeName`:** the language's own name, shown in the dropdown as "Hindi (हिन्दी)".
 - **`script`:** the writing system's name (`Devanagari`, `Tamil`, `Bengali`…). The prompt tells the model never to spell English words in this script.
 
 That one entry adds the language to the panel's dropdown, the settings check, the prompt, the chat, the quality report and the glossary checks.
@@ -47,8 +47,8 @@ In `package.json`, find `bhashabridge.defaultLanguage` and add your code and nam
 ```json
 "bhashabridge.defaultLanguage": {
   "type": "string",
-  "enum": ["gu", "mr"],
-  "enumItemLabels": ["Gujarati", "Marathi"],
+  "enum": ["gu", "hi"],
+  "enumItemLabels": ["Gujarati", "Hindi"],
   "default": "gu",
   ...
 }
@@ -58,7 +58,7 @@ A test fails if this list and `src/languages.ts` disagree.
 
 ## Step 3: Check where sentences end
 
-Long paragraphs are split at sentence ends (`src/chunking/chunker.ts`). It already knows `.` `?` `!` and the danda `।`, which covers Marathi, Hindi, Gujarati and most other Indian scripts.
+Long paragraphs are split at sentence ends (`src/chunking/chunker.ts`). It already knows `.` `?` `!` and the danda `।`, which covers Hindi, Gujarati and most other Indian scripts.
 
 If your language ends sentences with another mark, such as `۔` in Urdu, add it to the pattern in `splitSentences` and add a test in `test/unit/chunker.test.ts`, like the existing danda test:
 
@@ -73,18 +73,12 @@ The glossary in `glossary/domains/` keeps technical terms in English, for every 
 To add your language to an entry, add a field named by its code next to the existing ones:
 
 ```json
-"ledger": { "gu": "ખાતાવહી", "mr": "खातेवही", "reviewed": ["gu"] }
+"ledger": { "gu": "ખાતાવહી", "hi": "बहीखाता", "reviewed": ["gu"] }
 ```
 
-- **`reviewed` is per language.** `["gu"]` means only the Gujarati text has been checked; the Marathi one waits. BhashaBridge only shows a rendering whose language is in the list (or `"reviewed": true` for all). Until then the term stays in English for that language, which is always safe.
+- **`reviewed` is per language.** `["gu"]` means only the Gujarati text has been checked; the Hindi one waits. BhashaBridge only shows a rendering whose language is in the list (or `"reviewed": true` for all). Until then the term stays in English for that language, which is always safe.
 - **Do not mark your own rendering reviewed.** A second native speaker adds your code to the list in a later pull request.
-- **Starting point for Marathi:** BhashaBridge once had draft Marathi meanings for 82 terms. They were removed but are kept in git history, so you can bring them back instead of starting from nothing:
-
-  ```bash
-  git show a967d8b:glossary/domains/finance-banking.json
-  ```
-
-  Every one of those drafts is unreviewed: check each before marking it.
+- **Where to start:** `docs/GLOSSARY_REVIEW.md` lists the terms that already have a Gujarati meaning; those are the ones worth a meaning in your language too.
 
 Then run `npm run glossary:review`. `docs/GLOSSARY_REVIEW.md` gets a column for your language, listing everything still to review.
 
@@ -96,7 +90,7 @@ Most tests read the language list and need no change. Update these few:
 
 - `test/unit/translationProvider.test.ts`: the expected `LANGUAGE_NAMES` gains your language.
 - `test/unit/panelHtml.test.ts`: the expected dropdown options gain your language.
-- `test/unit/controller.test.ts` and `test/unit/settings.test.ts`: they use `mr` as an example of a language that is **not** supported. Change that example to one that still is not (say `hi`), or delete the line.
+- `test/unit/controller.test.ts`, `test/unit/settings.test.ts`, `test/unit/languages.test.ts` and `test/unit/glossary.test.ts`: they use `hi` and `ta` as examples of languages that are **not** supported. If you add one of those, change the example to a code that still is not (say `bn`).
 
 Then update the documents people read:
 
@@ -116,7 +110,7 @@ npm test
 The tests prove code is never damaged. Only a person can say whether the language reads naturally.
 
 1. Put a Sarvam key in a `.env` file in the project (it is git-ignored): `SARVAM_API_KEY=...`
-2. Run `npm run quality -- --lang mr`. It translates 20 realistic AI answers and writes a report to `docs/quality/`.
+2. Run `npm run quality -- --lang hi`. It translates 20 realistic AI answers and writes a report to `docs/quality/`.
 3. A native speaker scores each translation from 1 (unusable) to 5 (reads like a native speaker wrote it). The target is an average of 4.
 4. Try it yourself: run `npm run compile`, press **F5** in VS Code, pick your language in the panel, and translate a few of your own AI answers.
 

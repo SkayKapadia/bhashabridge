@@ -6,7 +6,7 @@ October 20, 2026
 
 ## The problem
 
-Many talented developers in Gujarat and Maharashtra understand code well but lose the thread when an AI tool explains a bug in three paragraphs of dense English. Reading a second language and thinking about the fix at the same time is twice the work. It slows learning and quietly says that these tools were not built for them.
+Many talented developers in Gujarat understand code well but lose the thread when an AI tool explains a bug in three paragraphs of dense English. Reading a second language and thinking about the fix at the same time is twice the work. It slows learning and quietly says that these tools were not built for them.
 
 ## The idea
 
@@ -37,7 +37,7 @@ BhashaBridge hides the code before anything is translated, so the translator nev
 
 ## Who it is for
 
-- **Students and junior developers** in Gujarat and Maharashtra, especially in smaller cities, who use tools like GitHub Copilot or ChatGPT and struggle with long English explanations.
+- **Students and junior developers** in Gujarat, especially in smaller cities, who use tools like GitHub Copilot or ChatGPT and struggle with long English explanations.
 - **Self-taught developers** from non-English-medium schools who understand the logic but grasp it faster in their own language.
 - **Developers building software for other fields**, such as healthcare, banking or supply chain, who meet that field's jargon too.
 - **Teachers and bootcamps** who want students to learn concepts first and the English vocabulary along the way.
@@ -80,4 +80,4 @@ BhashaBridge works end to end and is being prepared for its first public release
 
 - **Done:** Gujarati, Sarvam AI and Copilot as translators, the panel, the shortcut, the chat, learning mode, and a word list of about 1,450 technical terms across software and 17 business fields.
 - **Next:** native speakers review the Gujarati word meanings and score sample translations; then the first release.
-- **Later:** more languages added by contributors, such as Marathi, Hindi, Kannada, Tamil and Telugu; more translation services, including a free one for students; and translating error messages straight from the terminal.
+- **Later:** more languages added by contributors, such as Hindi, Kannada, Tamil and Telugu; more translation services, including a free one for students; and translating error messages straight from the terminal.

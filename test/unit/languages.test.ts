@@ -33,7 +33,7 @@ describe('language list', () => {
 
   it('accepts only listed languages', () => {
     expect(isTargetLanguage('gu')).toBe(true);
-    for (const code of ['mr', 'hi', '', 7, undefined]) {
+    for (const code of ['ta', 'hi', '', 7, undefined]) {
       expect(isTargetLanguage(code), String(code)).toBe(false);
     }
   });
