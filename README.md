@@ -27,7 +27,9 @@ A VS Code extension that translates explanations from AI coding assistants into 
 - **Works with any AI tool.** Select or copy an answer and press **Ctrl+Alt+Shift+T** (Cmd on Mac), paste it into the panel, or ask `@bhashabridge` in Copilot Chat.
 - **Your code never leaves your machine.** Only the explanation, with code hidden, goes to the translator you choose: Sarvam AI with your own key, or your Copilot model.
 
-**Status:** early preview, not yet on the VS Code Marketplace. You can [run it from source](#getting-started-development) today, and help is very welcome, especially from Gujarati speakers, and from anyone who wants to [add their own language](docs/ADDING_A_LANGUAGE.md). See [Contributing](#contributing).
+**Install:** search for **BhashaBridge** in the VS Code Extensions view, or run `ext install SunilKapadia.bhashabridge` from the Quick Open box (Ctrl+P / Cmd+P). Then run **BhashaBridge: Set Sarvam API Key** (or use GitHub Copilot) and press **Ctrl+Alt+Shift+T** on any AI answer.
+
+**Status:** 0.1.0 preview. Help is very welcome, especially from Gujarati speakers, and from anyone who wants to [add their own language](docs/ADDING_A_LANGUAGE.md). See [Contributing](#contributing).
 
 More detail: [the idea in simple words](docs/SIMPLE_EXPLANATION.md) · [technical overview](docs/TECHNICAL_OVERVIEW.md)
 
@@ -102,7 +104,7 @@ Because code is removed *before* translation, a model never gets the chance to "
 
 ## Project status
 
-BhashaBridge is in early development and is **not yet on the Marketplace**.
+BhashaBridge 0.1.0 is a **preview** release on the VS Code Marketplace. See the [changelog](CHANGELOG.md).
 
 - [x] **Milestone 0:** Project setup
 - [x] **Milestone 1:** Extension skeleton with the `bhashabridge.translate` command and webview panel
@@ -111,7 +113,7 @@ BhashaBridge is in early development and is **not yet on the Marketplace**.
 - [x] **Milestone 4:** Reassembly engine
 - [x] **Milestone 5:** Webview UI (input, language and provider pickers, output)
 - [x] **Milestone 6:** Secrets and settings
-- [ ] **Milestone 7:** Testing and first release
+- [x] **Milestone 7:** Testing and first release (0.1.0 preview; see [`docs/PUBLISHING.md`](docs/PUBLISHING.md))
 
 See [`docs/TASKS.md`](docs/TASKS.md) for the full breakdown.
 
@@ -123,7 +125,7 @@ See [`docs/TASKS.md`](docs/TASKS.md) for the full breakdown.
 git clone https://github.com/SkayKapadia/bhashabridge.git
 cd bhashabridge
 npm install
-npm run compile
+npm run bundle
 ```
 
 Then open the folder in VS Code and press **F5**. In the window that opens:
@@ -135,7 +137,9 @@ Then open the folder in VS Code and press **F5**. In the window that opens:
 
 | Command | What it does |
 |---|---|
-| `npm run compile` | Compile TypeScript to `out/` |
+| `npm run compile` | Compile TypeScript to `out/` (used by the tests) |
+| `npm run bundle` | Bundle the extension into `dist/extension.js` with esbuild (what F5 and the package run) |
+| `npm run package` | Build `bhashabridge-<version>.vsix` for the Marketplace ([how to publish](docs/PUBLISHING.md)) |
 | `npm run watch` | Recompile on every change |
 | `npm run test:unit` | Run unit tests with Vitest |
 | `npm test` | Compile, then run integration tests inside a downloaded copy of VS Code |

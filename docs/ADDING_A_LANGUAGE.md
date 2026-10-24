@@ -112,7 +112,7 @@ The tests prove code is never damaged. Only a person can say whether the languag
 1. Put a Sarvam key in a `.env` file in the project (it is git-ignored): `SARVAM_API_KEY=...`
 2. Run `npm run quality -- --lang hi`. It translates 20 realistic AI answers and writes a report to `docs/quality/`.
 3. A native speaker scores each translation from 1 (unusable) to 5 (reads like a native speaker wrote it). The target is an average of 4.
-4. Try it yourself: run `npm run compile`, press **F5** in VS Code, pick your language in the panel, and translate a few of your own AI answers.
+4. Try it yourself: press **F5** in VS Code (it bundles the extension first), pick your language in the panel, and translate a few of your own AI answers.
 
 If a provider gets something consistently wrong in your language (for example, spelling English words in your script), describe it in the pull request. The prompt in `src/translation/prompt.ts` applies to every language, so changes there need care.
 

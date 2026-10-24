@@ -1,7 +1,9 @@
-# Only the compiled extension, its page assets, the glossary and the docs ship in the .vsix.
+# Only the bundled extension (dist/), its page assets (media/), the glossary,
+# README, LICENSE and CHANGELOG ship in the .vsix. Everything esbuild bundled is left out.
 src/**
+out/**
 test/**
-out/test/**
+node_modules/**
 **/*.map
 scripts/**
 docs/**

@@ -1,17 +1,53 @@
 {
   "name": "bhashabridge",
-  "displayName": "BhashaBridge",
-  "description": "Read AI coding explanations in Gujarati. Code and technical terms stay in English.",
-  "version": "0.1.0-preview.6",
-  "publisher": "bhashabridge",
+  "displayName": "BhashaBridge: AI Explanations in Gujarati",
+  "description": "Read AI coding explanations from Copilot, ChatGPT and others in Gujarati. Code, variable names and technical terms stay exactly as they are.",
+  "version": "0.1.0",
+  "publisher": "SunilKapadia",
+  "author": {
+    "name": "Sunil Kapadia"
+  },
+  "preview": true,
   "license": "MIT",
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#0B4F6C",
+    "theme": "dark"
+  },
+  "homepage": "https://github.com/SkayKapadia/bhashabridge#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SkayKapadia/bhashabridge"
+  },
+  "bugs": {
+    "url": "https://github.com/SkayKapadia/bhashabridge/issues"
+  },
   "engines": {
     "vscode": "^1.90.0"
   },
   "categories": [
+    "AI",
+    "Chat",
+    "Education",
     "Other"
   ],
-  "main": "./out/src/extension.js",
+  "keywords": [
+    "gujarati",
+    "translation",
+    "translate",
+    "indian languages",
+    "copilot",
+    "chatgpt",
+    "ai",
+    "llm",
+    "learning",
+    "india",
+    "sarvam"
+  ],
+  "activationEvents": [
+    "onChatParticipant:bhashabridge.chat"
+  ],
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -228,24 +264,13 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "npm run compile && node ./out/test/runTest.js",
+    "test": "npm run compile && npm run bundle && node ./out/test/runTest.js",
     "test:unit": "vitest run --dir test/unit",
     "glossary:review": "node scripts/glossary-review.mjs",
     "quality": "npm run compile && node scripts/quality.mjs",
-    "vscode:prepublish": "npm run compile",
-    "package": "vsce package"
-  },
-  "devDependencies": {
-    "@types/hast": "^3.0.5",
-    "@types/mdast": "^4.0.4",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "^22.20.5",
-    "@types/vscode": "1.90.0",
-    "@vscode/test-electron": "^3.1.0",
-    "@vscode/vsce": "^4.0.0",
-    "mocha": "^12.0.3",
-    "typescript": "^5.4.0",
-    "vitest": "^5.0.5"
+    "vscode:prepublish": "npm run bundle",
+    "package": "vsce package",
+    "bundle": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --target=node18 --minify --legal-comments=none"
   },
   "dependencies": {
     "hast-util-sanitize": "^5.0.2",
@@ -255,19 +280,17 @@
     "mdast-util-to-hast": "^13.2.1",
     "micromark-extension-gfm": "^3.0.0"
   },
-  "activationEvents": [
-    "onChatParticipant:bhashabridge.chat"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/SkayKapadia/bhashabridge"
-  },
-  "bugs": {
-    "url": "https://github.com/SkayKapadia/bhashabridge/issues"
-  },
-  "icon": "media/icon.png",
-  "galleryBanner": {
-    "color": "#0B4F6C",
-    "theme": "dark"
+  "devDependencies": {
+    "@types/hast": "^3.0.5",
+    "@types/mdast": "^4.0.4",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.20.5",
+    "@types/vscode": "1.90.0",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.28.2",
+    "mocha": "^12.0.3",
+    "typescript": "^5.4.0",
+    "vitest": "^5.0.5"
   }
 }

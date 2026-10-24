@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 
 suite('BhashaBridge extension', () => {
   test('registers the bhashabridge.translate command', async () => {
-    const extension = vscode.extensions.getExtension('bhashabridge.bhashabridge');
+    const extension = vscode.extensions.getExtension('SunilKapadia.bhashabridge');
     assert.ok(extension, 'expected the extension to be installed');
     await extension.activate();
 
