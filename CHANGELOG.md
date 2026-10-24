@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 (preview)
+
+- New Marketplace title, "BhashaBridge: AI Explanations in Indian Languages", ready for more languages. Gujarati is the language available today; others can be added by contributors (see the guide on adding a language).
+
 ## 0.1.0 (preview)
 
 The first public release of BhashaBridge: read AI coding explanations in Gujarati, with code and technical terms kept exactly as they are.

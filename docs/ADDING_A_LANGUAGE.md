@@ -97,6 +97,7 @@ Then update the documents people read:
 - `README.md`: the "Supported languages" table.
 - `docs/TESTING_GUIDE.md`: mention your language.
 - `.github/ISSUE_TEMPLATE/glossary-suggestion.md` and `translation-quality.md`: add your language where Gujarati is listed.
+- `package.json`: name your language in the `description` ("…starting with Gujarati and Hindi") and add it to `keywords` (`"hindi"`), so its speakers find BhashaBridge on the Marketplace. The title, "AI Explanations in Indian Languages", already covers every language.
 
 Run the tests:
 
