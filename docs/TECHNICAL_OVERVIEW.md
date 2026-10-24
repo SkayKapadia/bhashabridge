@@ -1,6 +1,6 @@
 # BhashaBridge Technical Overview
 
-October 20, 2026
+October 24, 2026
 
 > Local copy of the shared doc: https://claude.ai/code/artifact/eb0cdd64-8dc8-4aaa-897b-d825ddabdea3
 
@@ -15,7 +15,7 @@ BhashaBridge is a VS Code extension that translates English explanations from AI
 - Providers are swappable behind one interface (Sarvam AI and the VS Code language model today).
 - Privacy by default: no telemetry, keys in the OS keychain, and code never leaves the machine.
 
-**Status:** Milestones 0 to 6 of the task plan are complete, plus the glossary, chunking, chat participant, learning mode, cache, feedback and workspace glossary modules. 234 unit tests and 4 VS Code integration tests pass. Milestone 7 (packaging and publishing) is next.
+**Status:** all milestones (0 to 7) of the task plan are complete. Version 0.1.1 (preview) is published on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=SunilKapadia.bhashabridge) by the publisher `SunilKapadia`, as "BhashaBridge: AI Explanations in Indian Languages". 289 unit tests and 4 VS Code integration tests pass.
 
 ## Architecture
 
@@ -197,24 +197,35 @@ A `ReassemblyError` (code could not be put back) and a `GlossaryError` (a bad gl
 
 ## Testing and quality
 
-234 unit tests and 4 VS Code integration tests pass, and none of them call a real API; real translation quality is measured separately with a scored report.
+289 unit tests and 4 VS Code integration tests pass, and none of them call a real API; real translation quality is measured separately with a scored report.
 
 | Layer | Tool | What it covers |
 | --- | --- | --- |
 | Unit (`npm run test:unit`) | Vitest | Parser, code-line detection, glossary files and matching, chunker, both adapters with a stand-in network, prompt, reassembly, cache, rendering and sanitizing, settings, report links, chat logic |
 | Integration (`npm test`) | `@vscode/test-electron` + Mocha | Activation, all commands registered, settings declared, Translate Selection and the panel opening, inside a downloaded VS Code |
 | Quality (`npm run quality`) | `scripts/quality.mjs` | 20 realistic samples (16 software, 4 business) translated for real; automatic checks plus a 1 to 5 score column for a native speaker |
-| Manual | Checklist (Milestone 7) | Clicks inside the panel, Copilot features, the shortcut in the terminal |
+| Manual | [`MANUAL_TEST_CHECKLIST.md`](MANUAL_TEST_CHECKLIST.md) | Clicks inside the panel, Copilot features, the shortcut in the terminal, run on the packaged `.vsix` before each release |
+| Continuous integration | GitHub Actions (`.github/workflows/ci.yml`) | Unit and integration tests on every push and pull request; `master` accepts changes only when they pass |
 
 **Automatic quality checks** (`src/quality/checks.ts`): code unchanged, glossary terms still in English, no leftover placeholders or markers, and the same number of top-level blocks. They catch damage; how natural the language reads needs a person. The SDD target is an average score of 4.
 
-**Glossary review:** `npm run glossary:review` lists every rendering not yet marked `"reviewed": true` in `docs/GLOSSARY_REVIEW.md` (82 today).
+**Glossary review:** `npm run glossary:review` lists every rendering not yet marked `"reviewed": true` in `docs/GLOSSARY_REVIEW.md` (60 today).
 
-**Test environment note:** VS Code's own terminal sets `ELECTRON_RUN_AS_NODE=1`, which made the downloaded VS Code reject every flag. `test/runTest.ts` now clears it.
+**Test environment note:** VS Code's own terminal sets `ELECTRON_RUN_AS_NODE=1`, which made the downloaded VS Code reject every flag. `test/runTest.ts` now clears it. Setting `BHASHABRIDGE_EXTENSION_PATH` runs the integration tests against an unpacked `.vsix`, so the exact published package is tested.
 
 ## Languages
 
 The supported languages are one list in `src/languages.ts` (code, English name, native name, script); today it holds Gujarati. The dropdown, settings check, prompt, scripts and tests all read that list, and glossary renderings are stored per language. [`ADDING_A_LANGUAGE.md`](ADDING_A_LANGUAGE.md) explains how to add one.
+
+## Packaging and release
+
+The extension ships as one bundled file, so installs are small and start fast.
+
+- **Bundle:** esbuild compiles `src/extension.ts` and its libraries into `dist/extension.js` (`npm run bundle`), the `main` entry in `package.json`. `vscode` stays external.
+- **Package:** `npm run package` (`@vscode/vsce`) writes `bhashabridge-<version>.vsix`. `.vscodeignore` lets in only `dist/`, `media/`, `glossary/`, README, CHANGELOG and LICENSE: about 40 files, under 120 KB.
+- **Marketplace listing:** title "BhashaBridge: AI Explanations in Indian Languages", a description naming the languages available (Gujarati today), keywords, the Speech Bridge icon (`media/icon.png`) and a `preview` badge until 1.0.
+- **Updates:** raise `version`, add a `CHANGELOG.md` entry, package, and upload on the Marketplace's manage page. Each version number can be used once. Steps are in [`PUBLISHING.md`](PUBLISHING.md).
+- **Repository:** public on GitHub. `master` is protected: tests must pass, a code owner reviews, no force-push or deletion.
 
 ## Project structure
 
@@ -232,15 +243,16 @@ Each SDD module has its own folder under `src/`, and the parts that need VS Code
 | `src/chat/` | `chatHandler.ts` (logic), `participant.ts` (VS Code wiring) |
 | `src/selection/` | Translate Selection (`readText.ts`, `translateSelection.ts`) |
 | `src/settings/`, `src/secrets/`, `src/cache/`, `src/feedback/`, `src/quality/` | Settings and domain picker, key storage, translation cache, issue links, quality checks |
-| `media/` | The panel's script and stylesheet |
+| `media/` | The panel's script and stylesheet, and the extension icon |
+| `dist/` | The esbuild bundle (built, not committed) |
 | `glossary/domains/` | 32 domain glossary files |
 | `test/unit/`, `test/integration/`, `test/quality/samples/` | Vitest tests, VS Code tests, 20 quality samples |
 | `scripts/` | `quality.mjs`, `glossary-review.mjs` |
-| `docs/` | SDD, tasks, glossary review list, quality reports, these overviews |
+| `docs/` | SDD, tasks, glossary review list, quality reports, these overviews, testing, publishing and adding-a-language guides |
 
 ## Known limits and next steps
 
-The code-safety guarantees are tested thoroughly; translation quality and the parts that need a human or Copilot are not yet measured.
+The code-safety guarantees are tested thoroughly; translation quality still needs a scored review by native speakers.
 
 **Known limits**
 
@@ -249,13 +261,14 @@ The code-safety guarantees are tested thoroughly; translation quality and the pa
 - Sizes are measured in characters, not tokens, so the 2,000-character chunk limit is an estimate.
 - No retries with backoff yet, and no streaming of partial results.
 - Copilot features and clicks inside the panel are tested with stand-ins only.
-- The 82 glossary renderings and the translation quality await native-speaker review.
+- 60 glossary renderings and the translation quality await native-speaker review.
+- Sarvam sometimes writes English words in Gujarati script (for example "ફંક્શન" for function) despite the prompt asking it not to.
 
-**Next steps (Milestone 7)**
+**Next steps**
 
-- [ ] Manual test checklist
-- [ ] README written for users
-- [ ] esbuild bundle and `.vscodeignore`, version 0.1.0, icon, CHANGELOG
-- [ ] GitHub Actions running all tests on every push
-- [ ] Publish to the VS Code Marketplace and Open VSX
 - [ ] First real quality report scored by a native speaker
+- [ ] Review the remaining 60 glossary renderings
+- [ ] Decide whether Gujarati-script loanwords are acceptable, or enforce English spelling
+- [ ] Retries with backoff for rate limits and network errors
+- [ ] More languages from contributors (see [`ADDING_A_LANGUAGE.md`](ADDING_A_LANGUAGE.md))
+- [ ] Publish to Open VSX for VSCodium and Cursor

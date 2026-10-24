@@ -1,6 +1,6 @@
 # BhashaBridge in Simple Words
 
-October 20, 2026
+October 24, 2026
 
 > Local copy of the shared doc: https://claude.ai/code/artifact/771c172a-2da4-4c7e-81f1-a4bfcee56203
 
@@ -76,8 +76,8 @@ You can, but nothing then stops the AI from translating a variable name or chang
 
 ## Where it is today
 
-BhashaBridge works end to end and is being prepared for its first public release, version 0.1.0, on the VS Code Marketplace.
+BhashaBridge is available now, free, on the VS Code Marketplace as **"BhashaBridge: AI Explanations in Indian Languages"** (version 0.1.1, preview). Search "BhashaBridge" in VS Code's Extensions view, or open [its Marketplace page](https://marketplace.visualstudio.com/items?itemName=SunilKapadia.bhashabridge).
 
-- **Done:** Gujarati, Sarvam AI and Copilot as translators, the panel, the shortcut, the chat, learning mode, and a word list of about 1,450 technical terms across software and 17 business fields.
-- **Next:** native speakers review the Gujarati word meanings and score sample translations; then the first release.
-- **Later:** more languages added by contributors, such as Hindi, Kannada, Tamil and Telugu; more translation services, including a free one for students; and translating error messages straight from the terminal.
+- **Done:** Gujarati, Sarvam AI and Copilot as translators, the panel, the shortcut, the chat, learning mode, and a word list of about 1,450 technical terms across software and 17 business fields. Every change is tested automatically before it is accepted.
+- **Next:** native speakers review the remaining Gujarati word meanings and score sample translations.
+- **Later:** more languages added by contributors, such as Hindi, Kannada, Tamil and Telugu (a step-by-step guide shows them how); more translation services, including a free one for students; and translating error messages straight from the terminal.
