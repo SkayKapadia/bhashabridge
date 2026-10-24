@@ -139,3 +139,63 @@ describe('normalizePastedText: code blocks copied without their fences', () => {
     expect(normalizePastedText('go\n\nx = 1')).toBe('go\n\n```\nx = 1\n```');
   });
 });
+
+// Terminal tools such as Claude Code draw tables with box characters and wrap long cells.
+describe('normalizePastedText: tables copied from a terminal', () => {
+  it('turns a box-drawn table into a markdown table', () => {
+    const pasted = [
+      'Results:',
+      '┌──────────┬───────────┐',
+      '│ Scenario │ Status    │',
+      '├──────────┼───────────┤',
+      '│ A. Only  │ published │',
+      '│ D. None  │ None      │',
+      '└──────────┴───────────┘',
+      'All good.',
+    ].join('\n');
+
+    expect(normalizePastedText(pasted)).toBe('Results:\n\n| Scenario | Status |\n| --- | --- |\n| A. Only | published |\n| D. None | None |\n\nAll good.');
+  });
+
+  it('joins a cell wrapped over several lines when a line separates every row', () => {
+    const pasted = [
+      '  ┌───────────────┬──────────────────┐',
+      '  │ Channel       │ Message          │',
+      '  │ scenario      │                  │',
+      '  ├───────────────┼──────────────────┤',
+      '  │ A. Digital    │ "Product         │',
+      '  │ Catalog Only  │ published."      │',
+      '  ├───────────────┼──────────────────┤',
+      '  │ D. Nothing    │ No channels      │',
+      '  │ Selected      │ published        │',
+      '  └───────────────┴──────────────────┘',
+    ].join('\n');
+
+    expect(normalizePastedText(pasted)).toBe(
+      '| Channel scenario | Message |\n| --- | --- |\n| A. Digital Catalog Only | "Product published." |\n| D. Nothing Selected | No channels published |\n',
+    );
+  });
+
+  it('reads heavy, double, rounded and ASCII borders', () => {
+    for (const [top, row, sep, bottom] of [
+      ['┏━━━┳━━━┓', '┃ a ┃ b ┃', '┣━━━╋━━━┫', '┗━━━┻━━━┛'],
+      ['╔═══╦═══╗', '║ a ║ b ║', '╠═══╬═══╣', '╚═══╩═══╝'],
+      ['╭───┬───╮', '│ a │ b │', '├───┼───┤', '╰───┴───╯'],
+      ['+---+---+', '| a | b |', '+---+---+', '+---+---+'],
+    ]) {
+      expect(normalizePastedText([top, row.replace('a', 'x').replace('b', 'y'), sep, row, bottom].join('\n'))).toBe('| x | y |\n| --- | --- |\n| a | b |\n');
+    }
+  });
+
+  it('keeps | inside a cell, and leaves markdown tables, diffs and rules alone', () => {
+    expect(normalizePastedText('┌───┬───┐\n│ a|b │ c │\n└───┴───┘')).toBe('| a\\|b | c |\n| --- | --- |\n');
+    for (const text of ['| x | y |\n| --- | --- |\n| 1 | 2 |', '+++ b/src/app.ts\n--- a/src/app.ts', 'Text\n\n---\n\nMore', '+-----']) {
+      expect(normalizePastedText(text)).toBe(text);
+    }
+  });
+
+  it('never changes a box table inside a code fence', () => {
+    const code = '```\n┌───┐\n│ a │\n└───┘\n```';
+    expect(normalizePastedText(code)).toBe(code);
+  });
+});

@@ -19,7 +19,7 @@ const LANGUAGE_LABELS = new Set([
 const LINE_SUFFIX = /(?::L?\d+(?:-L?\d+)?|#L\d+(?:-L?\d+)?)$/;
 
 export function normalizePastedText(input: string): string {
-  const lines = markBareCode(joinSplitReferences(fenceLabelledCode(input.replace(/\r\n?/g, '\n').split('\n'))));
+  const lines = markBareCode(joinSplitReferences(fenceLabelledCode(boxTables(input.replace(/\r\n?/g, '\n').split('\n')))));
   const out: string[] = [];
   let inFence = false;
 
@@ -54,6 +54,82 @@ export function normalizePastedText(input: string): string {
   }
 
   return out.join('\n').replace(/\n{3,}/g, '\n\n');
+}
+
+// A table drawn in a terminal (┌─┬─┐, │ cell │, ├─┼─┤, └─┴─┘, or ASCII +---+ and | cell |)
+// becomes a markdown table. Terminals wrap long cells over several lines; when a line
+// separates every row, the lines between two separators are one row and their pieces of
+// each cell are joined.
+const BOX_VERTICAL = /[│┃║]/;
+const BOX_BORDER = /^\s*[┌┏╔╭├┝┠┣╞╟╠└┗╚╰+][─━═\-┬┳╦┼╋╬┴┻╩┐┓╗╮┤┥┨┫╡╢╣┘┛╝╯+\s]*$/;
+
+function boxTables(lines: string[]): string[] {
+  const out: string[] = [];
+  let inFence = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    if (FENCE.test(line)) {
+      inFence = !inFence;
+    }
+    if (inFence || !(isBoxBorder(line) || isBoxRow(line, false))) {
+      out.push(line);
+      continue;
+    }
+    const ascii = !isBoxRow(line, false) && !/[─━═]/.test(line);
+    let end = i;
+    while (end + 1 < lines.length && (isBoxBorder(lines[end + 1]!) || isBoxRow(lines[end + 1]!, ascii))) {
+      end++;
+    }
+    const rows = boxRows(lines.slice(i, end + 1), ascii);
+    if (rows.length === 0 || (ascii && end === i)) {
+      out.push(line);
+      continue;
+    }
+    if (out.length > 0 && out.at(-1)!.trim() !== '') {
+      out.push('');
+    }
+    out.push(...pipeTable(rows), '');
+    i = end;
+  }
+  return out;
+}
+
+function isBoxBorder(line: string): boolean {
+  return BOX_BORDER.test(line) && (line.match(/[─━═-]/g)?.length ?? 0) >= 3;
+}
+
+function isBoxRow(line: string, ascii: boolean): boolean {
+  const text = line.trim();
+  const edge = ascii ? /\|/ : BOX_VERTICAL;
+  return text.length > 1 && edge.test(text[0]!) && edge.test(text.at(-1)!);
+}
+
+function boxRows(block: string[], ascii: boolean): string[][] {
+  const groups: string[][][] = [[]];
+  // Separators between every row (more borders than the top, header and bottom ones)
+  // mean a row can span lines; otherwise each body line is a row. The header, before
+  // the first separator, is always one row.
+  const rowsSpanLines = block.filter(isBoxBorder).length > 3;
+  let inHeader = true;
+  for (const line of block) {
+    if (isBoxBorder(line)) {
+      if (groups.at(-1)!.length > 0) {
+        inHeader = false;
+        groups.push([]);
+      }
+      continue;
+    }
+    groups.at(-1)!.push(line.trim().slice(1, -1).split(ascii ? '|' : BOX_VERTICAL).map(cell => cell.trim()));
+    if (!rowsSpanLines && !inHeader) {
+      groups.push([]);
+    }
+  }
+  return groups
+    .filter(group => group.length > 0)
+    .map(group => {
+      const width = Math.max(...group.map(cells => cells.length));
+      return Array.from({ length: width }, (_, col) => group.map(cells => cells[col] ?? '').filter(Boolean).join(' '));
+    });
 }
 
 // "python" alone on a line, straight above code, is a code block's label: fence the code
