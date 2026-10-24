@@ -15,7 +15,7 @@ BhashaBridge is a VS Code extension that translates English explanations from AI
 - Providers are swappable behind one interface (Sarvam AI and the VS Code language model today).
 - Privacy by default: no telemetry, keys in the OS keychain, and code never leaves the machine.
 
-**Status:** all milestones (0 to 7) of the task plan are complete. Version 0.1.1 (preview) is published on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=SunilKapadia.bhashabridge) by the publisher `SunilKapadia`, as "BhashaBridge: AI Explanations in Indian Languages". 289 unit tests and 4 VS Code integration tests pass.
+**Status:** all milestones (0 to 7) of the task plan are complete. BhashaBridge is published on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=SunilKapadia.bhashabridge) by the publisher `SunilKapadia`, as "BhashaBridge: AI Explanations in Indian Languages"; the latest version is 0.1.3 (preview). 341 unit tests and 4 VS Code integration tests pass.
 
 ## Architecture
 
@@ -54,7 +54,7 @@ The parser (`src/parser/markdownParser.ts`) turns pasted text into a version whe
 3. **Placeholders** `SKIP_001`, `SKIP_002`, … replace each code span. A token that already appears in the input is skipped, so restoring never confuses user text with a placeholder.
 4. **Segments** are the parts to translate: one per paragraph, heading or list item, each with its start and end offset in the replaced text. Lines that hold only placeholders are trimmed off, and a segment with no letters left is dropped.
 
-**Layout is kept as written.** Markdown is read GitHub-style (tables, task lists, strikethrough), and each table cell is its own segment, so the table's `|` structure is never sent. Text copied from a rendered page is repaired first (`src/parser/normalizePaste.ts`): tab-separated lines become a table and `•` lines a list. The display keeps every line break. Bare web addresses, settings such as `"reviewed": false`, and words shaped like code (paths, file names, `snake_case`, `camelCase`, CSS classes like `min-h-0`, names with digits, short acronyms; `src/parser/codeWords.ts`) are protected like code even without backticks. Names that appear in the answer's own code (outside its comments and strings, and not common English words) are hidden in its sentences too, and a link sends only its words: the address is hidden. The parser records which placeholders are whole blocks, so inline ones stay inside their sentence.
+**Layout is kept as written.** Markdown is read GitHub-style (tables, task lists, strikethrough), and each table cell is its own segment, so the table's `|` structure is never sent. Text copied from a chat window, a web page or a terminal is repaired first (`src/parser/normalizePaste.ts`): tab-separated lines and terminal tables drawn with `┌─┬─┐` or `+---+` become tables (cells wrapped over several lines are joined), `•` lines a list, a language name above code (`python`) a fenced block, and a file link that landed on a line of its own (`agent.py:L72`) is joined back into its sentence. Code lines pasted without backticks are fenced when they stand alone and put in backticks inside a sentence, so `__init__` is never read as bold. The display keeps every line break. Bare web addresses, settings such as `"reviewed": false`, and words shaped like code (paths, file names, `snake_case`, `camelCase`, CSS classes like `min-h-0`, names with digits, short acronyms; `src/parser/codeWords.ts`) are protected like code even without backticks. Names that appear in the answer's own code (outside its comments, strings and command-line flags such as `--train`, and not common English words) are hidden in its sentences too, and a link sends only its words: the address is hidden. The parser records which placeholders are whole blocks, so inline ones stay inside their sentence. A list label at the start of a paragraph or cell (`A.`, `b)`, `(c)`, `ii.`) is left out of the segment, so it is never spelled in Gujarati letters.
 
 **Side by side** shows the original on the left and only translated text on the right: a block that is pure code is shown once, on the English side.
 
@@ -91,6 +91,8 @@ Chunking packs segments into as few requests as fit the provider's size limit, s
 - **Long paragraphs** are split at sentence ends (`.` `?` `!` and the Devanagari `।`), never mid-sentence and never inside `3.5` or `Node.js`. The original spacing is kept so the parts rejoin exactly.
 - **Markers:** inside one request each segment follows a numbered line such as `<<<1>>>`, and the prompt tells the model to copy every marker. `splitChunkReply` accepts the reply only if markers come back exactly as sent.
 - **Fallback:** if a marker is lost, merged or reordered, if a placeholder fails the provider's check, or if a placeholder moved from one part to another, that chunk is re-sent one segment at a time. The worst case costs what the old one-call-per-paragraph design cost, never wrong output.
+- **A segment that keeps failing:** a segment sent alone whose reply damages a placeholder is tried once more, then sentence by sentence. A sentence that still fails stays in English with its code untouched, and the panel and chat say how many (`onKeptEnglish`). One bad reply no longer fails the whole answer.
+- **Made-up markers:** a segment sent alone carries no markers and its prompt does not mention them; if a reply still contains some, only its first part is kept.
 - **Concurrency:** up to three chunks run at once; results go back into their own slots, so order holds. After the first failure no new chunk is sent.
 
 ## Translation providers
@@ -114,7 +116,7 @@ interface TranslationProvider {
 
 Sarvam's translate API was considered and rejected: it accepts no instructions, so it cannot be told to keep technical terms in English.
 
-**The prompt** (`src/translation/prompt.ts`) asks for the target language, keeps keywords, identifiers, library and framework names and technical terms in English, tells the model to copy every `SKIP_###` token and `<<<n>>>` marker exactly once, keep markdown, and reply with the translation only. Glossary `translate` entries are appended as a list.
+**The prompt** (`src/translation/prompt.ts`) asks for the target language, keeps keywords, identifiers, library and framework names and technical terms in English, tells the model to copy every `SKIP_###` token exactly once (and every `<<<n>>>` marker, only when the text has them), keep markdown, and reply with the translation only. Glossary `translate` entries are appended as a list.
 
 **Each adapter checks the reply** before returning it: it must be non-empty, and every placeholder must appear exactly as many times as it was sent (`src/translation/placeholders.ts`).
 
@@ -189,7 +191,7 @@ Every expected failure is a `TranslationError` with a code and a message written
 | `rate-limit` | HTTP 429 | Wait and try again |
 | `timeout` | No answer in 30 s (Sarvam) or 60 s (VS Code model) | Try again |
 | `network` | The request could not be sent | Check the connection |
-| `placeholders` | A reply lost, repeated or changed a code placeholder | Try again; the chunker first retries part by part |
+| `placeholders` | A reply lost, repeated or changed a code placeholder | Not shown: the part is retried, then sent sentence by sentence; a sentence that still fails stays in English, with a note |
 | `unavailable` | No VS Code model, or access refused | Install or sign in to Copilot, or pick Sarvam |
 | `api` | Other HTTP errors, an empty reply, a cancelled request | The provider's own message |
 
@@ -197,13 +199,13 @@ A `ReassemblyError` (code could not be put back) and a `GlossaryError` (a bad gl
 
 ## Testing and quality
 
-289 unit tests and 4 VS Code integration tests pass, and none of them call a real API; real translation quality is measured separately with a scored report.
+341 unit tests and 4 VS Code integration tests pass, and none of them call a real API; real translation quality is measured separately with a scored report.
 
 | Layer | Tool | What it covers |
 | --- | --- | --- |
 | Unit (`npm run test:unit`) | Vitest | Parser, code-line detection, glossary files and matching, chunker, both adapters with a stand-in network, prompt, reassembly, cache, rendering and sanitizing, settings, report links, chat logic |
 | Integration (`npm test`) | `@vscode/test-electron` + Mocha | Activation, all commands registered, settings declared, Translate Selection and the panel opening, inside a downloaded VS Code |
-| Quality (`npm run quality`) | `scripts/quality.mjs` | 20 realistic samples (16 software, 4 business) translated for real; automatic checks plus a 1 to 5 score column for a native speaker |
+| Quality (`npm run quality`) | `scripts/quality.mjs` | 22 samples (16 software, 4 business, and 2 real answers pasted from a chat window that once broke) translated for real; automatic checks plus a 1 to 5 score column for a native speaker |
 | Manual | [`MANUAL_TEST_CHECKLIST.md`](MANUAL_TEST_CHECKLIST.md) | Clicks inside the panel, Copilot features, the shortcut in the terminal, run on the packaged `.vsix` before each release |
 | Continuous integration | GitHub Actions (`.github/workflows/ci.yml`) | Unit and integration tests on every push and pull request; `master` accepts changes only when they pass |
 
@@ -246,7 +248,7 @@ Each SDD module has its own folder under `src/`, and the parts that need VS Code
 | `media/` | The panel's script and stylesheet, and the extension icon |
 | `dist/` | The esbuild bundle (built, not committed) |
 | `glossary/domains/` | 32 domain glossary files |
-| `test/unit/`, `test/integration/`, `test/quality/samples/` | Vitest tests, VS Code tests, 20 quality samples |
+| `test/unit/`, `test/integration/`, `test/quality/samples/` | Vitest tests, VS Code tests, 22 quality samples |
 | `scripts/` | `quality.mjs`, `glossary-review.mjs` |
 | `docs/` | SDD, tasks, glossary review list, quality reports, these overviews, testing, publishing and adding-a-language guides |
 
@@ -266,7 +268,7 @@ The code-safety guarantees are tested thoroughly; translation quality still need
 
 **Next steps**
 
-- [ ] First real quality report scored by a native speaker
+- [ ] Score the first real quality report (run on October 24, 2026: 17 of 22 passed every check, 2 failed whole; both failures are now handled by the sentence fallback) and re-run it
 - [ ] Review the remaining 60 glossary renderings
 - [ ] Decide whether Gujarati-script loanwords are acceptable, or enforce English spelling
 - [ ] More languages from contributors (see [`ADDING_A_LANGUAGE.md`](ADDING_A_LANGUAGE.md))

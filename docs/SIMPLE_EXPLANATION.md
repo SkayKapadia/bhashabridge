@@ -33,7 +33,7 @@ BhashaBridge hides the code before anything is translated, so the translator nev
 1. **Cover:** every code block, every bit of code in backticks, and every code line is swapped for a numbered sticker such as `SKIP_001`.
 2. **Cover the technical words too:** words like *array*, *API* or *callback* get stickers as well, so they stay in English.
 3. **Translate:** only the explanation, with its stickers, goes to the translator.
-4. **Check and uncover:** BhashaBridge checks that every sticker came back exactly once, then puts the original code back, letter for letter. If a sticker is missing, you get a clear error instead of an answer with code missing.
+4. **Check and uncover:** BhashaBridge checks that every sticker came back exactly once, then puts the original code back, letter for letter. If a sticker comes back damaged, that part is tried again, then sentence by sentence; a sentence that still goes wrong is shown in English with a note, so your code is never broken.
 
 ## Who it is for
 
@@ -76,8 +76,8 @@ You can, but nothing then stops the AI from translating a variable name or chang
 
 ## Where it is today
 
-BhashaBridge is available now, free, on the VS Code Marketplace as **"BhashaBridge: AI Explanations in Indian Languages"** (version 0.1.1, preview). Search "BhashaBridge" in VS Code's Extensions view, or open [its Marketplace page](https://marketplace.visualstudio.com/items?itemName=SunilKapadia.bhashabridge).
+BhashaBridge is available now, free, on the VS Code Marketplace as **"BhashaBridge: AI Explanations in Indian Languages"** (version 0.1.3, preview). Search "BhashaBridge" in VS Code's Extensions view, or open [its Marketplace page](https://marketplace.visualstudio.com/items?itemName=SunilKapadia.bhashabridge).
 
-- **Done:** Gujarati, Sarvam AI and Copilot as translators, the panel, the shortcut, the chat, learning mode, and a word list of about 1,600 technical terms across software and 17 business fields. Every change is tested automatically before it is accepted.
-- **Next:** native speakers review the remaining Gujarati word meanings and score sample translations.
+- **Done:** Gujarati, Sarvam AI and Copilot as translators, the panel, the shortcut, the chat, learning mode, repair of text copied from chat windows and terminals (tables, code blocks and broken sentences), and a word list of about 1,600 technical terms across software and 17 business fields. Every change is tested automatically before it is accepted.
+- **Next:** the first test on 22 sample answers has run; a native speaker now scores how natural each translation reads, and reviews the remaining Gujarati word meanings.
 - **Later:** more languages added by contributors, such as Hindi, Kannada, Tamil and Telugu (a step-by-step guide shows them how); more translation services, including a free one for students; and translating error messages straight from the terminal.
