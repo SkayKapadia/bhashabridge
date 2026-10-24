@@ -2,7 +2,7 @@
   "name": "bhashabridge",
   "displayName": "BhashaBridge: AI Explanations in Indian Languages",
   "description": "Read AI coding explanations from Copilot, ChatGPT and others in your own language, starting with Gujarati. Code, variable names and technical terms stay exactly as they are.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "SunilKapadia",
   "author": {
     "name": "Sunil Kapadia"
