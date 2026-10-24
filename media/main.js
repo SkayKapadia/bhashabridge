@@ -106,6 +106,12 @@
   language.addEventListener('change', save);
   provider.addEventListener('change', save);
 
+  function keptEnglishNote(count) {
+    return count === 1
+      ? '1 sentence could not be translated without risk to its code, so it is shown in English.'
+      : `${count} sentences could not be translated without risk to their code, so they are shown in English.`;
+  }
+
   function setBusy(isBusy, text) {
     button.disabled = isBusy;
     button.textContent = isBusy ? 'Translating…' : 'Translate';
@@ -171,7 +177,7 @@
     if (message.type === 'progress') {
       setBusy(true, message.total > 1 ? `Translating… ${message.done} of ${message.total} parts done` : 'Translating…');
     } else if (message.type === 'result') {
-      setBusy(false, 'Done.');
+      setBusy(false, message.keptEnglish ? `Done. ${keptEnglishNote(message.keptEnglish)}` : 'Done.');
       saved.html = message.html;
       saved.blocks = message.blocks;
       showResult();

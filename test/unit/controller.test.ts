@@ -36,6 +36,22 @@ describe('handleTranslate', () => {
     }
   });
 
+  it('says how many sentences stayed in English to keep their code safe', async () => {
+    const failing: TranslationProvider = {
+      id: 'sarvam',
+      translate: async r => {
+        if (r.text.includes('SKIP_')) {
+          throw new TranslationError('placeholders', 'Changed a placeholder.');
+        }
+        return { translatedText: `અનુવાદ: ${r.text}` };
+      },
+    };
+
+    const result = (await run({ text: INPUT, language: 'gu' }, failing)).at(-1);
+    expect(result).toMatchObject({ type: 'result', keptEnglish: 1 });
+    expect((await run({ text: INPUT, language: 'gu' })).at(-1)).not.toHaveProperty('keptEnglish');
+  });
+
   it.each([
     [{ text: INPUT, language: 'hi' }],
     [{ text: INPUT, language: 'ta' }],

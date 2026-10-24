@@ -1,4 +1,4 @@
-import { joinChunk, joinParts, planChunks, splitChunkReply, type Piece } from '../chunking/chunker';
+import { joinChunk, joinParts, planChunks, splitChunkReply, splitSentences, type Piece } from '../chunking/chunker';
 import { annotateFirstUse, protectTerms, restoreTerms } from '../glossary/protectTerms';
 import { parseMarkdown } from '../parser/markdownParser';
 import { reassemble } from '../reassembly/reassemble';
@@ -23,6 +23,9 @@ export interface TranslateMarkdownOptions {
   signal?: AbortSignal;
   // Counts requests (chunks), not paragraphs.
   onProgress?: (done: number, total: number) => void;
+  // How many sentences were left in English because every try damaged their code
+  // placeholders. Called once, only when there were some.
+  onKeptEnglish?: (count: number) => void;
   concurrency?: number;
 }
 
@@ -57,11 +60,44 @@ export async function translateMarkdown(input: string, options: TranslateMarkdow
     return restoreTerms(response.translatedText, guarded.placeholders);
   };
 
+  // A piece on its own. If the reply damages a code placeholder, it is tried once more,
+  // then sentence by sentence; a sentence that still fails stays in English, so one bad
+  // reply never fails the whole answer and code is never lost.
+  let keptEnglish = 0;
+  const translatePiece = async (text: string): Promise<string> => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        return withoutMadeUpMarkers(await translateText(text));
+      } catch (error) {
+        if (!isPlaceholderError(error)) {
+          throw error;
+        }
+      }
+    }
+    const sentences = splitSentences(text, 0);
+    const parts: string[] = [];
+    for (const sentence of sentences) {
+      try {
+        parts.push(sentences.length > 1 && hasWords(sentence.text) ? withoutMadeUpMarkers(await translateText(sentence.text)) : keep(sentence.text));
+      } catch (error) {
+        if (!isPlaceholderError(error)) {
+          throw error;
+        }
+        parts.push(keep(sentence.text));
+      }
+    }
+    return joinParts(parts, sentences.map(s => s.gap));
+  };
+  const keep = (text: string): string => {
+    keptEnglish += hasWords(text) ? 1 : 0;
+    return text;
+  };
+
   // One request per chunk. If the reply loses a part marker or a placeholder, the
   // chunk's pieces are sent one at a time instead: slower, never wrong.
   const translateChunk = async (chunk: Piece[]): Promise<string[]> => {
     if (chunk.length === 1) {
-      return [withoutMadeUpMarkers(await translateText(chunk[0]!.text))];
+      return [await translatePiece(chunk[0]!.text)];
     }
     try {
       const parts = splitChunkReply(await translateText(joinChunk(chunk.map(p => p.text))), chunk.length);
@@ -71,13 +107,13 @@ export async function translateMarkdown(input: string, options: TranslateMarkdow
         return parts;
       }
     } catch (error) {
-      if (!(error instanceof TranslationError && error.code === 'placeholders')) {
+      if (!isPlaceholderError(error)) {
         throw error;
       }
     }
     const parts: string[] = [];
     for (const piece of chunk) {
-      parts.push(withoutMadeUpMarkers(await translateText(piece.text)));
+      parts.push(await translatePiece(piece.text));
     }
     return parts;
   };
@@ -114,7 +150,11 @@ export async function translateMarkdown(input: string, options: TranslateMarkdow
   if (options.annotations) {
     translations = annotateFirstUse(translations, options.annotations);
   }
-  return reassemble(parsed, translations);
+  const result = reassemble(parsed, translations);
+  if (keptEnglish > 0) {
+    options.onKeptEnglish?.(keptEnglish);
+  }
+  return result;
 }
 
 // A single piece is sent without markers, so any in its reply were made up by the model,
@@ -124,6 +164,15 @@ function withoutMadeUpMarkers(reply: string): string {
     return reply;
   }
   return reply.split(/\s*<<<\d+>>>\s*/).find(part => part.trim() !== '')?.trim() ?? reply;
+}
+
+function isPlaceholderError(error: unknown): boolean {
+  return error instanceof TranslationError && error.code === 'placeholders';
+}
+
+// Has something to translate besides code placeholders.
+function hasWords(text: string): boolean {
+  return /\p{L}/u.test(text.replace(/SKIP_\d+/g, ''));
 }
 
 function sameTokens(source: string, translated: string): boolean {

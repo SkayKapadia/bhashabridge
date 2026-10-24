@@ -62,3 +62,10 @@ export function englishAnswerPrompt(question: string): string {
     question,
   ].join('\n');
 }
+
+// Said under a translation when some sentences stayed in English to keep their code safe.
+export function keptEnglishNote(count: number): string {
+  return count === 1
+    ? '_1 sentence could not be translated without risk to its code, so it is shown in English._'
+    : `_${count} sentences could not be translated without risk to their code, so they are shown in English._`;
+}

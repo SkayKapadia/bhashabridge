@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { describe, expect, it, vi } from 'vitest';
-import { ChatModelError, englishAnswerPrompt, runChat, type ChatDeps } from '../../src/chat/chatHandler';
+import { ChatModelError, englishAnswerPrompt, keptEnglishNote, runChat, type ChatDeps } from '../../src/chat/chatHandler';
 import { ReassemblyError } from '../../src/reassembly/reassemble';
 import { TranslationError } from '../../src/translation/errors';
 
@@ -73,6 +73,13 @@ describe('runChat', () => {
 
   it('lets unexpected errors through to VS Code', async () => {
     await expect(runChat(undefined, 'q', deps({ answerInEnglish: async () => { throw new Error('boom'); } }), output())).rejects.toThrow('boom');
+  });
+});
+
+describe('keptEnglishNote', () => {
+  it('counts sentences in plain words', () => {
+    expect(keptEnglishNote(1)).toBe('_1 sentence could not be translated without risk to its code, so it is shown in English._');
+    expect(keptEnglishNote(3)).toContain('3 sentences could not be translated without risk to their code');
   });
 });
 

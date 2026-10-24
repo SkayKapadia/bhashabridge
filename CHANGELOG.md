@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- One troublesome paragraph no longer fails a whole translation. If the translator damages a code placeholder, the paragraph is tried again, then sentence by sentence; a sentence that still fails is shown in English, and the panel and chat say how many.
+
 ## 0.1.2 (preview)
 
 - Text copied out of a chat window translates as whole sentences again: a file link that landed on a line of its own (`agent.py:L72`) is joined back into its sentence.

@@ -256,3 +256,74 @@ describe('translateMarkdown: made-up part markers', () => {
     );
   });
 });
+
+// From the real quality run: one paragraph whose reply damaged a placeholder failed the
+// whole Docker answer and the channel table.
+describe('translateMarkdown: a reply that damages a placeholder', () => {
+  const placeholderError = () => new TranslationError('placeholders', 'The translation changed the code placeholder SKIP_001.');
+
+  it('tries the paragraph once more', async () => {
+    let calls = 0;
+    const provider: TranslationProvider = {
+      id: 'fake',
+      async translate(request) {
+        if (++calls === 1) {
+          throw placeholderError();
+        }
+        return { translatedText: `[gu] ${request.text}` };
+      },
+    };
+    const kept = vi.fn();
+
+    expect(await translateMarkdown('Run `npm ci` first.', { provider, targetLanguage: 'gu', onKeptEnglish: kept })).toBe('[gu] Run `npm ci` first.');
+    expect(calls).toBe(2);
+    expect(kept).not.toHaveBeenCalled();
+  });
+
+  it('then goes sentence by sentence, keeping only the failing sentence in English', async () => {
+    const provider: TranslationProvider = {
+      id: 'fake',
+      async translate(request) {
+        // The whole paragraph and the sentence with the placeholder always fail.
+        if (request.text.includes('SKIP_001')) {
+          throw placeholderError();
+        }
+        return { translatedText: `[gu] ${request.text}` };
+      },
+    };
+    const kept = vi.fn();
+
+    const result = await translateMarkdown('The build is slow. Copy `package.json` first. Then install.', { provider, targetLanguage: 'gu', onKeptEnglish: kept });
+
+    expect(result).toBe('[gu] The build is slow. Copy `package.json` first. [gu] Then install.');
+    expect(kept).toHaveBeenCalledWith(1);
+  });
+
+  it('keeps a one-sentence paragraph in English and translates the rest of the answer', async () => {
+    const provider: TranslationProvider = {
+      id: 'fake',
+      maxChunkChars: 30,
+      async translate(request) {
+        if (request.text.includes('SKIP_')) {
+          throw placeholderError();
+        }
+        return { translatedText: `[gu] ${request.text}` };
+      },
+    };
+    const kept = vi.fn();
+
+    const result = await translateMarkdown('First paragraph here.\n\nCopy `package.json` first.\n\nLast paragraph here.', { provider, targetLanguage: 'gu', onKeptEnglish: kept });
+
+    expect(result).toBe('[gu] First paragraph here.\n\nCopy `package.json` first.\n\n[gu] Last paragraph here.');
+    expect(kept).toHaveBeenCalledWith(1);
+  });
+
+  it('still fails at once for other errors, such as a wrong key', async () => {
+    const translate = vi.fn(async () => {
+      throw new TranslationError('invalid-key', 'Bad key.');
+    });
+
+    await expect(translateMarkdown('Some text to translate here.', { provider: { id: 'fake', translate }, targetLanguage: 'gu' })).rejects.toThrow('Bad key.');
+    expect(translate).toHaveBeenCalledTimes(1);
+  });
+});

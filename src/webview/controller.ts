@@ -34,15 +34,17 @@ export async function handleTranslate(
   const input = normalizePastedText(message.text);
 
   try {
+    let keptEnglish = 0;
     const markdown = await translateMarkdown(input, {
       provider,
       targetLanguage: message.language as TargetLanguage,
       ...glossaryOptions(glossary, message.language as TargetLanguage),
       signal,
       onProgress: (done, total) => post({ type: 'progress', done, total }),
+      onKeptEnglish: count => (keptEnglish = count),
     });
     if (!signal?.aborted) {
-      post({ type: 'result', html: renderMarkdown(markdown), markdown, blocks: renderBlockPairs(input, markdown) });
+      post({ type: 'result', html: renderMarkdown(markdown), markdown, blocks: renderBlockPairs(input, markdown), ...(keptEnglish ? { keptEnglish } : {}) });
     }
   } catch (error) {
     if (signal?.aborted) {

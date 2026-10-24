@@ -6,7 +6,7 @@ import { TranslationError } from '../translation/errors';
 import { createProviders } from '../translation/providers';
 import { translateMarkdown } from '../translation/translateMarkdown';
 import { LANGUAGE_NAMES } from '../translation/translationProvider';
-import { ChatModelError, englishAnswerPrompt, runChat } from './chatHandler';
+import { ChatModelError, englishAnswerPrompt, keptEnglishNote, runChat } from './chatHandler';
 
 // @bhashabridge in VS Code's Chat view. The Chat view comes from a chat extension such
 // as GitHub Copilot; without one there is nowhere to show it, and nothing is registered.
@@ -36,12 +36,15 @@ export function registerChatParticipant(context: vscode.ExtensionContext): void 
             if (!provider) {
               throw new TranslationError('api', 'The default provider in Settings > BhashaBridge is not available.');
             }
-            return translateMarkdown(normalizePastedText(markdown), {
+            let keptEnglish = 0;
+            const translated = await translateMarkdown(normalizePastedText(markdown), {
               provider,
               targetLanguage: settings.defaultLanguage,
               ...glossaryOptions(await currentGlossary(context), settings.defaultLanguage),
               signal: controller.signal,
+              onKeptEnglish: count => (keptEnglish = count),
             });
+            return keptEnglish ? `${translated}\n\n${keptEnglishNote(keptEnglish)}` : translated;
           },
         },
         {
