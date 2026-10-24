@@ -42,8 +42,10 @@ const ENGLISH_WORDS = new Set(
 // Names used in the code of an answer (`users`, `setUsers`, `getName`), so the same
 // names in its sentences can be kept in English even when written without backticks.
 export function identifiersIn(code: string): Set<string> {
-  // Comments and quoted strings hold English text, not names.
+  // Comments and quoted strings hold English text, not names, and a command-line flag
+  // (--train) names an option, so "train" in a sentence is still the English verb.
   const withoutProse = code
+    .replace(/(^|\s)--[A-Za-z][\w-]*(=\S*)?/g, '$1 ')
     .replace(/\/\*[\s\S]*?\*\//g, ' ')
     .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ')
     .replace(/(^|\s)#[^\n]*/g, '$1 ')

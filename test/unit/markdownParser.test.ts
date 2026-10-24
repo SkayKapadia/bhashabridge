@@ -409,5 +409,19 @@ describe('identifiersIn', () => {
 
     expect([...names].sort()).toEqual(['const', 'label', 'render', 'url'].filter(n => n.length >= 3).sort());
   });
+  it('ignores command-line flags, so their words stay ordinary English', async () => {
+    const { identifiersIn } = await import('../../src/parser/codeWords');
+
+    expect([...identifiersIn('python agent.py flappybirdv0 --train --render-mode=human')].sort()).toEqual(['agent', 'flappybirdv0', 'python']);
+    expect([...identifiersIn('kubectl logs my-api --previous')]).not.toContain('previous');
+  });
+
+  // From the real quality run: "train fresh" was hidden as code, and the translation
+  // turned "delete the checkpoint and train fresh" into "delete the checkpoint and train".
+  it('lets "train" in a sentence be translated when the code only has --train', () => {
+    const result = parseMarkdown('Delete the old checkpoint and train fresh:\n\n```bash\npython agent.py flappybirdv0 --train\n```');
+
+    expect(result.segments[0]!.text).toBe('Delete the old checkpoint and train fresh:');
+  });
 });
 
