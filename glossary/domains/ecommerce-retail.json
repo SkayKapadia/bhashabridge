@@ -42,7 +42,11 @@
     "omnichannel",
     "loyalty program",
     "coupon code",
-    "promo code"
+    "promo code",
+    "guest checkout",
+    "express checkout",
+    "one-click checkout",
+    "checkout flow"
   ],
   "annotate": {
     "cart abandonment": {

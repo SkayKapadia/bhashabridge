@@ -80,6 +80,15 @@ describe('glossary domain files', () => {
     expect([...guarded.placeholders.values()]).toEqual(['201 Created', '404 Not Found', '429 Too Many Requests']);
   });
 
+  // From the real quality run: "Offer guest checkout" became "offer checkout as a guest".
+  it('keep checkout phrases such as guest checkout as one unit', async () => {
+    const domains = await loadGlossaryDomains(ROOT);
+    const glossary = combineDomains(domains, [...domains.filter(d => d.isDefault).map(d => d.id), 'ecommerce-retail']);
+    const guarded = protectTerms('Offer guest checkout and save the cart for later.', protectedTerms(glossary, 'gu'));
+
+    expect([...guarded.placeholders.values()]).toEqual(['guest checkout']);
+  });
+
   it('match the domain list in package.json, so Settings offers every domain', async () => {
     const domains = await loadGlossaryDomains(ROOT);
     const setting = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).contributes.configuration.properties['bhashabridge.glossaryDomains'];

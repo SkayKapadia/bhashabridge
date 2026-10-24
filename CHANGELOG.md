@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- A word that appears in code only as a command-line flag (`--train`) is translated normally in sentences.
+- "guest checkout", "express checkout" and "one-click checkout" stay together in English.
 - One troublesome paragraph no longer fails a whole translation. If the translator damages a code placeholder, the paragraph is tried again, then sentence by sentence; a sentence that still fails is shown in English, and the panel and chat say how many.
 
 ## 0.1.2 (preview)

@@ -61,7 +61,12 @@ for (const file of files) {
 }
 
 const date = new Date().toISOString().slice(0, 10);
-const reportPath = join('docs', 'quality', `report-${date}${isDryRun ? '-dry-run' : ''}.md`);
+// A second run on the same day gets its own file, so scores typed into the first are kept.
+const baseName = `report-${date}${isDryRun ? '-dry-run' : ''}`;
+let reportPath = join('docs', 'quality', `${baseName}.md`);
+for (let n = 2; !isDryRun && existsSync(reportPath); n++) {
+  reportPath = join('docs', 'quality', `${baseName}-${n}.md`);
+}
 mkdirSync(join('docs', 'quality'), { recursive: true });
 writeFileSync(reportPath, report(results, date));
 const passed = results.filter(r => r.checks?.every(c => c.passed)).length;
