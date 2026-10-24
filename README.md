@@ -22,7 +22,7 @@ A VS Code extension that translates explanations from AI coding assistants into 
 ![BhashaBridge panel](docs/images/panel.png) -->
 
 - **Code never changes.** Code is hidden before translation and put back letter for letter. If anything does not match, you get an error, never broken code.
-- **Technical words stay English.** A glossary of 1,450+ terms in 32 domains keeps *array*, *API* or *dependency injection* as the words you will search for.
+- **Technical words stay English.** A glossary of 1,550+ terms in 32 domains keeps *array*, *API* or *dependency injection* as the words you will search for.
 - **Learn as you read.** Click a paragraph to see its English, or read both side by side.
 - **Works with any AI tool.** Select or copy an answer and press **Ctrl+Alt+Shift+T** (Cmd on Mac), paste it into the panel, or ask `@bhashabridge` in Copilot Chat.
 - **Your code never leaves your machine.** Only the explanation, with code hidden, goes to the translator you choose: Sarvam AI with your own key, or your Copilot model.

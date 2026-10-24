@@ -58,6 +58,17 @@ describe('glossary domain files', () => {
     expect([...guarded.placeholders.values()]).toContain('git push');
   });
 
+  it('keep reinforcement learning terms in English by default (the Flappy Bird answer)', async () => {
+    const domains = await loadGlossaryDomains(ROOT);
+    const glossary = combineDomains(domains, domains.filter(d => d.isDefault).map(d => d.id));
+    const guarded = protectTerms(
+      'In Deep Q-Learning, copying the target network weights every 10 steps loads an undertrained checkpoint after 18,000 episodes. A small 2-layer MLP gets LiDAR rays.',
+      protectedTerms(glossary, 'gu'),
+    );
+
+    expect([...guarded.placeholders.values()]).toEqual(['Deep Q-Learning', 'target network', 'weights', 'checkpoint', 'episodes', 'MLP', 'LiDAR']);
+  });
+
   it('match the domain list in package.json, so Settings offers every domain', async () => {
     const domains = await loadGlossaryDomains(ROOT);
     const setting = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).contributes.configuration.properties['bhashabridge.glossaryDomains'];

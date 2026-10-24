@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Text copied out of a chat window translates as whole sentences again: a file link that landed on a line of its own (`agent.py:L72`) is joined back into its sentence.
+- Code copied without its fences is shown as code: a language name above code (`python`) becomes a code block, and names like `__init__` no longer show in bold.
+- About 50 machine learning terms (episode, checkpoint, target network, weights, DQN, MLP, replay buffer and more) now stay in English.
+
 ## 0.1.1 (preview)
 
 - New Marketplace title, "BhashaBridge: AI Explanations in Indian Languages", ready for more languages. Gujarati is the language available today; others can be added by contributors (see the guide on adding a language).
