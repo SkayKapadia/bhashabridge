@@ -38,6 +38,7 @@ describe('handleTranslate', () => {
 
   it.each([
     [{ text: INPUT, language: 'hi' }],
+    [{ text: INPUT, language: 'mr' }],
     [{ text: 42, language: 'gu' }],
     [{ text: INPUT, language: undefined }],
   ])('rejects a malformed request %#', async message => {
@@ -60,7 +61,7 @@ describe('handleTranslate', () => {
       },
     };
 
-    expect((await run({ text: INPUT, language: 'mr' }, failing)).at(-1)).toEqual({
+    expect((await run({ text: INPUT, language: 'gu' }, failing)).at(-1)).toEqual({
       type: 'error',
       message: 'No Sarvam AI API key is set.',
       code: 'missing-key',

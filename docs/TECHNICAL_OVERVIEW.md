@@ -6,7 +6,7 @@ October 20, 2026
 
 ## Overview
 
-BhashaBridge is a VS Code extension that translates English explanations from AI coding assistants into Gujarati or Marathi while guaranteeing that code and technical terms come back unchanged. It is written in TypeScript, runs entirely in the VS Code extension host, and has no backend server: text goes only to the translation provider the user picks, with the user's own key.
+BhashaBridge is a VS Code extension that translates English explanations from AI coding assistants into Gujarati while guaranteeing that code and technical terms come back unchanged. It is written in TypeScript, runs entirely in the VS Code extension host, and has no backend server: text goes only to the translation provider the user picks, with the user's own key.
 
 **Design goals**
 
@@ -75,9 +75,9 @@ The glossary decides how technical terms are treated, and its main treatment is 
 - Longest term first, so `dependency array` is protected as one unit before `array`.
 - Whole words only, any capitalisation, with plurals (`s`, `es`, `y` → `ies`).
 - A term written only in capitals (`IT`, `PO`, `PAN`) matches only in capitals, so ordinary words like "it" stay translatable.
-- Gujarati and Marathi suffixes attach after the placeholder, so `SKIP_010ને` restores as `arrayને`.
+- Gujarati suffixes attach after the placeholder, so `SKIP_010ને` restores as `arrayને`.
 
-**Review gate:** a built-in `annotate` or `translate` rendering is used only when it is marked `"reviewed": true`. Until then its term is treated as `keep`, so no unchecked Gujarati or Marathi reaches users. A workspace glossary's own entries are trusted unless marked `false`.
+**Review gate:** a built-in `annotate` or `translate` rendering is used only when it is marked `"reviewed": true` (or its language is in a `"reviewed": ["gu"]` list). Until then its term is treated as `keep`, so no unchecked Gujarati or Marathi reaches users. A workspace glossary's own entries are trusted unless marked `false`.
 
 **Validation:** every file is checked on load. Ids must be unique, and a term listed in two domains must be treated the same way in both. A test also blocks ordinary words such as push, order or balance from the keep lists.
 
@@ -103,7 +103,7 @@ interface TranslationProvider {
   readonly maxChunkChars?: number;  // size limit for the chunker
   translate(request: TranslateRequest, signal?: AbortSignal): Promise<TranslateResponse>;
 }
-// TranslateRequest  = { text, targetLanguage: 'gu' | 'mr', glossary? }
+// TranslateRequest  = { text, targetLanguage: 'gu', glossary? }
 // TranslateResponse = { translatedText, tokenCount?, latencyMs? }
 ```
 
@@ -141,7 +141,7 @@ The panel is a VS Code webview whose page only displays HTML that the extension 
 
 - **Rendering in the host:** markdown becomes HTML through `mdast-util-to-hast`, which drops raw HTML, then `hast-util-sanitize`, which strips `javascript:` and `data:` links and event handlers. Tests cover `<script>`, `<iframe>`, `onerror` and `onclick`.
 - **Content Security Policy:** `default-src 'none'`; scripts and styles only from the extension's own `media/` folder. No inline script, nothing remote.
-- **Untrusted messages:** every message from the page is validated in the host (`src/webview/controller.ts`): the language must be `gu` or `mr`, the provider must exist, the text must be a string.
+- **Untrusted messages:** every message from the page is validated in the host (`src/webview/controller.ts`): the language must be one in the language list (`gu`), the provider must exist, the text must be a string.
 - **Escaping:** provider names and setting values are escaped when the page is built; errors and labels are set as text, never HTML.
 
 ## Entry points
@@ -166,7 +166,7 @@ Settings are read fresh on each translation, the API key never touches a setting
 
 | Setting | Values | Default |
 | --- | --- | --- |
-| `bhashabridge.defaultLanguage` | `gu`, `mr` | `gu` |
+| `bhashabridge.defaultLanguage` | `gu` | `gu` |
 | `bhashabridge.defaultProvider` | `sarvam`, `vscode-lm` | `sarvam` |
 | `bhashabridge.glossaryDomains` | any of the 32 domain ids | the 15 software domains |
 | `bhashabridge.workspaceGlossaryPath` | a path in the workspace | `.bhashabridge/glossary.json` |
@@ -208,9 +208,13 @@ A `ReassemblyError` (code could not be put back) and a `GlossaryError` (a bad gl
 
 **Automatic quality checks** (`src/quality/checks.ts`): code unchanged, glossary terms still in English, no leftover placeholders or markers, and the same number of top-level blocks. They catch damage; how natural the language reads needs a person. The SDD target is an average score of 4.
 
-**Glossary review:** `npm run glossary:review` lists every Gujarati and Marathi rendering not yet marked `"reviewed": true` in `docs/GLOSSARY_REVIEW.md` (82 today).
+**Glossary review:** `npm run glossary:review` lists every rendering not yet marked `"reviewed": true` in `docs/GLOSSARY_REVIEW.md` (82 today).
 
 **Test environment note:** VS Code's own terminal sets `ELECTRON_RUN_AS_NODE=1`, which made the downloaded VS Code reject every flag. `test/runTest.ts` now clears it.
+
+## Languages
+
+The supported languages are one list in `src/languages.ts` (code, English name, native name, script); today it holds Gujarati. The dropdown, settings check, prompt, scripts and tests all read that list, and glossary renderings are stored per language. [`ADDING_A_LANGUAGE.md`](ADDING_A_LANGUAGE.md) explains how to add one.
 
 ## Project structure
 

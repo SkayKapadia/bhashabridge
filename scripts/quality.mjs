@@ -1,7 +1,7 @@
 // Translates every sample in test/quality/samples with the real Sarvam API and writes
 // a report to docs/quality: automatic checks, both texts, and a score for a person.
 //
-//   npm run quality                  Gujarati and Marathi
+//   npm run quality                  every language BhashaBridge supports
 //   npm run quality -- --lang gu     one language
 //   npm run quality -- --dry-run     no API calls: a stand-in translator, to test the report
 //
@@ -16,13 +16,15 @@ const { translateMarkdown } = require('../out/src/translation/translateMarkdown.
 const { SarvamAdapter } = require('../out/src/translation/sarvamAdapter.js');
 const { loadGlossaryDomains, combineDomains, glossaryOptions, protectedTerms } = require('../out/src/glossary/glossary.js');
 const { checkTranslation, readSample } = require('../out/src/quality/checks.js');
+const { LANGUAGES } = require('../out/src/languages.js');
 
 const args = process.argv.slice(2);
 const isDryRun = args.includes('--dry-run');
 const langArg = args[args.indexOf('--lang') + 1];
-const languages = args.includes('--lang') ? [langArg] : ['gu', 'mr'];
-if (!languages.every(l => l === 'gu' || l === 'mr')) {
-  console.error('Use --lang gu or --lang mr.');
+const codes = LANGUAGES.map(l => l.code);
+const languages = args.includes('--lang') ? [langArg] : codes;
+if (!languages.every(l => codes.includes(l))) {
+  console.error(`Use --lang with one of: ${codes.join(', ')}.`);
   process.exit(1);
 }
 
@@ -45,7 +47,7 @@ for (const file of files) {
     const started = Date.now();
     try {
       const output = await translateMarkdown(sample.markdown, { provider, targetLanguage: language, ...glossaryOptions(glossary, language) });
-      const checks = checkTranslation(sample.markdown, output, protectedTerms(glossary));
+      const checks = checkTranslation(sample.markdown, output, protectedTerms(glossary, language));
       results.push({ file, language, input: sample.markdown, output, checks, ms: Date.now() - started });
       console.log(checks.every(c => c.passed) ? 'ok' : 'check failed');
     } catch (error) {
@@ -63,7 +65,7 @@ const passed = results.filter(r => r.checks?.every(c => c.passed)).length;
 console.log(`\n${passed} of ${results.length} translations passed every automatic check. Report: ${reportPath}`);
 
 function report(results, date) {
-  const name = { gu: 'Gujarati', mr: 'Marathi' };
+  const name = Object.fromEntries(LANGUAGES.map(l => [l.code, l.name]));
   const lines = [
     `# Translation quality report, ${date}${isDryRun ? ' (dry run, no real translation)' : ''}`,
     '',

@@ -46,13 +46,13 @@ describe('glossary domain files', () => {
     }
     // The inheritance rendering is not reviewed yet, so the term stays in English for now.
     expect(promptGlossary(glossary, 'gu')).toEqual({});
-    expect(glossary.keep).toContain('inheritance');
+    expect(protectedTerms(glossary, 'gu')).toContain('inheritance');
   });
 
   it('protect common commands written without backticks', async () => {
     const domains = await loadGlossaryDomains(ROOT);
     const glossary = combineDomains(domains, domains.filter(d => d.isDefault).map(d => d.id));
-    const guarded = protectTerms('Clone it, run npm install, then git push your branch.', protectedTerms(glossary));
+    const guarded = protectTerms('Clone it, run npm install, then git push your branch.', protectedTerms(glossary, 'gu'));
 
     expect([...guarded.placeholders.values()]).toContain('npm install');
     expect([...guarded.placeholders.values()]).toContain('git push');
@@ -84,11 +84,11 @@ describe('parseDomain', () => {
   const valid = { id: 'x', label: 'X', group: 'business', default: false, description: '', keep: ['SKU'] };
 
   it('reads a valid file and uses its reviewed renderings', () => {
-    expect(parseDomain({ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही', reviewed: true } } }, 'x.json')).toMatchObject({
+    expect(parseDomain({ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', reviewed: true } } }, 'x.json')).toMatchObject({
       id: 'x',
       isDefault: false,
       keep: ['SKU'],
-      annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही' } },
+      annotate: { ledger: { gu: 'ખાતાવહી' } },
     });
   });
 
@@ -96,15 +96,16 @@ describe('parseDomain', () => {
     const domain = parseDomain(
       {
         ...valid,
-        annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही', reviewed } },
-        translate: { inheritance: { gu: 'અનુવંશિકતા', mr: 'अनुवांशिकता', reviewed } },
+        annotate: { ledger: { gu: 'ખાતાવહી', reviewed } },
+        translate: { inheritance: { gu: 'અનુવંશિકતા', reviewed } },
       },
       'x.json',
     );
 
-    expect(domain.annotate).toEqual({});
-    expect(domain.translate).toEqual({});
-    expect(domain.keep).toEqual(['SKU', 'ledger', 'inheritance']);
+    // The entries stay, with no usable rendering: in every language the terms stay in English.
+    expect(domain.annotate).toEqual({ ledger: {} });
+    expect(domain.translate).toEqual({ inheritance: {} });
+    expect(protectedTerms(combineDomains([domain], [domain.id]), 'gu')).toEqual(['SKU', 'ledger', 'inheritance']);
   });
 
   it.each([
@@ -112,8 +113,11 @@ describe('parseDomain', () => {
     [{ ...valid, group: 'other' }, '"group"'],
     [{ ...valid, default: 'yes' }, '"default"'],
     [{ ...valid, keep: ['ok', ''] }, '"keep"'],
-    [{ ...valid, annotate: { ledger: { gu: 'ખાતાવહી' } } }, 'annotate term "ledger"'],
-    [{ ...valid, translate: { x: { gu: 'a', mr: 'b', reviewed: 'no' } } }, '"reviewed"'],
+    [{ ...valid, annotate: { ledger: { reviewed: true } } }, 'needs text in at least one language'],
+    [{ ...valid, annotate: { ledger: { gu: '  ' } } }, 'needs "gu" text'],
+    [{ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही' } } }, '"mr" is not a language BhashaBridge knows'],
+    [{ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', reviewed: ['gu', 'mr'] } } }, '"reviewed" must be true, false, or a list'],
+    [{ ...valid, translate: { x: { gu: 'a', reviewed: 'no' } } }, '"reviewed"'],
   ])('names the problem in a bad file %#', (data, message) => {
     expect(() => parseDomain(data, 'x.json')).toThrow(GlossaryError);
     expect(() => parseDomain(data, 'x.json')).toThrow(message);
@@ -126,7 +130,7 @@ describe('checkDomains and combineDomains', () => {
   });
 
   it('rejects a term treated differently in two domains', () => {
-    const annotated = domain({ id: 'b', annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही' } } });
+    const annotated = domain({ id: 'b', annotate: { ledger: { gu: 'ખાતાવહી' } } });
     expect(() => checkDomains([domain({ id: 'a', keep: ['ledger'] }), annotated])).toThrow('treated differently in glossary domains "a" and "b"');
   });
 
@@ -138,12 +142,37 @@ describe('checkDomains and combineDomains', () => {
   it('merges only the enabled domains', () => {
     const domains = [
       domain({ id: 'web', keep: ['React'] }),
-      domain({ id: 'finance', keep: ['UPI'], annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही' } } }),
+      domain({ id: 'finance', keep: ['UPI'], annotate: { ledger: { gu: 'ખાતાવહી' } } }),
     ];
 
     expect(combineDomains(domains, ['web'])).toEqual({ keep: ['React'], annotate: {}, translate: {} });
     const both = combineDomains(domains, ['web', 'finance']);
-    expect(protectedTerms(both)).toEqual(['React', 'UPI', 'ledger']);
-    expect(annotations(both, 'mr')).toEqual({ ledger: 'खातेवही' });
+    expect(protectedTerms(both, 'gu')).toEqual(['React', 'UPI', 'ledger']);
+    expect(annotations(both, 'gu')).toEqual({ ledger: 'ખાતાવહી' });
   });
 });
+
+describe('per-language renderings', () => {
+  const valid = { id: 'x', label: 'X', group: 'business', default: false, description: '', keep: [] };
+
+  it('accepts "reviewed" as a list of the language codes that were checked', () => {
+    const domain = parseDomain({ ...valid, annotate: { ledger: { gu: 'ખાતાવહી', reviewed: ['gu'] } } }, 'x.json');
+
+    expect(annotations(combineDomains([domain], ['x']), 'gu')).toEqual({ ledger: 'ખાતાવહી' });
+  });
+
+  it('keeps a translate term in English in a language with no usable rendering', () => {
+    const glossary = { keep: [], annotate: {}, translate: { inheritance: {} } };
+
+    expect(promptGlossary(glossary, 'gu')).toEqual({});
+    expect(protectedTerms(glossary, 'gu')).toEqual(['inheritance']);
+  });
+
+  it('lists every glossary file language as a supported one', async () => {
+    const domains = await loadGlossaryDomains(ROOT); // would refuse a rendering in an unknown language
+    const written = new Set(domains.flatMap(d => [...Object.values(d.annotate), ...Object.values(d.translate)].flatMap(r => Object.keys(r))));
+
+    expect([...written].every(code => code === 'gu')).toBe(true);
+  });
+});
+

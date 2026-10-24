@@ -47,22 +47,18 @@
   "annotate": {
     "lead generation": {
       "gu": "સંભવિત ગ્રાહકો શોધવા",
-      "mr": "संभाव्य ग्राहक शोधणे",
       "reviewed": false
     },
     "sales funnel": {
       "gu": "ગ્રાહક બનવા સુધીના તબક્કા",
-      "mr": "ग्राहक होईपर्यंतचे टप्पे",
       "reviewed": false
     },
     "churn rate": {
       "gu": "ગ્રાહકો છોડી જવાનો દર",
-      "mr": "ग्राहक सोडून जाण्याचे प्रमाण",
       "reviewed": false
     },
     "customer acquisition cost": {
       "gu": "નવો ગ્રાહક મેળવવાનો ખર્ચ",
-      "mr": "नवीन ग्राहक मिळवण्याचा खर्च",
       "reviewed": false
     }
   },

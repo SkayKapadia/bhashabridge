@@ -11,7 +11,7 @@ export interface TranslationReport {
   translated: string;
 }
 
-// Browsers and GitHub reject very long links; Gujarati and Marathi letters take 9
+// Browsers and GitHub reject very long links; Gujarati letters (and other Indian scripts) take 9
 // characters each once encoded, so long texts are shortened until the link fits.
 export const MAX_URL_LENGTH = 7500;
 

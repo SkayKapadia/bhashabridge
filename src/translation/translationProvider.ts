@@ -2,12 +2,12 @@
 // to this interface, so a new provider (Sarvam, Claude, Gemini, IndicTrans2) is a new
 // class here and nothing else changes.
 
-export type TargetLanguage = 'gu' | 'mr';
+import { LANGUAGES, type TargetLanguage } from '../languages';
 
-export const LANGUAGE_NAMES: Readonly<Record<TargetLanguage, string>> = {
-  gu: 'Gujarati',
-  mr: 'Marathi',
-};
+export type { TargetLanguage };
+
+// English name per language code, from the language list in src/languages.ts.
+export const LANGUAGE_NAMES = Object.fromEntries(LANGUAGES.map(l => [l.code, l.name])) as Readonly<Record<TargetLanguage, string>>;
 
 // English term -> how it should appear in the translation. A term mapped to itself
 // stays in English: { callback: 'callback' }.

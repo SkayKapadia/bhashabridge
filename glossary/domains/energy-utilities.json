@@ -31,22 +31,18 @@
   "annotate": {
     "net metering": {
       "gu": "આપેલી અને લીધેલી વીજળીનું માપન",
-      "mr": "दिलेल्या आणि घेतलेल्या विजेचे मोजमाप",
       "reviewed": false
     },
     "peak load": {
       "gu": "સૌથી વધુ વીજ માંગ",
-      "mr": "सर्वाधिक वीज मागणी",
       "reviewed": false
     },
     "power factor": {
       "gu": "વીજળીના ઉપયોગની કાર્યક્ષમતા",
-      "mr": "विजेच्या वापराची कार्यक्षमता",
       "reviewed": false
     },
     "transmission loss": {
       "gu": "વીજ વહન દરમિયાન થતો વ્યય",
-      "mr": "वीज वहनातील तोटा",
       "reviewed": false
     }
   },

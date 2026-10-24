@@ -1,10 +1,10 @@
 # BhashaBridge preview: testing guide
 
-Thank you for trying BhashaBridge before its public release. It translates AI coding explanations into **Gujarati** or **Marathi** while keeping all code and technical terms in English. This is preview `0.1.0-preview.5`; things may break, and your feedback decides what gets fixed first.
+Thank you for trying BhashaBridge before its public release. It translates AI coding explanations into **Gujarati** while keeping all code and technical terms in English. This is preview `0.1.0-preview.6`; things may break, and your feedback decides what gets fixed first.
 
 ## 1. Install (2 minutes)
 
-1. Save the file `bhashabridge-0.1.0-preview.5.vsix` you received.
+1. Save the file `bhashabridge-0.1.0-preview.6.vsix` you received.
 2. In VS Code (1.90 or newer), open the **Extensions** view (`Ctrl+Shift+X` / `Cmd+Shift+X`).
 3. Click the **…** menu at the top of the view → **Install from VSIX…** → pick the file.
 
@@ -36,7 +36,7 @@ Keep the dependency array empty so the request runs only once.
 Then try each of these and note anything odd:
 
 - [ ] **Shortcut:** with the sample copied, press **Ctrl+Alt+Shift+T** (Mac: **Cmd+Alt+Shift+T**). The panel opens and translates.
-- [ ] **Panel:** run **BhashaBridge: Translate LLM Output**, paste, pick Gujarati, click **Translate**. Then switch to Marathi and translate again.
+- [ ] **Panel:** run **BhashaBridge: Translate LLM Output**, paste, click **Translate**. Then click **Translate** again: the second time comes from the local cache, instantly.
 - [ ] **Code stays exact:** the code block and everything in backticks are unchanged.
 - [ ] **Learning mode:** click a translated paragraph to see its English; tick **Side by side with English**.
 - [ ] **Edit / New translation:** after translating, the input folds into one line. Try both links.
@@ -48,7 +48,7 @@ Then try each of these and note anything odd:
 
 The most useful feedback:
 
-- **Did the Gujarati or Marathi read naturally?** Score 1 (unusable) to 5 (reads like a native speaker wrote it).
+- **Did the Gujarati read naturally?** Score 1 (unusable) to 5 (reads like a native speaker wrote it).
 - **Was any technical word translated that should have stayed English,** or the other way round?
 - **Did anything break?** The exact error message helps (never send your API key).
 - **What was confusing** the first time you used it?

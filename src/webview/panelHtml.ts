@@ -1,3 +1,4 @@
+import { LANGUAGES } from '../languages';
 import type { BhashaBridgeSettings } from '../settings/settings';
 
 export interface PanelHtmlOptions {
@@ -11,6 +12,7 @@ export interface PanelHtmlOptions {
 // The panel's page. Kept free of the VS Code API so it can be tested directly.
 export function panelHtml(options: PanelHtmlOptions): string {
   const { defaults } = options;
+  const languageOptions = LANGUAGES.map(l => `<option value="${escapeHtml(l.code)}">${escapeHtml(l.name)} (${escapeHtml(l.nativeName)})</option>`).join('\n        ');
   const providerOptions = options.providers
     .map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.label)}</option>`)
     .join('\n        ');
@@ -44,8 +46,7 @@ export function panelHtml(options: PanelHtmlOptions): string {
     <div class="row">
       <label for="language">Translate into</label>
       <select id="language">
-        <option value="gu">Gujarati (ગુજરાતી)</option>
-        <option value="mr">Marathi (मराठी)</option>
+        ${languageOptions}
       </select>
       <label for="provider">using</label>
       <select id="provider">

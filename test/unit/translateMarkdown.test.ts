@@ -42,9 +42,9 @@ describe('translateMarkdown', () => {
     const provider = fakeProvider(text => (text.startsWith('First') ? 30 : 0), 30); // one segment per request
     const input = 'First paragraph here.\n\nSecond paragraph here.\n\n- Third item here';
 
-    const result = await translateMarkdown(input, { provider, targetLanguage: 'mr' });
+    const result = await translateMarkdown(input, { provider, targetLanguage: 'gu' });
 
-    expect(result).toBe('[mr] First paragraph here.\n\n[mr] Second paragraph here.\n\n- [mr] Third item here');
+    expect(result).toBe('[gu] First paragraph here.\n\n[gu] Second paragraph here.\n\n- [gu] Third item here');
   });
 
   it('reports progress', async () => {
@@ -102,7 +102,7 @@ describe('translateMarkdown', () => {
 
   it('does not protect terms inside code', async () => {
     const provider = fakeProvider();
-    await translateMarkdown('Use `array.map` on the array.', { provider, targetLanguage: 'mr', keepTerms: ['array'] });
+    await translateMarkdown('Use `array.map` on the array.', { provider, targetLanguage: 'gu', keepTerms: ['array'] });
 
     expect(provider.calls[0]!.text).toBe('Use SKIP_001 on the SKIP_002.');
   });
@@ -132,10 +132,10 @@ describe('translateMarkdown', () => {
     const provider = fakeProvider(undefined, 40);
     const input = 'The first sentence is long enough. The second sentence is long too.';
 
-    const result = await translateMarkdown(input, { provider, targetLanguage: 'mr' });
+    const result = await translateMarkdown(input, { provider, targetLanguage: 'gu' });
 
     expect(provider.calls.map(c => c.text)).toEqual(['The first sentence is long enough.', 'The second sentence is long too.']);
-    expect(result).toBe('[mr] The first sentence is long enough. [mr] The second sentence is long too.');
+    expect(result).toBe('[gu] The first sentence is long enough. [gu] The second sentence is long too.');
   });
 
   it('falls back to one segment per request when the reply loses a marker', async () => {

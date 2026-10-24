@@ -3,7 +3,7 @@ import { parseMarkdown } from '../parser/markdownParser';
 import { parseMarkdownTree } from '../parser/markdownSyntax';
 
 // Automatic checks for one translation in the quality report. They cannot judge how
-// natural the Gujarati or Marathi reads (a person scores that), but they catch every
+// natural the translation reads (a person scores that), but they catch every
 // way the pipeline could damage code or structure.
 
 export interface QualityCheck {

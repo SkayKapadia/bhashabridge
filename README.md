@@ -4,7 +4,7 @@
 
 **Read LLM explanations in your own language. Code stays in English. Understanding becomes local.**
 
-A VS Code extension that translates explanations from AI coding assistants into **Gujarati** and **Marathi**, while keeping every line of code, variable name, and technical term exactly as it was.
+A VS Code extension that translates explanations from AI coding assistants into **Gujarati**, while keeping every line of code, variable name, and technical term exactly as it was.
 
 ![Status](https://img.shields.io/badge/status-early%20preview-orange)
 ![Contributors welcome](https://img.shields.io/badge/contributors-welcome-brightgreen)
@@ -27,7 +27,7 @@ A VS Code extension that translates explanations from AI coding assistants into 
 - **Works with any AI tool.** Select or copy an answer and press **Ctrl+Alt+Shift+T** (Cmd on Mac), paste it into the panel, or ask `@bhashabridge` in Copilot Chat.
 - **Your code never leaves your machine.** Only the explanation, with code hidden, goes to the translator you choose: Sarvam AI with your own key, or your Copilot model.
 
-**Status:** early preview, not yet on the VS Code Marketplace. You can [run it from source](#getting-started-development) today, and help is very welcome, especially from Gujarati and Marathi speakers. See [Contributing](#contributing).
+**Status:** early preview, not yet on the VS Code Marketplace. You can [run it from source](#getting-started-development) today, and help is very welcome, especially from Gujarati speakers, and from anyone who wants to [add their own language](docs/ADDING_A_LANGUAGE.md). See [Contributing](#contributing).
 
 More detail: [the idea in simple words](docs/SIMPLE_EXPLANATION.md) · [technical overview](docs/TECHNICAL_OVERVIEW.md)
 
@@ -48,10 +48,6 @@ BhashaBridge removes that barrier. Paste the explanation, pick your language, an
 **Gujarati output:**
 
 > `useEffect` hook દરેક render પછી ચાલે છે. ખાલી dependency array ઉમેરો જેથી `loadData()` ફક્ત એક જ વાર call થાય.
-
-**Marathi output:**
-
-> `useEffect` hook प्रत्येक render नंतर चालतो. रिकामा dependency array जोडा म्हणजे `loadData()` फक्त एकदाच call होईल.
 
 The explanation is translated. `useEffect`, `loadData()`, *render*, *dependency array*, and *call* are not, because those are the words you will search for, read in docs, and type in code.
 
@@ -94,8 +90,7 @@ Because code is removed *before* translation, a model never gets the chance to "
 | Language | Code | Status |
 |---|---|---|
 | Gujarati | `gu` | Available (preview) |
-| Marathi | `mr` | Available (preview) |
-| Hindi, Kannada, Tamil, Telugu | | Later roadmap |
+| Marathi, Hindi, Kannada, Tamil, Telugu | | Not yet: [add your language](docs/ADDING_A_LANGUAGE.md) |
 
 | Provider | Status |
 |---|---|
@@ -134,7 +129,7 @@ npm run compile
 Then open the folder in VS Code and press **F5**. In the window that opens:
 
 1. Run **BhashaBridge: Set Sarvam API Key** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and paste a key from [dashboard.sarvam.ai](https://dashboard.sarvam.ai). With GitHub Copilot you can skip this and pick *VS Code model* instead.
-2. Run **BhashaBridge: Translate LLM Output**, paste an AI answer, pick Gujarati or Marathi, and click **Translate**.
+2. Run **BhashaBridge: Translate LLM Output**, paste an AI answer, keep Gujarati selected, and click **Translate**.
 
 ### Scripts
 
@@ -145,7 +140,7 @@ Then open the folder in VS Code and press **F5**. In the window that opens:
 | `npm run test:unit` | Run unit tests with Vitest |
 | `npm test` | Compile, then run integration tests inside a downloaded copy of VS Code |
 | `npm run quality` | Translate the 20 samples in `test/quality/samples` with the real Sarvam API and write a scored report to `docs/quality/`. Needs `SARVAM_API_KEY` in the environment or a git-ignored `.env` file. `-- --dry-run` checks the report without API calls. |
-| `npm run glossary:review` | List the Gujarati and Marathi glossary renderings still to review in `docs/GLOSSARY_REVIEW.md` |
+| `npm run glossary:review` | List the glossary renderings still to review in `docs/GLOSSARY_REVIEW.md` |
 
 ## Project structure
 
@@ -192,8 +187,8 @@ Pick domains with **BhashaBridge: Choose Glossary Domains**. Each term is treate
 ```json
 {
   "keep": ["dependency injection", "callback", "UPI"],
-  "annotate": { "ledger": { "gu": "ખાતાવહી", "mr": "खातेवही", "reviewed": false } },
-  "translate": { "inheritance": { "gu": "અનુવંશિકતા (inheritance)", "mr": "अनुवांशिकता (inheritance)", "reviewed": false } }
+  "annotate": { "ledger": { "gu": "ખાતાવહી", "reviewed": false } },
+  "translate": { "inheritance": { "gu": "અનુવંશિકતા (inheritance)", "reviewed": false } }
 }
 ```
 
@@ -203,21 +198,23 @@ Pick domains with **BhashaBridge: Choose Glossary Domains**. Each term is treate
 
 **Your project's own terms:** run **BhashaBridge: Create Workspace Glossary** to add `.bhashabridge/glossary.json` to your project, in the same format. Use it for product names, internal acronyms and preferred translations. Its entries win over the built-in glossary, and edits apply to the next translation.
 
-Gujarati and Marathi renderings are used only once a native speaker marks them `"reviewed": true`; until then the term stays in English. `npm run glossary:review` lists the ones still to check in [`docs/GLOSSARY_REVIEW.md`](docs/GLOSSARY_REVIEW.md). Think a term is handled badly? Open a pull request.
+Gujarati renderings are used only once a native speaker marks them `"reviewed": true`; until then the term stays in English. `npm run glossary:review` lists the ones still to check in [`docs/GLOSSARY_REVIEW.md`](docs/GLOSSARY_REVIEW.md). Think a term is handled badly? Open a pull request.
 
 ## Roadmap
 
 | Version | Highlights |
 |---|---|
-| **0.1.0** | Sarvam AI, Gujarati and Marathi, basic webview, 100-term glossary, Marketplace release |
+| **0.1.0** | Sarvam AI, Gujarati, basic webview, 100-term glossary, Marketplace release |
 | **0.3.0** | IndicTrans2 and Gemini, streaming output, translation history, 300-term glossary |
-| **0.5.0** | Hindi, Kannada, Tamil, Telugu; context from the open file; glossary voting |
+| **0.5.0** | More languages from contributors (Marathi, Hindi, Kannada, Tamil, Telugu); context from the open file; glossary voting |
 | **1.0.0** | Full test coverage, terminal error translation, Continue.dev integration |
 | **Beyond** | Voice output, browser extension for ChatGPT and Claude, CLI version |
 
 ## Contributing
 
-Contributions are very welcome, especially from developers who think in Gujarati, Marathi, or another Indian language. You can help by:
+Contributions are very welcome, especially from developers who think in Gujarati or another Indian language. You can help by:
+
+- **Adding your language.** [`docs/ADDING_A_LANGUAGE.md`](docs/ADDING_A_LANGUAGE.md) walks through it, using Marathi as the example.
 
 - **Improving the glossary.** Suggest how a technical term should be handled.
 - **Reporting translation quality.** Share an explanation that came out wrong and what it should have said.

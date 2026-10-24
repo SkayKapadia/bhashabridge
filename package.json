@@ -1,8 +1,8 @@
 {
   "name": "bhashabridge",
   "displayName": "BhashaBridge",
-  "description": "Read LLM explanations in your own language. Code stays in English.",
-  "version": "0.1.0-preview.5",
+  "description": "Read AI coding explanations in Gujarati. Code and technical terms stay in English.",
+  "version": "0.1.0-preview.6",
   "publisher": "bhashabridge",
   "license": "MIT",
   "engines": {
@@ -49,12 +49,10 @@
         "bhashabridge.defaultLanguage": {
           "type": "string",
           "enum": [
-            "gu",
-            "mr"
+            "gu"
           ],
           "enumItemLabels": [
-            "Gujarati",
-            "Marathi"
+            "Gujarati"
           ],
           "default": "gu",
           "description": "Language the BhashaBridge panel translates into when it opens."
@@ -216,7 +214,7 @@
         "id": "bhashabridge.chat",
         "name": "bhashabridge",
         "fullName": "BhashaBridge",
-        "description": "Answer or translate in Gujarati or Marathi, with code kept in English",
+        "description": "Answer or translate in Gujarati, with code kept in English",
         "isSticky": true,
         "commands": [
           {

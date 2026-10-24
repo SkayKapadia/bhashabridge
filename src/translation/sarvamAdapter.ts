@@ -26,7 +26,7 @@ interface SarvamChatResponse {
 
 export class SarvamAdapter implements TranslationProvider {
   readonly id = 'sarvam';
-  // Leaves room for a Gujarati or Marathi reply, which takes more tokens than the
+  // Leaves room for a reply in an Indian script, which takes more tokens than the
   // English sent, within the 4096-token reply limit.
   readonly maxChunkChars = 2000;
 

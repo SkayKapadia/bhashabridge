@@ -1,12 +1,18 @@
 import { readdir, readFile } from 'fs/promises';
 import * as path from 'path';
+import { isTargetLanguage, LANGUAGE_CODES } from '../languages';
 import type { Glossary, TargetLanguage } from '../translation/translationProvider';
 
 // One file per domain in glossary/domains. Three ways to treat a term:
 // - keep:      stays in English, guaranteed (protected like code before translation)
 // - annotate:  stays in English, with its meaning added after the first use
 // - translate: the model is asked to write the given rendering (listed in the prompt)
-export type Renderings = Record<TargetLanguage, string>;
+//
+// An annotate or translate entry holds one rendering per language ("gu": "…") and
+// "reviewed": true, false, or a list of the language codes a native speaker checked
+// (["gu"]). Only usable renderings are kept here: for a language without one, the term
+// simply stays in English.
+export type Renderings = Partial<Record<TargetLanguage, string>>;
 
 export interface GlossaryDomain {
   id: string;
@@ -32,6 +38,9 @@ export class GlossaryError extends Error {
     this.name = 'GlossaryError';
   }
 }
+
+// Fields an entry may hold besides one rendering per language.
+const ENTRY_FIELDS = new Set(['reviewed', 'note']);
 
 export async function loadGlossaryDomains(extensionPath: string): Promise<GlossaryDomain[]> {
   const folder = path.join(extensionPath, 'glossary', 'domains');
@@ -74,7 +83,8 @@ export function parseDomain(data: unknown, source: string): GlossaryDomain {
     group: d.group as GlossaryDomain['group'],
     isDefault: d.default as boolean,
     description: d.description as string,
-    ...parseTerms(d, fail, reviewed => reviewed === true),
+    // A built-in rendering is used only once a native speaker has reviewed it.
+    ...parseTerms(d, fail, false),
   };
 }
 
@@ -83,8 +93,8 @@ export function parseDomain(data: unknown, source: string): GlossaryDomain {
 export function parseWorkspaceGlossary(data: unknown, source: string): LoadedGlossary {
   const fail = failFor(source);
   if (typeof data !== 'object' || data === null || Array.isArray(data)) fail('must be a JSON object.');
-  // A project's own entries are trusted unless marked "reviewed": false.
-  const glossary = parseTerms(data as Record<string, unknown>, fail, reviewed => reviewed !== false);
+  // A project's own renderings are trusted unless marked "reviewed": false.
+  const glossary = parseTerms(data as Record<string, unknown>, fail, true);
 
   const seen = new Set<string>();
   for (const term of [...glossary.keep, ...Object.keys(glossary.annotate), ...Object.keys(glossary.translate)]) {
@@ -120,39 +130,52 @@ function failFor(source: string): (problem: string) => never {
   };
 }
 
-// A rendering nobody has checked yet is not shown to users: until it is marked
-// reviewed, its term is kept in English like any "keep" term.
-function parseTerms(
-  d: Record<string, unknown>,
-  fail: (problem: string) => never,
-  isTrusted: (reviewed: unknown) => boolean,
-): LoadedGlossary {
+// `trustUnmarked`: whether a rendering with no "reviewed" field is used (a project's own
+// file) or waits for review (the built-in glossary).
+function parseTerms(d: Record<string, unknown>, fail: (problem: string) => never, trustUnmarked: boolean): LoadedGlossary {
   const keep = d.keep ?? [];
   if (!Array.isArray(keep) || !keep.every(t => typeof t === 'string' && t.trim())) fail('"keep" must be a list of terms.');
-  const unreviewed: string[] = [];
 
   const renderings = (key: 'annotate' | 'translate'): Record<string, Renderings> => {
     const value = d[key] ?? {};
     if (typeof value !== 'object' || value === null || Array.isArray(value)) fail(`"${key}" must be an object.`);
     const out: Record<string, Renderings> = {};
     for (const [term, entry] of Object.entries(value as object)) {
-      const { gu, mr, reviewed } = (entry ?? {}) as Record<string, unknown>;
-      if (!term.trim() || typeof gu !== 'string' || !gu.trim() || typeof mr !== 'string' || !mr.trim()) {
-        fail(`${key} term "${term}" needs "gu" and "mr" text.`);
+      const fields = (entry ?? {}) as Record<string, unknown>;
+      if (!term.trim()) fail(`${key} has an empty term.`);
+
+      const written: [TargetLanguage, string][] = [];
+      for (const [field, text] of Object.entries(fields)) {
+        if (ENTRY_FIELDS.has(field)) continue;
+        if (!isTargetLanguage(field)) {
+          fail(`${key} term "${term}": "${field}" is not a language BhashaBridge knows (${LANGUAGE_CODES.join(', ')}). See docs/ADDING_A_LANGUAGE.md.`);
+        }
+        if (typeof text !== 'string' || !text.trim()) fail(`${key} term "${term}" needs "${field}" text.`);
+        written.push([field, text as string]);
       }
-      if (reviewed !== undefined && typeof reviewed !== 'boolean') fail(`${key} term "${term}": "reviewed" must be true or false.`);
-      if (isTrusted(reviewed)) {
-        out[term] = { gu: gu as string, mr: mr as string };
-      } else {
-        unreviewed.push(term);
-      }
+      if (written.length === 0) fail(`${key} term "${term}" needs text in at least one language (${LANGUAGE_CODES.join(', ')}).`);
+
+      const reviewed = reviewedLanguages(fields.reviewed, `${key} term "${term}"`, fail, trustUnmarked);
+      out[term] = Object.fromEntries(written.filter(([language]) => reviewed === 'all' || reviewed.includes(language)));
     }
     return out;
   };
 
-  const annotate = renderings('annotate');
-  const translate = renderings('translate');
-  return { keep: [...(keep as string[]), ...unreviewed], annotate, translate };
+  return { keep: keep as string[], annotate: renderings('annotate'), translate: renderings('translate') };
+}
+
+// "reviewed": true (every language written), false (none), or a list of language codes.
+function reviewedLanguages(
+  value: unknown,
+  where: string,
+  fail: (problem: string) => never,
+  trustUnmarked: boolean,
+): 'all' | string[] {
+  if (value === undefined) return trustUnmarked ? 'all' : [];
+  if (value === true) return 'all';
+  if (value === false) return [];
+  if (Array.isArray(value) && value.every(isTargetLanguage)) return value;
+  return fail(`${where}: "reviewed" must be true, false, or a list of language codes such as ["gu"].`);
 }
 
 // Across all domains: ids are unique, and a term listed in two domains (KYC in both
@@ -168,8 +191,8 @@ export function checkDomains(domains: readonly GlossaryDomain[]): void {
 
     const entries: [string, string][] = [
       ...domain.keep.map(t => [t, 'keep'] as [string, string]),
-      ...Object.entries(domain.annotate).map(([t, r]) => [t, `annotate ${r.gu} / ${r.mr}`] as [string, string]),
-      ...Object.entries(domain.translate).map(([t, r]) => [t, `translate ${r.gu} / ${r.mr}`] as [string, string]),
+      ...Object.entries(domain.annotate).map(([t, r]) => [t, `annotate ${JSON.stringify(r)}`] as [string, string]),
+      ...Object.entries(domain.translate).map(([t, r]) => [t, `translate ${JSON.stringify(r)}`] as [string, string]),
     ];
     const inThisDomain = new Set<string>();
     for (const [term, treatment] of entries) {
@@ -210,13 +233,22 @@ export function annotations(glossary: LoadedGlossary, language: TargetLanguage):
   return pick(glossary.annotate, language);
 }
 
-// Terms the model must never see: kept and annotated ones (translate terms it must see).
-export function protectedTerms(glossary: LoadedGlossary): string[] {
-  return [...glossary.keep, ...Object.keys(glossary.annotate)];
+// Terms the model must never see in one language: kept and annotated ones, and any
+// translate term with no usable rendering in that language (it stays in English).
+export function protectedTerms(glossary: LoadedGlossary, language: TargetLanguage): string[] {
+  const untranslated = Object.entries(glossary.translate)
+    .filter(([, renderings]) => renderings[language] === undefined)
+    .map(([term]) => term);
+  return [...glossary.keep, ...Object.keys(glossary.annotate), ...untranslated];
 }
 
 function pick(entries: Record<string, Renderings>, language: TargetLanguage): Record<string, string> {
-  return Object.fromEntries(Object.entries(entries).map(([term, r]) => [term, r[language]]));
+  return Object.fromEntries(
+    Object.entries(entries).flatMap(([term, renderings]) => {
+      const text = renderings[language];
+      return text === undefined ? [] : [[term, text]];
+    }),
+  );
 }
 
 // The glossary as translateMarkdown takes it, for one language.
@@ -226,8 +258,7 @@ export function glossaryOptions(glossary: LoadedGlossary | undefined, language: 
   }
   return {
     glossary: promptGlossary(glossary, language),
-    keepTerms: protectedTerms(glossary),
+    keepTerms: protectedTerms(glossary, language),
     annotations: annotations(glossary, language),
   };
 }
-

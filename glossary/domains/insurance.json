@@ -31,32 +31,26 @@
   "annotate": {
     "deductible": {
       "gu": "શરૂઆતમાં પોતે ભરવાની રકમ",
-      "mr": "सुरुवातीला स्वतः भरायची रक्कम",
       "reviewed": false
     },
     "underwriting": {
       "gu": "જોખમનું મૂલ્યાંકન",
-      "mr": "जोखमीचे मूल्यांकन",
       "reviewed": false
     },
     "policyholder": {
       "gu": "વીમાધારક",
-      "mr": "विमाधारक",
       "reviewed": false
     },
     "claim settlement": {
       "gu": "દાવાની પતાવટ",
-      "mr": "दाव्याचा निपटारा",
       "reviewed": false
     },
     "sum assured": {
       "gu": "વીમાની નક્કી કરેલી રકમ",
-      "mr": "विम्याची ठरलेली रक्कम",
       "reviewed": false
     },
     "nominee": {
       "gu": "વારસદાર તરીકે નિમાયેલ વ્યક્તિ",
-      "mr": "वारसदार म्हणून नेमलेली व्यक्ती",
       "reviewed": false
     }
   },

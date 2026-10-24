@@ -6,8 +6,8 @@ const from = (values: Record<string, unknown>) => (key: string) => values[key];
 
 describe('readSettings', () => {
   it('reads valid settings', () => {
-    expect(readSettings(from({ defaultLanguage: 'mr', defaultProvider: 'sarvam' }), PROVIDERS)).toEqual({
-      defaultLanguage: 'mr',
+    expect(readSettings(from({ defaultLanguage: 'gu', defaultProvider: 'sarvam' }), PROVIDERS)).toEqual({
+      defaultLanguage: 'gu',
       defaultProvider: 'sarvam',
     });
   });
@@ -18,6 +18,7 @@ describe('readSettings', () => {
 
   it.each([
     [{ defaultLanguage: 'hi' }],
+    [{ defaultLanguage: 'mr' }],
     [{ defaultLanguage: 42 }],
     [{ defaultProvider: 'gemini' }],
     [{ defaultProvider: null }],

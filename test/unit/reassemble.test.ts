@@ -6,20 +6,16 @@ const CODE = 'const names = users.map(getName);';
 const SENTENCE = 'The function fails because users is undefined.';
 
 // What a translator returns for one segment: its own language, tokens kept.
-// What a translator returns for the sentence: its own language, the placeholder for
+// What a translator returns for the sentence: Gujarati, with the placeholder for
 // `users` (a name from the code, so hidden too) kept in place.
 const GUJARATI = 'SKIP_001 undefined હોવાથી function fail થાય છે.';
-const MARATHI = 'SKIP_001 undefined असल्यामुळे function fail होते.';
 
 function occurrences(text: string, part: string): number {
   return text.split(part).length - 1;
 }
 
 describe('reassemble (test example)', () => {
-  it.each([
-    ['Gujarati', GUJARATI],
-    ['Marathi', MARATHI],
-  ])('puts the code back exactly after a %s translation', (_language, translation) => {
+  it.each([['Gujarati', GUJARATI]])('puts the code back exactly after a %s translation', (_language, translation) => {
     const parsed = parseMarkdown(`${SENTENCE}\n${CODE}`);
     expect(parsed.segments.map(s => s.text)).toEqual(['The function fails because SKIP_001 is undefined.']);
 

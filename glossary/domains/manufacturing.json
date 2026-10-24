@@ -43,27 +43,22 @@
   "annotate": {
     "bill of materials": {
       "gu": "જરૂરી સામગ્રીની યાદી",
-      "mr": "आवश्यक साहित्याची यादी",
       "reviewed": false
     },
     "work order": {
       "gu": "કામ કરવાનો આદેશ",
-      "mr": "काम करण्याचा आदेश",
       "reviewed": false
     },
     "scrap rate": {
       "gu": "બગાડનો દર",
-      "mr": "वाया जाणाऱ्या मालाचे प्रमाण",
       "reviewed": false
     },
     "preventive maintenance": {
       "gu": "અગાઉથી કરાતી જાળવણી",
-      "mr": "प्रतिबंधात्मक देखभाल",
       "reviewed": false
     },
     "quality control": {
       "gu": "ગુણવત્તા નિયંત્રણ",
-      "mr": "गुणवत्ता नियंत्रण",
       "reviewed": false
     }
   },

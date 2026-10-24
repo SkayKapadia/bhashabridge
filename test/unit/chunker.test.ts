@@ -45,8 +45,8 @@ describe('splitSentences', () => {
     expect(splitSentences('A b. C d. E f.', 10).map(p => p.text)).toEqual(['A b. C d.', 'E f.']);
   });
 
-  it('splits Marathi and Hindi text at the danda', () => {
-    expect(splitSentences('पहिले वाक्य। दुसरे वाक्य।', 15).map(p => p.text)).toEqual(['पहिले वाक्य।', 'दुसरे वाक्य।']);
+  it('splits at the danda, the full stop of Devanagari languages such as Hindi', () => {
+    expect(splitSentences('पहला वाक्य। दूसरा वाक्य।', 15).map(p => p.text)).toEqual(['पहला वाक्य।', 'दूसरा वाक्य।']);
   });
 
   it('keeps a sentence longer than the limit whole', () => {

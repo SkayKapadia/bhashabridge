@@ -6,14 +6,14 @@ const OPTIONS: PanelHtmlOptions = {
   styleUri: 'vscode-resource://ext/media/main.css',
   cspSource: 'vscode-resource:',
   providers: [{ id: 'sarvam', label: 'Sarvam AI' }],
-  defaults: { defaultLanguage: 'mr', defaultProvider: 'sarvam' },
+  defaults: { defaultLanguage: 'gu', defaultProvider: 'sarvam' },
 };
 
 describe('panelHtml', () => {
   it('hands the default language and provider to the page', () => {
     const html = panelHtml(OPTIONS);
 
-    expect(html).toContain('data-default-language="mr"');
+    expect(html).toContain('data-default-language="gu"');
     expect(html).toContain('data-default-provider="sarvam"');
   });
 
@@ -50,6 +50,15 @@ describe('panelHtml', () => {
 
     expect(html).toMatch(/<div id="input-area">/);
     expect(html).toMatch(/<div id="input-summary" class="input-summary" hidden>/);
+  });
+
+  it('offers every supported language in the dropdown, from the language list', () => {
+    const options = [...panelHtml(OPTIONS).matchAll(/<option value="(\w+)">([^<]+)<\/option>/g)].map(m => [m[1], m[2]]);
+
+    expect(options).toEqual([
+      ['gu', 'Gujarati (ગુજરાતી)'],
+      ['sarvam', 'Sarvam AI'],
+    ]);
   });
 });
 

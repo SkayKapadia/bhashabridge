@@ -44,42 +44,34 @@
   "annotate": {
     "electronic health record": {
       "gu": "ઇલેક્ટ્રોનિક આરોગ્ય રેકોર્ડ",
-      "mr": "इलेक्ट्रॉनिक आरोग्य नोंद",
       "reviewed": false
     },
     "triage": {
       "gu": "તાકીદ મુજબ દર્દીઓની પ્રાથમિકતા નક્કી કરવી",
-      "mr": "तातडीनुसार रुग्णांचा प्राधान्यक्रम ठरवणे",
       "reviewed": false
     },
     "diagnosis": {
       "gu": "નિદાન",
-      "mr": "निदान",
       "reviewed": false
     },
     "prescription": {
       "gu": "દવાની ચિઠ્ઠી",
-      "mr": "औषधाची चिठ्ठी",
       "reviewed": false
     },
     "outpatient": {
       "gu": "દાખલ થયા વગર સારવાર લેતા દર્દી",
-      "mr": "दाखल न होता उपचार घेणारे रुग्ण",
       "reviewed": false
     },
     "inpatient": {
       "gu": "હોસ્પિટલમાં દાખલ દર્દી",
-      "mr": "रुग्णालयात दाखल रुग्ण",
       "reviewed": false
     },
     "discharge summary": {
       "gu": "હોસ્પિટલમાંથી રજા વખતનો સારાંશ",
-      "mr": "रुग्णालयातून सुटी देतानाचा सारांश",
       "reviewed": false
     },
     "comorbidity": {
       "gu": "સાથે રહેલી બીજી બીમારી",
-      "mr": "सोबत असलेला दुसरा आजार",
       "reviewed": false
     }
   },

@@ -33,17 +33,14 @@
   "annotate": {
     "overbooking": {
       "gu": "ક્ષમતા કરતાં વધુ બુકિંગ",
-      "mr": "क्षमतेपेक्षा जास्त बुकिंग",
       "reviewed": false
     },
     "average daily rate": {
       "gu": "રૂમનું સરેરાશ દૈનિક ભાડું",
-      "mr": "खोलीचे सरासरी दैनिक भाडे",
       "reviewed": false
     },
     "occupancy rate": {
       "gu": "ભરાયેલા રૂમનો દર",
-      "mr": "भरलेल्या खोल्यांचे प्रमाण",
       "reviewed": false
     }
   },

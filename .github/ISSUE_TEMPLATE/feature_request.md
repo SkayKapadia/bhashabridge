@@ -9,4 +9,4 @@ labels: enhancement
 
 **What you would like:**
 
-**Who it helps:** <!-- e.g. students, Marathi speakers, developers using Copilot -->
+**Who it helps:** <!-- e.g. students, Gujarati speakers, developers using Copilot -->

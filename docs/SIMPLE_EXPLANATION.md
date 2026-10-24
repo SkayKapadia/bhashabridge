@@ -10,7 +10,7 @@ Many talented developers in Gujarat and Maharashtra understand code well but los
 
 ## The idea
 
-BhashaBridge is a small add-on for VS Code that turns an AI's English explanation into Gujarati or Marathi, while every piece of code and every technical word stays exactly as it was. You read the explanation in the language you think in, and you still see the English words you will search for, read in documentation and type in your code.
+BhashaBridge is a small add-on for VS Code that turns an AI's English explanation into Gujarati, while every piece of code and every technical word stays exactly as it was. You read the explanation in the language you think in, and you still see the English words you will search for, read in documentation and type in your code.
 
 ## An example
 
@@ -23,10 +23,6 @@ The meaning changes language; the code and the technical words do not.
 **In Gujarati with BhashaBridge:**
 
 > `useEffect` hook દરેક render પછી ચાલે છે. ખાલી dependency array ઉમેરો જેથી `loadData()` ફક્ત એક જ વાર call થાય.
-
-**In Marathi with BhashaBridge:**
-
-> `useEffect` hook प्रत्येक render नंतर चालतो. रिकामा dependency array जोडा म्हणजे `loadData()` फक्त एकदाच call होईल.
 
 *(Illustrative. Real output depends on the translation service.)*
 
@@ -51,7 +47,7 @@ BhashaBridge hides the code before anything is translated, so the translator nev
 There are three ways to use it, and none needs more than one or two steps.
 
 - **Shortcut:** select an AI answer, or copy it, and press **Ctrl+Alt+Shift+T** (Cmd+Alt+Shift+T on a Mac). The translation appears in a side panel.
-- **Panel:** open BhashaBridge, paste the text, pick Gujarati or Marathi, and click Translate.
+- **Panel:** open BhashaBridge, paste the text, and click Translate.
 - **Chat:** if you use GitHub Copilot, type `@bhashabridge why does this crash?` in the Chat view and get the answer in your language.
 
 **Learning as you go:** click any translated paragraph to see the original English under it, or turn on *Side by side* to read both together. Some business terms also show their meaning the first time they appear, for example "ledger (ખાતાવહી)".
@@ -82,6 +78,6 @@ You can, but nothing then stops the AI from translating a variable name or chang
 
 BhashaBridge works end to end and is being prepared for its first public release, version 0.1.0, on the VS Code Marketplace.
 
-- **Done:** Gujarati and Marathi, Sarvam AI and Copilot as translators, the panel, the shortcut, the chat, learning mode, and a word list of about 1,450 technical terms across software and 17 business fields.
-- **Next:** native speakers review the Gujarati and Marathi word meanings and score sample translations; then the first release.
-- **Later:** Hindi, Kannada, Tamil and Telugu; more translation services, including a free one for students; and translating error messages straight from the terminal.
+- **Done:** Gujarati, Sarvam AI and Copilot as translators, the panel, the shortcut, the chat, learning mode, and a word list of about 1,450 technical terms across software and 17 business fields.
+- **Next:** native speakers review the Gujarati word meanings and score sample translations; then the first release.
+- **Later:** more languages added by contributors, such as Marathi, Hindi, Kannada, Tamil and Telugu; more translation services, including a free one for students; and translating error messages straight from the terminal.

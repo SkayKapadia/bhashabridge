@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { applyWorkspaceGlossary, GlossaryError, parseWorkspaceGlossary, type LoadedGlossary } from '../../src/glossary/glossary';
+import { applyWorkspaceGlossary, GlossaryError, parseWorkspaceGlossary, type LoadedGlossary, annotations, protectedTerms } from '../../src/glossary/glossary';
 import { protectTerms } from '../../src/glossary/protectTerms';
 
 const BUILT_IN: LoadedGlossary = {
   keep: ['API', 'ledger technology', 'settlement'],
-  annotate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही' } },
-  translate: { inheritance: { gu: 'અનુવંશિકતા (inheritance)', mr: 'अनुवांशिकता (inheritance)' } },
+  annotate: { ledger: { gu: 'ખાતાવહી' } },
+  translate: { inheritance: { gu: 'અનુવંશિકતા (inheritance)' } },
 };
 
 describe('parseWorkspaceGlossary', () => {
@@ -24,8 +24,8 @@ describe('parseWorkspaceGlossary', () => {
   it.each([
     [[], 'must be a JSON object'],
     [{ keep: 'AcmePay' }, '"keep" must be a list'],
-    [{ annotate: { settlement: { gu: 'x' } } }, 'annotate term "settlement"'],
-    [{ keep: ['AcmePay'], translate: { acmepay: { gu: 'a', mr: 'b' } } }, 'lists "acmepay" twice'],
+    [{ annotate: { settlement: {} } }, 'needs text in at least one language'],
+    [{ keep: ['AcmePay'], translate: { acmepay: { gu: 'a' } } }, 'lists "acmepay" twice'],
   ])('names the problem in a bad file %#', (data, message) => {
     expect(() => parseWorkspaceGlossary(data, '.bhashabridge/glossary.json')).toThrow(GlossaryError);
     expect(() => parseWorkspaceGlossary(data, '.bhashabridge/glossary.json')).toThrow(message);
@@ -43,8 +43,8 @@ describe('applyWorkspaceGlossary', () => {
   it('lets a project term win over a built-in one, whatever its treatment', () => {
     const merged = applyWorkspaceGlossary(BUILT_IN, {
       keep: ['Inheritance'],
-      annotate: { Settlement: { gu: 'ચુકવણીની પતાવટ', mr: 'देयकाची पूर्तता' } },
-      translate: { ledger: { gu: 'ખાતાવહી', mr: 'खातेवही' } },
+      annotate: { Settlement: { gu: 'ચુકવણીની પતાવટ' } },
+      translate: { ledger: { gu: 'ખાતાવહી' } },
     });
 
     expect(merged.keep).toEqual(['API', 'ledger technology', 'Inheritance']);
@@ -67,15 +67,15 @@ describe('applyWorkspaceGlossary', () => {
     const parsed = parseWorkspaceGlossary(
       {
         annotate: {
-          settlement: { gu: 'ચુકવણીની પતાવટ', mr: 'देयकाची पूर्तता' },
-          payout: { gu: 'ચુકવણી', mr: 'देयक', reviewed: false },
+          settlement: { gu: 'ચુકવણીની પતાવટ' },
+          payout: { gu: 'ચુકવણી', reviewed: false },
         },
       },
       'g.json',
     );
 
-    expect(Object.keys(parsed.annotate)).toEqual(['settlement']);
-    expect(parsed.keep).toEqual(['payout']);
+    expect(annotations(parsed, 'gu')).toEqual({ settlement: 'ચુકવણીની પતાવટ' });
+    expect(protectedTerms(parsed, 'gu')).toContain('payout'); // stays English, no meaning added
   });
 });
 

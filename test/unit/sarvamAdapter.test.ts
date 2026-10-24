@@ -66,9 +66,9 @@ describe('SarvamAdapter request', () => {
 
 describe('buildSystemPrompt', () => {
   it('names the language and asks to keep technical terms and placeholders', () => {
-    const prompt = buildSystemPrompt('mr');
+    const prompt = buildSystemPrompt('gu');
 
-    expect(prompt).toContain('into Marathi');
+    expect(prompt).toContain('into Gujarati');
     expect(prompt).toContain('programming keywords, variable names, function names, class names, library names, framework names, and technical terms');
     expect(prompt).toContain('SKIP_001');
     expect(prompt).not.toContain('Glossary');
@@ -76,7 +76,6 @@ describe('buildSystemPrompt', () => {
 
   it('asks the model never to spell English words in the target script', () => {
     expect(buildSystemPrompt('gu')).toContain('Never spell an English word in Gujarati script');
-    expect(buildSystemPrompt('mr')).toContain('Never spell an English word in Devanagari script');
   });
 
   it('lists glossary entries', () => {

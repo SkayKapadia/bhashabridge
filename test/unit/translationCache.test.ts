@@ -37,7 +37,6 @@ describe('withCache', () => {
   });
 
   it.each([
-    ['a different language', { ...REQUEST, targetLanguage: 'mr' as const }],
     ['different text', { ...REQUEST, text: 'Call SKIP_001 later.' }],
     ['a different glossary', { ...REQUEST, glossary: { inheritance: 'અનુવંશિકતા' } }],
   ])('asks again for %s', async (_name, other) => {

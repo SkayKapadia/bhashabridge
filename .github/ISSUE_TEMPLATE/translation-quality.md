@@ -12,7 +12,7 @@ labels: translation-quality
 **What should it say?** (optional)
 
 
-**Language:** Gujarati / Marathi
+**Language:** Gujarati
 **Provider:** Sarvam AI / VS Code model
 **BhashaBridge version:**
 

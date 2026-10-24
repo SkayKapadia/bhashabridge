@@ -16,8 +16,8 @@ class EchoProvider implements TranslationProvider {
 }
 
 describe('TranslationProvider', () => {
-  it('names both supported languages', () => {
-    expect(LANGUAGE_NAMES).toEqual({ gu: 'Gujarati', mr: 'Marathi' });
+  it('names the supported language', () => {
+    expect(LANGUAGE_NAMES).toEqual({ gu: 'Gujarati' });
   });
 
   it('can be implemented and called through the interface alone', async () => {

@@ -44,17 +44,14 @@
   "annotate": {
     "direct benefit transfer": {
       "gu": "લાભની રકમ સીધી ખાતામાં જમા",
-      "mr": "लाभाची रक्कम थेट खात्यात जमा",
       "reviewed": false
     },
     "e-governance": {
       "gu": "ઇલેક્ટ્રોનિક શાસન વ્યવસ્થા",
-      "mr": "इलेक्ट्रॉनिक प्रशासन व्यवस्था",
       "reviewed": false
     },
     "grievance redressal": {
       "gu": "ફરિયાદ નિવારણ",
-      "mr": "तक्रार निवारण",
       "reviewed": false
     }
   },

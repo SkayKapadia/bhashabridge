@@ -1,3 +1,4 @@
+import { isTargetLanguage } from '../languages';
 import { glossaryOptions, type LoadedGlossary } from '../glossary/glossary';
 import { normalizePastedText } from '../parser/normalizePaste';
 import { ReassemblyError } from '../reassembly/reassemble';
@@ -7,7 +8,6 @@ import type { TargetLanguage, TranslationProvider } from '../translation/transla
 import type { HostMessage } from './messages';
 import { renderBlockPairs, renderMarkdown } from './renderMarkdown';
 
-const LANGUAGES: readonly string[] = ['gu', 'mr'] satisfies TargetLanguage[];
 
 // Handles one translate request from the webview and reports back through `post`.
 // Kept free of the VS Code API so it can be tested directly.
@@ -19,7 +19,7 @@ export async function handleTranslate(
   glossary?: LoadedGlossary,
 ): Promise<void> {
   // The message comes from the webview, so its fields are checked, not trusted.
-  if (typeof message.text !== 'string' || typeof message.language !== 'string' || !LANGUAGES.includes(message.language)) {
+  if (typeof message.text !== 'string' || !isTargetLanguage(message.language)) {
     post({ type: 'error', message: 'The request from the panel was not understood. Please try again.', code: 'unknown' });
     return;
   }

@@ -1,6 +1,6 @@
 # Prompts used to build BhashaBridge
 
-BhashaBridge was built module by module with an AI coding assistant (Claude Code). These are the prompts used for each module, so contributors can follow the same approach.
+BhashaBridge was built module by module with an AI coding assistant (Claude Code). These are the prompts used for each module, so contributors can follow the same approach. They are quoted as they were written: BhashaBridge first targeted Gujarati and Marathi, and Marathi was later removed so contributors can add it back, along with other languages, by following [ADDING_A_LANGUAGE.md](ADDING_A_LANGUAGE.md).
 
 ## Working rules
 

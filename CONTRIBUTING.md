@@ -1,10 +1,11 @@
 # Contributing to BhashaBridge
 
-Thank you for helping. Contributions are most valuable from developers who think in Gujarati, Marathi or another Indian language: you know which words read naturally and which should stay in English.
+Thank you for helping. Contributions are most valuable from developers who think in Gujarati or another Indian language: you know which words read naturally and which should stay in English.
 
 ## Ways to help
 
-- **Review Gujarati or Marathi renderings** in the glossary (the most needed help right now).
+- **Review Gujarati renderings** in the glossary (the most needed help right now).
+- **Add your language**, such as Marathi or Hindi: see [`docs/ADDING_A_LANGUAGE.md`](docs/ADDING_A_LANGUAGE.md).
 - **Add glossary terms** for a software or business domain.
 - **Report a bad translation** with the *Report translation* button in the panel, or a [translation quality issue](../../issues/new?template=translation-quality.md).
 - **Score sample translations** in a quality report (`npm run quality`).
@@ -33,8 +34,8 @@ The glossary lives in [`glossary/domains/`](glossary/domains/), one JSON file pe
 | Section | Use it for | Example |
 |---|---|---|
 | `keep` | Terms that should always stay in English: technical jargon, acronyms, product names | `"dependency array"`, `"UPI"`, `"Kubernetes"` |
-| `annotate` | An English term readers should learn, with its meaning added after the first use | `"ledger": { "gu": "ખાતાવહી", "mr": "खातेवही", "reviewed": false }` |
-| `translate` | A term with an accepted local word that replaces it | `"inheritance": { "gu": "…", "mr": "…", "reviewed": false }` |
+| `annotate` | An English term readers should learn, with its meaning added after the first use | `"ledger": { "gu": "ખાતાવહી", "reviewed": false }` |
+| `translate` | A term with an accepted local word that replaces it | `"inheritance": { "gu": "…", "reviewed": false }` |
 
 **Rules for `keep` terms.** A `keep` term can never be translated, even in an ordinary sentence, so:
 
@@ -45,7 +46,7 @@ The glossary lives in [`glossary/domains/`](glossary/domains/), one JSON file pe
 **Rules for renderings (`annotate`, `translate`):**
 
 - Write the meaning short and plain, in words a learner understands.
-- Always add both `gu` and `mr`.
+- Add one field per language, named by its code (`gu`). A term with no rendering in a language simply stays in English there.
 - **Add new renderings with `"reviewed": false`.** BhashaBridge does not show an unreviewed rendering: the term stays in English until it is reviewed.
 - **Never mark your own rendering `"reviewed": true`.** A second native speaker reviews it in the pull request (see below).
 
@@ -63,8 +64,8 @@ npm run glossary:review  # updates docs/GLOSSARY_REVIEW.md; commit the result
 [`docs/GLOSSARY_REVIEW.md`](docs/GLOSSARY_REVIEW.md) lists every rendering still waiting for review, by domain.
 
 1. Open the domain file named in the heading.
-2. Check the `gu` and `mr` text. Fix it if needed.
-3. Set `"reviewed": true` only when **both** languages are right.
+2. Check the text for your language (`gu`). Fix it if needed.
+3. Set `"reviewed": true` when every language in the entry is right, or list the ones you checked: `"reviewed": ["gu"]`.
 4. Run `npm run glossary:review` and `npm run test:unit`, then open a pull request.
 
 The person who wrote a rendering should not be the one who marks it reviewed.

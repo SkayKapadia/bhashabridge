@@ -1,3 +1,4 @@
+import { isTargetLanguage } from '../languages';
 import type { TargetLanguage } from '../translation/translationProvider';
 
 // The user's BhashaBridge settings (VS Code Settings > BhashaBridge), declared in
@@ -8,7 +9,6 @@ export interface BhashaBridgeSettings {
 }
 
 export const SETTINGS_SECTION = 'bhashabridge';
-const LANGUAGES: readonly string[] = ['gu', 'mr'];
 const FALLBACK: BhashaBridgeSettings = { defaultLanguage: 'gu', defaultProvider: 'sarvam' };
 
 // Settings files are hand-editable, so a value VS Code did not validate (a typo, a
@@ -20,7 +20,7 @@ export function readSettings(
   const language = get('defaultLanguage');
   const provider = get('defaultProvider');
   return {
-    defaultLanguage: typeof language === 'string' && LANGUAGES.includes(language) ? (language as TargetLanguage) : FALLBACK.defaultLanguage,
+    defaultLanguage: isTargetLanguage(language) ? language : FALLBACK.defaultLanguage,
     defaultProvider: typeof provider === 'string' && providerIds.includes(provider) ? provider : FALLBACK.defaultProvider,
   };
 }

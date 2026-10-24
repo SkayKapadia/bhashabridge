@@ -9,7 +9,7 @@ const STARTER = {
     'Project terms for BhashaBridge; these win over the built-in glossary. keep: always English. annotate: English plus its meaning after the first use. translate: use this rendering.',
   keep: ['AcmePay', 'OrderService'],
   annotate: {
-    settlement: { gu: 'ચુકવણીની પતાવટ', mr: 'देयकाची पूर्तता' },
+    settlement: { gu: 'ચુકવણીની પતાવટ' },
   },
   translate: {},
 };

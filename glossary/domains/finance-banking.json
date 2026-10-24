@@ -69,42 +69,34 @@
   "annotate": {
     "ledger": {
       "gu": "ખાતાવહી",
-      "mr": "खातेवही",
       "reviewed": false
     },
     "reconciliation": {
       "gu": "હિસાબનો મેળ મેળવવો",
-      "mr": "हिशोबाचा ताळमेळ घालणे",
       "reviewed": false
     },
     "accrual": {
       "gu": "મળવાપાત્ર કે ચૂકવવાપાત્ર થયેલી રકમ",
-      "mr": "मिळणे किंवा देणे बाकी असलेली रक्कम",
       "reviewed": false
     },
     "amortization": {
       "gu": "હપ્તાઓમાં ચુકવણી",
-      "mr": "हप्त्यांमध्ये परतफेड",
       "reviewed": false
     },
     "collateral": {
       "gu": "જામીનગીરી",
-      "mr": "तारण",
       "reviewed": false
     },
     "liquidity": {
       "gu": "તરલતા",
-      "mr": "तरलता",
       "reviewed": false
     },
     "double-entry bookkeeping": {
       "gu": "બેવડી નોંધવાળી હિસાબ પદ્ધતિ",
-      "mr": "दुहेरी नोंद लेखा पद्धत",
       "reviewed": false
     },
     "net worth": {
       "gu": "ચોખ્ખી સંપત્તિ",
-      "mr": "निव्वळ संपत्ती",
       "reviewed": false
     }
   },

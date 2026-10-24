@@ -52,7 +52,8 @@ export function joinParts(parts: readonly string[], gaps: readonly string[]): st
   return parts.map((text, i) => text + (gaps[i] ?? '')).join('');
 }
 
-// Splits after . ? ! or the Devanagari danda (।), never mid-sentence, then packs
+// Splits after . ? ! or the danda (।, the full stop of Devanagari languages such as
+// Hindi), never mid-sentence, then packs
 // sentences back together up to the limit. A single sentence longer than the limit
 // stays whole: there is nowhere safe to cut it.
 export function splitSentences(text: string, maxChars: number): { text: string; gap: string }[] {

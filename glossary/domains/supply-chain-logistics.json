@@ -56,42 +56,34 @@
   "annotate": {
     "lead time": {
       "gu": "ઓર્ડરથી ડિલિવરી સુધીનો સમય",
-      "mr": "ऑर्डरपासून डिलिव्हरीपर्यंतचा वेळ",
       "reviewed": false
     },
     "safety stock": {
       "gu": "સલામતી માટે રાખેલો વધારાનો સ્ટોક",
-      "mr": "सुरक्षिततेसाठी ठेवलेला अतिरिक्त साठा",
       "reviewed": false
     },
     "reorder point": {
       "gu": "ફરી ઓર્ડર કરવાનું સ્તર",
-      "mr": "पुन्हा ऑर्डर करण्याची पातळी",
       "reviewed": false
     },
     "bill of lading": {
       "gu": "માલ મોકલ્યાની રસીદ",
-      "mr": "माल पाठवल्याची पावती",
       "reviewed": false
     },
     "last-mile delivery": {
       "gu": "ગ્રાહક સુધીની અંતિમ ડિલિવરી",
-      "mr": "ग्राहकापर्यंतची अंतिम डिलिव्हरी",
       "reviewed": false
     },
     "cross-docking": {
       "gu": "સંગ્રહ કર્યા વિના માલ સીધો આગળ મોકલવો",
-      "mr": "साठवणूक न करता माल थेट पुढे पाठवणे",
       "reviewed": false
     },
     "demand forecasting": {
       "gu": "માંગનો અંદાજ",
-      "mr": "मागणीचा अंदाज",
       "reviewed": false
     },
     "procurement": {
       "gu": "ખરીદી પ્રક્રિયા",
-      "mr": "खरेदी प्रक्रिया",
       "reviewed": false
     }
   },

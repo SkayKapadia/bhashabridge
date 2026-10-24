@@ -35,17 +35,14 @@
   "annotate": {
     "watch time": {
       "gu": "જોવામાં વિતાવેલો સમય",
-      "mr": "पाहण्यात घालवलेला वेळ",
       "reviewed": false
     },
     "royalty": {
       "gu": "હક બદલ મળતી કમાણી",
-      "mr": "हक्कापोटी मिळणारे शुल्क",
       "reviewed": false
     },
     "content moderation": {
       "gu": "સામગ્રીની તપાસ અને નિયંત્રણ",
-      "mr": "मजकुराची तपासणी आणि नियंत्रण",
       "reviewed": false
     }
   },

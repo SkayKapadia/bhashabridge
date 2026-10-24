@@ -1,6 +1,6 @@
 ---
 name: Glossary suggestion
-about: Suggest a term to keep in English, or a Gujarati or Marathi rendering
+about: Suggest a term to keep in English, or a Gujarati rendering
 title: "Glossary: "
 labels: glossary
 ---
@@ -12,7 +12,5 @@ labels: glossary
 **Treatment:** keep in English / annotate with a meaning / translate
 
 **Gujarati** (for annotate or translate):
-
-**Marathi** (for annotate or translate):
 
 **Why, or where the term is used:**
