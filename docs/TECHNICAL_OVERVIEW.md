@@ -62,7 +62,7 @@ The result is `{ text, placeholders, segments }`. Restoring the placeholders int
 
 ## Glossary
 
-The glossary decides how technical terms are treated, and its main treatment is enforced in code rather than requested from the model. It lives in `glossary/domains/`, one JSON file per domain: 15 software development domains (on by default) and 17 business domains (opt-in), about 1,580 terms in total.
+The glossary decides how technical terms are treated, and its main treatment is enforced in code rather than requested from the model. It lives in `glossary/domains/`, one JSON file per domain: 15 software development domains (on by default) and 17 business domains (opt-in), about 1,600 terms in total.
 
 | Treatment | Effect | How it is applied | Example |
 | --- | --- | --- | --- |

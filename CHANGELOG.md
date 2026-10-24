@@ -6,6 +6,7 @@
 - Code copied without its fences is shown as code: a language name above code (`python`) becomes a code block, and names like `__init__` no longer show in bold.
 - Part markers such as `<<<1>>>` no longer show up in a translation. They appeared when table cells were translated one at a time.
 - List labels such as `A.`, `b)` and `(c)` stay exactly as written instead of being spelled in Gujarati (`બી.`).
+- HTTP statuses with their number (`201 Created`, `404 Not Found`, `429 Too Many Requests` and 20 more) stay in English.
 - About 50 machine learning terms (episode, checkpoint, target network, weights, DQN, MLP, replay buffer and more) now stay in English.
 
 ## 0.1.1 (preview)

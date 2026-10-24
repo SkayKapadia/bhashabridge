@@ -69,6 +69,17 @@ describe('glossary domain files', () => {
     expect([...guarded.placeholders.values()]).toEqual(['Deep Q-Learning', 'target network', 'weights', 'checkpoint', 'episodes', 'MLP', 'LiDAR']);
   });
 
+  it('keep HTTP statuses in English with their number, but not the plain words', async () => {
+    const domains = await loadGlossaryDomains(ROOT);
+    const glossary = combineDomains(domains, domains.filter(d => d.isDefault).map(d => d.id));
+    const guarded = protectTerms(
+      '✅ 201 Created (689ms). A 404 Not Found or 429 Too Many Requests means try again later. The user was created and access is forbidden.',
+      protectedTerms(glossary, 'gu'),
+    );
+
+    expect([...guarded.placeholders.values()]).toEqual(['201 Created', '404 Not Found', '429 Too Many Requests']);
+  });
+
   it('match the domain list in package.json, so Settings offers every domain', async () => {
     const domains = await loadGlossaryDomains(ROOT);
     const setting = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).contributes.configuration.properties['bhashabridge.glossaryDomains'];

@@ -78,6 +78,6 @@ You can, but nothing then stops the AI from translating a variable name or chang
 
 BhashaBridge is available now, free, on the VS Code Marketplace as **"BhashaBridge: AI Explanations in Indian Languages"** (version 0.1.1, preview). Search "BhashaBridge" in VS Code's Extensions view, or open [its Marketplace page](https://marketplace.visualstudio.com/items?itemName=SunilKapadia.bhashabridge).
 
-- **Done:** Gujarati, Sarvam AI and Copilot as translators, the panel, the shortcut, the chat, learning mode, and a word list of about 1,580 technical terms across software and 17 business fields. Every change is tested automatically before it is accepted.
+- **Done:** Gujarati, Sarvam AI and Copilot as translators, the panel, the shortcut, the chat, learning mode, and a word list of about 1,600 technical terms across software and 17 business fields. Every change is tested automatically before it is accepted.
 - **Next:** native speakers review the remaining Gujarati word meanings and score sample translations.
 - **Later:** more languages added by contributors, such as Hindi, Kannada, Tamil and Telugu (a step-by-step guide shows them how); more translation services, including a free one for students; and translating error messages straight from the terminal.
