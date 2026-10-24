@@ -224,8 +224,13 @@ function toOutputOffset(offset: number, replacements: Replacement[]): number {
   return offset + shift;
 }
 
+// A list label at the start of a segment: "A. ", "b) ", "(c) ", "ii. ". The model wrote
+// some of them in Gujarati letters ("B." as "બી."), so they are left out of the segment
+// and stay exactly as written.
+const LEADING_LABEL = /^(?:\(?[A-Za-z]\)|[A-Za-z][.)]|\(?(?:[ivx]{2,4}|[IVX]{2,4})[.)])[ \t]+/;
+
 // Drops lines at either end that hold only placeholders, so code is never sent for
-// translation; returns undefined when nothing translatable is left.
+// translation, and a leading list label; returns undefined when nothing translatable is left.
 function trimSegment(text: string, start: number, end: number, tokens: string[]): Segment | undefined {
   const lines = text.slice(start, end).split('\n');
   const isCodeOnly = (line: string): boolean => removeTokens(line, tokens).trim() === '';
@@ -237,7 +242,13 @@ function trimSegment(text: string, start: number, end: number, tokens: string[])
     end -= lines.pop()!.length + 1;
   }
 
-  const segmentText = lines.join('\n');
+  let segmentText = lines.join('\n');
+  const label = (segmentText + ' ').match(LEADING_LABEL)?.[0].trimEnd();
+  if (label) {
+    const rest = segmentText.slice(label.length).trimStart();
+    start += segmentText.length - rest.length;
+    segmentText = rest;
+  }
   if (!/\p{L}/u.test(removeTokens(segmentText, tokens))) {
     return undefined;
   }

@@ -368,6 +368,40 @@ describe('parseMarkdown names from the answer\'s own code', () => {
   });
 });
 
+describe('parseMarkdown: list labels', () => {
+  // From the channel table in a real Gujarati test: "B." came back as "બી.".
+  it('leaves a leading label out of the segment, so it stays as written', () => {
+    const input = '| Scenario | Status |\n| --- | --- |\n| A. Digital Catalog Only | published |\n| B. Wholesale Marketplace Only | published |';
+    const result = parseMarkdown(input);
+
+    expect(result.segments.map(s => s.text)).toEqual(['Scenario', 'Status', 'Digital Catalog Only', 'published', 'Wholesale Marketplace Only', 'published']);
+    expect(restore(result.text, result.placeholders)).toBe(input);
+  });
+
+  it('knows the usual label shapes', () => {
+    for (const [input, text] of [
+      ['a) first option', 'first option'],
+      ['(c) both channels', 'both channels'],
+      ['ii. second step', 'second step'],
+      ['iv.  fourth step', 'fourth step'],
+    ]) {
+      const segment = parseMarkdown(input!).segments[0]!;
+      expect(segment.text).toBe(text);
+      expect(input!.slice(segment.start, segment.end)).toBe(text);
+    }
+  });
+
+  it('sends nothing for a label on its own', () => {
+    expect(parseMarkdown('| Option |\n| --- |\n| A. |').segments.map(s => s.text)).toEqual(['Option']);
+  });
+
+  it('leaves sentences that only look like labels alone', () => {
+    for (const input of ['A cat sat here.', 'U.S. law applies.', 'e.g. this one.', 'I think so.', 'Vitamin A. That helps.']) {
+      expect(parseMarkdown(input).segments[0]!.text).toBe(input);
+    }
+  });
+});
+
 describe('identifiersIn', () => {
   it('ignores comments and quoted strings', async () => {
     const { identifiersIn } = await import('../../src/parser/codeWords');
