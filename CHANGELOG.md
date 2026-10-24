@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.3 (preview)
 
 - A word that appears in code only as a command-line flag (`--train`) is translated normally in sentences.
 - "guest checkout", "express checkout" and "one-click checkout" stay together in English.
