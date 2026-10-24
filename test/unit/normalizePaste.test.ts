@@ -55,17 +55,17 @@ describe('normalizePastedText', () => {
 describe('normalizePastedText: file links copied out of a chat', () => {
   it('rejoins a sentence split around a file link', () => {
     expect(normalizePastedText('   As seen in\n\nruns/flappybirdv0.log\n, the best score was 16.89.\nWhen you run it, it fails.')).toBe(
-      '   As seen in runs/flappybirdv0.log, the best score was 16.89.\nWhen you run it, it fails.',
+      '   As seen in `runs/flappybirdv0.log`, the best score was 16.89.\nWhen you run it, it fails.',
     );
   });
 
   it('rejoins links with line numbers, and a sentence that carries on in lowercase', () => {
-    expect(normalizePastedText('Notice how\n\ndqn.py\ndefines:')).toBe('Notice how dqn.py defines:');
+    expect(normalizePastedText('Notice how\n\ndqn.py\ndefines:')).toBe('Notice how `dqn.py` defines:');
     expect(normalizePastedText('In\n\nparameters.yaml:L11\n, network_sync_rate: 10 is too low.')).toBe(
-      'In parameters.yaml:L11, network_sync_rate: 10 is too low.',
+      'In `parameters.yaml:L11`, network_sync_rate: 10 is too low.',
     );
-    expect(normalizePastedText('In\n\nagent.py:L72\n, change:')).toBe('In agent.py:L72, change:');
-    expect(normalizePastedText('In\n\nparameters.yaml\n:')).toBe('In parameters.yaml:');
+    expect(normalizePastedText('In\n\nagent.py:L72\n, change:')).toBe('In `agent.py:L72`, change:');
+    expect(normalizePastedText('In\n\nparameters.yaml\n:')).toBe('In `parameters.yaml`:');
   });
 
   it('leaves a file name alone when the sentence does not run through it', () => {
@@ -111,9 +111,31 @@ describe('normalizePastedText: code blocks copied without their fences', () => {
     );
   });
 
-  it('leaves a language name alone when no code follows it', () => {
-    for (const text of ['python\nis the language we use here.', 'We use\npython\n', 'go\n\nx = 1']) {
+  it('fences code that stands as its own block, keeping its indentation', () => {
+    expect(normalizePastedText('Replace the loop with:\nfor (const user of users) {\n  total += user.age;\n}\nThen run the tests.')).toBe(
+      'Replace the loop with:\n```\nfor (const user of users) {\n  total += user.age;\n}\n```\nThen run the tests.',
+    );
+    expect(normalizePastedText('Add this:\n\ndef __init__(self, state_dim=12):\n\nIt sets the sizes.')).toBe(
+      'Add this:\n\n```\ndef __init__(self, state_dim=12):\n```\n\nIt sets the sizes.',
+    );
+  });
+
+  it('puts backticks round a code line inside a sentence, so the sentence stays whole', () => {
+    expect(normalizePastedText('Change the first line to\nconst names = users.map(getName);\nand run it again.')).toBe(
+      'Change the first line to\n`const names = users.map(getName);`\nand run it again.',
+    );
+  });
+
+  it('leaves code in lists, quotes, indented blocks and existing backticks alone', () => {
+    for (const text of ['- const x = 1;', '> const x = 1;', 'Text\n\n    const x = 1;', 'Run `const x = 1;` first.', 'const s = `a`;']) {
       expect(normalizePastedText(text)).toBe(text);
     }
+  });
+
+  it('leaves a language name alone when no code follows it', () => {
+    for (const text of ['python\nis the language we use here.', 'We use\npython\n']) {
+      expect(normalizePastedText(text)).toBe(text);
+    }
+    expect(normalizePastedText('go\n\nx = 1')).toBe('go\n\n```\nx = 1\n```');
   });
 });

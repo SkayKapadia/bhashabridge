@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { normalizePastedText } from '../../src/parser/normalizePaste';
 import { renderBlockPairs, renderMarkdown } from '../../src/webview/renderMarkdown';
 
 describe('renderMarkdown', () => {
@@ -79,5 +80,15 @@ describe('renderMarkdown keeps the layout', () => {
 
   it('does not add breaks inside code', () => {
     expect(renderMarkdown('```\na\nb\n```')).toBe('<pre><code>a\nb\n</code></pre>');
+  });
+});
+
+describe('pasted code lines on screen', () => {
+  it('shows __init__ as written, not as bold', () => {
+    for (const pasted of ['Notice how dqn.py defines:\n\npython\ndef __init__(self, state_dim=12):\nThe sizes follow.', 'Add this:\ndef __init__(self):\n\nDone.', 'Call\nself.__init__()\nagain.']) {
+      const html = renderMarkdown(normalizePastedText(pasted));
+      expect(html).toContain('__init__');
+      expect(html).not.toContain('<strong>');
+    }
   });
 });

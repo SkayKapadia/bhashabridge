@@ -19,7 +19,7 @@ const LANGUAGE_LABELS = new Set([
 const LINE_SUFFIX = /(?::L?\d+(?:-L?\d+)?|#L\d+(?:-L?\d+)?)$/;
 
 export function normalizePastedText(input: string): string {
-  const lines = joinSplitReferences(fenceLabelledCode(input.replace(/\r\n?/g, '\n').split('\n')));
+  const lines = markBareCode(joinSplitReferences(fenceLabelledCode(input.replace(/\r\n?/g, '\n').split('\n'))));
   const out: string[] = [];
   let inFence = false;
 
@@ -99,7 +99,8 @@ function isSentence(line: string): boolean {
 // "As seen in" / "runs/x.log" / ", the best score…": a file link copied out of a chat
 // lands on a line of its own. Rejoin the three when the sentence clearly runs through it:
 // the line before does not end a sentence and the line after carries on with punctuation
-// or a lowercase word. Blank lines around the link are dropped too.
+// or a lowercase word. Blank lines around the link are dropped too, and the link gets
+// backticks, as code, so `__init__` in it is not read as bold.
 function joinSplitReferences(lines: string[]): string[] {
   const out: string[] = [];
   let inFence = false;
@@ -126,15 +127,60 @@ function joinSplitReferences(lines: string[]): string[] {
     }
     const next = lines[after]!.trim();
     out.length = before + 1;
-    out[before] = `${out[before]!.trimEnd()} ${line.trim()}${/^[,.;:)]/.test(next) ? '' : ' '}${next}`;
+    out[before] = `${out[before]!.trimEnd()} \`${line.trim()}\`${/^[,.;:)]/.test(next) ? '' : ' '}${next}`;
     i = after;
   }
   return out;
 }
 
+// Code lines pasted without backticks would otherwise be read as markdown, so
+// `def __init__(self):` showed as "def init" in bold. Code standing as its own block gets
+// a fence, which keeps its indentation; a code line inside a sentence gets backticks, so
+// the sentence stays whole for the translator.
+const MARKDOWN_MARKER = /^\s*([-*+]\s|\d+[.)]\s|>|#{1,6}\s|\|)/;
+
+function markBareCode(lines: string[]): string[] {
+  const out: string[] = [];
+  let inFence = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    if (FENCE.test(line)) {
+      inFence = !inFence;
+    }
+    if (inFence || !startsBareCode(line)) {
+      out.push(line);
+      continue;
+    }
+    let end = i;
+    while (end + 1 < lines.length && lines[end + 1]!.trim() !== '' && !FENCE.test(lines[end + 1]!) && !lines[end + 1]!.includes('`') && looksLikeCodeLine(lines[end + 1]!)) {
+      end++;
+    }
+    const before = out.at(-1)?.trim();
+    const after = lines[end + 1]?.trim();
+    const standsAlone = (before === undefined || before === '' || before.endsWith(':')) && (after === undefined || after === '' || /^[A-Z(]/.test(after));
+    if (standsAlone) {
+      out.push('```', ...lines.slice(i, end + 1), '```');
+    } else {
+      out.push(...lines.slice(i, end + 1).map(inlineCode));
+    }
+    i = end;
+  }
+  return out;
+}
+
+function startsBareCode(line: string): boolean {
+  const indent = line.length - line.trimStart().length;
+  return indent < 4 && !MARKDOWN_MARKER.test(line) && !line.includes('`') && looksLikeCodeLine(line);
+}
+
+function inlineCode(line: string): string {
+  const text = line.trim();
+  return `${line.slice(0, line.length - line.trimStart().length)}\`${text}\``;
+}
+
 function isReference(line: string): boolean {
   const token = line.trim();
-  return token !== '' && !/\s/.test(token) && isCodeShapedWord(token.replace(LINE_SUFFIX, ''));
+  return token !== '' && !/[\s`]/.test(token) && isCodeShapedWord(token.replace(LINE_SUFFIX, ''));
 }
 
 function continuesBefore(line: string): boolean {
