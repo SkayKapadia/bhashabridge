@@ -57,6 +57,7 @@ describe('panelHtml', () => {
 
     expect(options).toEqual([
       ['gu', 'Gujarati (ગુજરાતી)'],
+      ['mr', 'Marathi (मराठी)'],
       ['sarvam', 'Sarvam AI'],
     ]);
   });
