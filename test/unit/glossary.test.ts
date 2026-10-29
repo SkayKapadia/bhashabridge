@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { describe, expect, it } from 'vitest';
+import { LANGUAGES } from '../../src/languages';
 import { protectTerms } from '../../src/glossary/protectTerms';
 import {
   annotations,
@@ -202,8 +203,9 @@ describe('per-language renderings', () => {
   it('lists every glossary file language as a supported one', async () => {
     const domains = await loadGlossaryDomains(ROOT); // would refuse a rendering in an unknown language
     const written = new Set(domains.flatMap(d => [...Object.values(d.annotate), ...Object.values(d.translate)].flatMap(r => Object.keys(r))));
+    const supported = new Set<string>(LANGUAGES.map(language => language.code));
 
-    expect([...written].every(code => code === 'gu')).toBe(true);
+    expect([...written].every(code => supported.has(code))).toBe(true);
   });
 });
 

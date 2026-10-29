@@ -87,10 +87,10 @@
         "bhashabridge.defaultLanguage": {
           "type": "string",
           "enum": [
-            "gu"
+            "gu", "mr"
           ],
           "enumItemLabels": [
-            "Gujarati"
+            "Gujarati", "Marathi"
           ],
           "default": "gu",
           "description": "Language the BhashaBridge panel translates into when it opens."

@@ -27,14 +27,17 @@
   "annotate": {
     "minimum support price": {
       "gu": "લઘુતમ ટેકાના ભાવ",
+      "mr": "किमान आधारभूत किंमत",
       "reviewed": true
     },
     "crop rotation": {
       "gu": "પાકની ફેરબદલી",
+      "mr": "पीक फेरपालट",
       "reviewed": true
     },
     "drip irrigation": {
       "gu": "ટપક સિંચાઈ",
+      "mr": "ठिबक सिंचन",
       "reviewed": true
     },
     "soil health card": {

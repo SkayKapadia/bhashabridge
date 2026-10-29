@@ -37,22 +37,27 @@
   "annotate": {
     "informed consent": {
       "gu": "પૂરી માહિતી સાથેની સંમતિ",
+      "mr": "पूर्ण माहितीसह दिलेली संमती",
       "reviewed": false
     },
     "indemnity": {
       "gu": "નુકસાન ભરપાઈની ખાતરી",
+      "mr": "नुकसान भरपाईची हमी",
       "reviewed": false
     },
     "jurisdiction": {
       "gu": "અધિકારક્ષેત્ર",
+      "mr": "अधिकारक्षेत्र",
       "reviewed": false
     },
     "non-disclosure agreement": {
       "gu": "ગુપ્તતા જાળવવાનો કરાર",
+      "mr": "गोपनीयता राखण्याचा करार",
       "reviewed": false
     },
     "data controller": {
       "gu": "ડેટાનો ઉપયોગ નક્કી કરનાર સંસ્થા",
+      "mr": "माहितीचा वापर ठरवणारी संस्था",
       "reviewed": false
     }
   },

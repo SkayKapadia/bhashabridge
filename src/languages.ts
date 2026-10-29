@@ -15,6 +15,7 @@ export interface Language {
 
 export const LANGUAGES = [
   { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી', script: 'Gujarati' },
+  { code: 'mr', name: 'Marathi', nativeName: 'मराठी', script: 'Devanagari' },
 ] as const satisfies readonly Language[];
 
 export type TargetLanguage = (typeof LANGUAGES)[number]['code'];
